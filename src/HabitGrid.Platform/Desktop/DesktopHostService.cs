@@ -18,6 +18,7 @@ public sealed class DesktopHostService
     private readonly object _syncRoot = new();
     private readonly IScreenProvider _screenProvider;
 
+    private readonly HashSet<IntPtr> _aboveWindows = [];
     private IntPtr _attachedWindow;
     private DesktopPinningMode _currentMode = DesktopPinningMode.BottomMost;
     private IntPtr _foregroundHook;
@@ -27,6 +28,19 @@ public sealed class DesktopHostService
     {
         _screenProvider = screenProvider ?? new WindowsScreenProvider();
     }
+
+    /// <summary>
+    /// Ép kiểu ghim thay cho <see cref="DesktopPinningMode.DesktopLevel"/>, lấy từ biến môi trường <c>HABITGRID_PIN</c>
+    /// (<c>above</c> = ngay trên lớp desktop, <c>top</c> = luôn trên cùng, <c>bottom</c> = đáy z-order). Dùng để chẩn đoán trên máy
+    /// mà việc ghim làm con của Progman không hiện hình; không đặt biến thì giữ hành vi mặc định.
+    /// </summary>
+    public static DesktopPinningMode? PinOverride { get; set; } = Environment.GetEnvironmentVariable("HABITGRID_PIN")?.Trim().ToLowerInvariant() switch
+    {
+        "above" => DesktopPinningMode.AboveDesktop,
+        "top" => DesktopPinningMode.AlwaysOnTop,
+        "bottom" => DesktopPinningMode.BottomMost,
+        _ => null
+    };
 
     /// <summary>Chế độ ghim hiện tại.</summary>
     public DesktopPinningMode CurrentMode => _currentMode;
@@ -47,6 +61,11 @@ public sealed class DesktopHostService
             return DesktopHostResult.Failed(requestedMode, "Handle cửa sổ không hợp lệ.");
         }
 
+        if (requestedMode == DesktopPinningMode.DesktopLevel && PinOverride is { } forced)
+        {
+            requestedMode = forced;
+        }
+
         lock (_syncRoot)
         {
             _attachedWindow = hwnd;
@@ -54,6 +73,14 @@ public sealed class DesktopHostService
 
             switch (requestedMode)
             {
+                case DesktopPinningMode.AboveDesktop:
+                    PlaceAboveDesktop(hwnd);
+                    _aboveWindows.Add(hwnd);
+                    EnsureForegroundHook();
+                    var above = DesktopHostResult.Ok(DesktopPinningMode.AboveDesktop);
+                    RaisePinningChanged(above);
+                    return above;
+
                 case DesktopPinningMode.DesktopLevel:
                     if (TryAttachDesktopLevel(hwnd))
                     {
@@ -143,6 +170,22 @@ public sealed class DesktopHostService
         RestorePosition(hwnd, host, screenRect);
 
         return true;
+    }
+
+    /// <summary>Đặt cửa sổ cấp cao ngay trên Progman (hình nền + icon) và dưới mọi cửa sổ khác.</summary>
+    private static void PlaceAboveDesktop(IntPtr hwnd)
+    {
+        ApplyToolWindowStyles(hwnd);
+        var progman = WindowInterop.FindWindow("Progman", null);
+
+        WindowInterop.SetWindowPos(
+            hwnd,
+            progman,
+            0,
+            0,
+            0,
+            0,
+            WindowInterop.SWP_NOMOVE | WindowInterop.SWP_NOSIZE | WindowInterop.SWP_NOACTIVATE | WindowInterop.SWP_SHOWWINDOW);
     }
 
     /// <summary>Đẩy cửa sổ xuống đáy z-order.</summary>
@@ -407,6 +450,12 @@ public sealed class DesktopHostService
 
     private void OnForegroundChanged(IntPtr hook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint thread, uint time)
     {
+        // Chế độ AboveDesktop: bấm vào desktop có thể kéo Progman lên; đặt lại các widget ngay trên nó.
+        foreach (var window in _aboveWindows.ToList())
+        {
+            PlaceAboveDesktop(window);
+        }
+
         if (_currentMode == DesktopPinningMode.BottomMost && _attachedWindow != IntPtr.Zero)
         {
             WindowInterop.SetWindowPos(
