@@ -35,25 +35,6 @@
   </Resources>
 
   <Applications>
-    <Application Id="App" Executable="HabitGrid.WinUI.exe" EntryPoint="Windows.FullTrustApplication">
-      <uap:VisualElements
-        DisplayName="HabitGrid"
-        Description="Theo dõi thói quen hằng ngày: chuỗi, Buddy, thử thách, Insights. Dữ liệu lưu trên máy bạn."
-        BackgroundColor="transparent"
-        Square150x150Logo="Images\Square150x150Logo.png"
-        Square44x44Logo="Images\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png" Square310x310Logo="Images\Square310x310Logo.png" ShortName="HabitGrid" />
-        <uap:SplashScreen Image="Images\SplashScreen.png" BackgroundColor="#1B1530" />
-      </uap:VisualElements>
-      <Extensions>
-        <uap5:Extension Category="windows.appExecutionAlias" Executable="HabitGrid.WinUI.exe" EntryPoint="Windows.FullTrustApplication">
-          <uap5:AppExecutionAlias>
-            <uap5:ExecutionAlias Alias="habitgrid.exe" />
-          </uap5:AppExecutionAlias>
-        </uap5:Extension>
-      </Extensions>
-    </Application>
-
     <!--
       HabitGrid Widgets (WidgetHost): widget ghim desktop, Quick check-in, khay hệ thống và NHẮC NHỞ (toast).
       Là ứng dụng thứ hai TRONG CÙNG GÓI nên có cùng danh tính và cùng vùng dữ liệu với app chính. Phải được mở qua alias hoặc StartupTask
@@ -87,6 +68,25 @@
             </com:ExeServer>
           </com:ComServer>
         </com:Extension>
+      </Extensions>
+    </Application>
+
+    <Application Id="App" Executable="HabitGrid.WinUI.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="HabitGrid"
+        Description="Theo dõi thói quen hằng ngày: chuỗi, Buddy, thử thách, Insights. Dữ liệu lưu trên máy bạn."
+        BackgroundColor="transparent"
+        Square150x150Logo="Images\Square150x150Logo.png"
+        Square44x44Logo="Images\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png" Square310x310Logo="Images\Square310x310Logo.png" ShortName="HabitGrid" />
+        <uap:SplashScreen Image="Images\SplashScreen.png" BackgroundColor="#1B1530" />
+      </uap:VisualElements>
+      <Extensions>
+        <uap5:Extension Category="windows.appExecutionAlias" Executable="HabitGrid.WinUI.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap5:AppExecutionAlias>
+            <uap5:ExecutionAlias Alias="habitgrid.exe" />
+          </uap5:AppExecutionAlias>
+        </uap5:Extension>
       </Extensions>
     </Application>
   </Applications>
