@@ -71,4 +71,16 @@ public static class HostText
     public static string MomentMonthAgo => IsVietnamese ? "Tháng trước" : "Last month";
 
     public static string MomentToggleHint => IsVietnamese ? "Bấm để xem ngày này tháng trước" : "Click to see this day last month";
+
+    public static string BuddyLevel(int level) => IsVietnamese ? $"Cấp {level}" : $"Level {level}";
+
+    public static string GoalsTitle => IsVietnamese ? "Mục tiêu" : "Goals";
+
+    public static string GoalsEmpty => IsVietnamese
+        ? "Chưa có ý định tuần hay thử thách. Mở HabitGrid để chọn."
+        : "No weekly intention or challenge yet. Open HabitGrid to pick one.";
+
+    public static string GoalsIntention => IsVietnamese ? "Ý định tuần" : "Intention";
+
+    public static string GoalsDay(int day, int total) => IsVietnamese ? $"Ngày {day}/{total}" : $"Day {day}/{total}";
 }

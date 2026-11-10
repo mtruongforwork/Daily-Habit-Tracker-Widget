@@ -72,7 +72,7 @@ public static class PaywallDialog
 
             var benefits = new StackPanel { Spacing = 4 };
             // Chỉ liệt kê quyền lợi đã thật sự có trong app (không bán thứ chưa làm).
-            foreach (var (emoji, key) in new[] { ("♾️", "plus.benefit.habits"), ("📊", "plus.benefit.insights"), ("🧭", "plus.benefit.advanced"), ("☁️", "plus.benefit.backup"), ("🌈", "plus.benefit.accent"), ("⏱", "plus.benefit.routineTimer"), ("🎩", "plus.benefit.accessories"), ("✨", "plus.benefit.wrapped"), ("📷", "plus.benefit.moments"), ("🎞", "plus.benefit.share"), ("🖼", "plus.benefit.momentWidget"), ("🎨", "plus.benefit.themes"), ("❄️", "plus.benefit.freeze"), ("💜", "plus.benefit.support") })
+            foreach (var (emoji, key) in new[] { ("♾️", "plus.benefit.habits"), ("📊", "plus.benefit.insights"), ("🧭", "plus.benefit.advanced"), ("☁️", "plus.benefit.backup"), ("🌈", "plus.benefit.accent"), ("⏱", "plus.benefit.routineTimer"), ("🎩", "plus.benefit.accessories"), ("✨", "plus.benefit.wrapped"), ("🧩", "plus.benefit.widgets"), ("📷", "plus.benefit.moments"), ("🎞", "plus.benefit.share"), ("🖼", "plus.benefit.momentWidget"), ("🎨", "plus.benefit.themes"), ("❄️", "plus.benefit.freeze"), ("💜", "plus.benefit.support") })
             {
                 benefits.Children.Add(new TextBlock { Text = $"{emoji}  {Ui.T(key)}", TextWrapping = TextWrapping.Wrap });
             }

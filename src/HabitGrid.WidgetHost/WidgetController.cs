@@ -136,6 +136,7 @@ public sealed partial class WidgetController : IDisposable
         await ApplyHotKeysAsync();
         await Toasts.ReplanAsync(DateTime.Now);
         await SyncMomentWidgetAsync();
+        await SyncExtraWidgetsAsync();
 
         _dataVersion = ReadDataVersion();
         _timer.Start();
@@ -198,6 +199,8 @@ public sealed partial class WidgetController : IDisposable
             ok &= !_momentWidget.Pin(_desktop, DesktopPinningMode.DesktopLevel).UsedFallback;
         }
 
+        ok &= ReattachExtras();
+
         _needsRepin = !ok;
         return ok;
     }
@@ -239,6 +242,7 @@ public sealed partial class WidgetController : IDisposable
         }
 
         ResetMomentWidget();
+        ResetExtras();
         await CreateTodayListAsync();
         await RefreshAsync();
         await SyncMomentWidgetAsync();
@@ -376,6 +380,7 @@ public sealed partial class WidgetController : IDisposable
         FocusWindow?.Close();
         _todayList?.Close();
         _momentWidget?.Close();
+        ResetExtras();
         QuickWindow?.Close();
 
         foreach (var (window, _) in _widgets.Values)
@@ -403,10 +408,12 @@ public sealed partial class WidgetController : IDisposable
             var dayChanged = today != _today;
             _today = today;
 
+            // Free: một widget lưới; Plus: tối đa ba (WidgetRules).
+            var maxGrids = HabitGrid.Core.Domain.Widgets.WidgetRules.MaxGrids(await IsPlusAsync());
             var habits = (await _habits.GetAllActiveAsync())
                 .Where(h => h.Kind != HabitKind.Quit)
                 .OrderBy(h => h.SortKey, StringComparer.Ordinal)
-                .Take(MaxWidgets)
+                .Take(Math.Min(MaxWidgets, maxGrids))
                 .ToList();
 
             foreach (var stale in _widgets.Keys.Where(id => habits.All(h => h.Id != id)).ToList())
@@ -443,6 +450,9 @@ public sealed partial class WidgetController : IDisposable
 
             // Dữ liệu đổi (check-in, sửa thói quen, qua ngày): lập lại lịch nhắc; xong trước giờ nhắc thì toast bị gỡ.
             await Toasts.ReplanAsync(DateTime.Now);
+
+            // Check-in/đổi dữ liệu: widget Plus cũng phải cập nhật ngay.
+            await SyncExtraWidgetsAsync();
         }
         finally
         {
@@ -711,6 +721,11 @@ public sealed partial class WidgetController : IDisposable
                 {
                     _momentWidget.EditMode = edit;
                 }
+
+                foreach (var extra in _extras.Values)
+                {
+                    extra.EditMode = edit;
+                }
             }
 
             _pollCount++;
@@ -743,6 +758,7 @@ public sealed partial class WidgetController : IDisposable
                 await ApplyAutoStartAsync();
                 await ApplyHotKeysAsync();
                 await SyncMomentWidgetAsync();
+                await SyncExtraWidgetsAsync();
             }
 
             await ProcessHostCommandAsync();
