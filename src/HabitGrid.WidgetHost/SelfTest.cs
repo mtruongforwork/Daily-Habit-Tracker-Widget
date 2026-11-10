@@ -152,6 +152,12 @@ public static class SelfTest
                 SaveShot(window, Path.Combine(shots, $"widget-{kind.ToString().ToLowerInvariant()}.png"));
             }
 
+            // Hình màu của Buddy: đủ 5 giai đoạn và mọi phụ kiện trong danh mục phải nạp được (thiếu thì widget rơi về emoji đơn sắc).
+            var spriteIds = Enum.GetValues<HabitGrid.Presentation.ViewModels.BuddyStage>().Select(HabitGrid.WidgetHost.BuddySprites.StageId)
+                .Concat(HabitGrid.Core.Domain.Gamification.BuddyAccessories.All.Select(a => a.Id)).ToList();
+            var missing = spriteIds.Where(id => HabitGrid.WidgetHost.BuddySprites.TryLoad(id) is null).ToList();
+            Require(missing.Count == 0, "Thiếu hình Buddy: " + string.Join(", ", missing));
+
             await controller.Settings_SetPlusForTestAsync(false);
             await controller.SyncExtraWidgetsAsync();
             Require(controller.Extras.Count == 0, "Hết Plus mà widget Plus vẫn hiện.");

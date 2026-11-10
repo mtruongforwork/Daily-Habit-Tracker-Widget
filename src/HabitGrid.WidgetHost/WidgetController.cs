@@ -269,7 +269,7 @@ public sealed partial class WidgetController : IDisposable
 
         foreach (var (habitId, entry) in _widgets.ToList())
         {
-            var saved = await _settings.GetAsync(PositionKey(habitId));
+            var saved = await LoadPositionAsync(PositionKey(habitId));
             var window = entry.Window;
             var handle = new WindowInteropHelper(window).Handle;
 
@@ -282,6 +282,8 @@ public sealed partial class WidgetController : IDisposable
                 window.SetScreenPosition(60, 80);
             }
         }
+
+        await RepositionExtrasAsync();
 
         if (_todayList is { } list)
         {
@@ -676,9 +678,9 @@ public sealed partial class WidgetController : IDisposable
         model.MarkRequested += async (_, day) => await CheckInAsync(habit.Id, day);
         model.CloseRequested += (_, _) => window.Hide();
         window.PositionChanged += async (_, args) =>
-            await _settings.SetAsync(PositionKey(habit.Id), string.Create(CultureInfo.InvariantCulture, $"{args.Left},{args.Top}"));
+            await SavePositionAsync(PositionKey(habit.Id), string.Create(CultureInfo.InvariantCulture, $"{args.Left},{args.Top}"));
 
-        var saved = await _settings.GetAsync(PositionKey(habit.Id));
+        var saved = await LoadPositionAsync(PositionKey(habit.Id));
 
         if (saved?.Split(',') is [var left, var top] && int.TryParse(left, out var l) && int.TryParse(top, out var t))
         {

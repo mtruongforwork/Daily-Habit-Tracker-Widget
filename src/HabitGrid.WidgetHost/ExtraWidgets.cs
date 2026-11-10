@@ -148,17 +148,24 @@ public sealed class BuddyWidgetWindow : ExtraWidgetWindow
     public void Update(BuddyWidgetData data)
     {
         var avatar = new Grid { Width = 84, Height = 96 };
-        var body = Emoji(StageEmoji(data.Stage), 58);
-        body.HorizontalAlignment = HorizontalAlignment.Center;
-        body.VerticalAlignment = VerticalAlignment.Center;
+        var bodySprite = BuddySprites.TryLoad(BuddySprites.StageId(data.Stage));
+        UIElement body = bodySprite is not null
+            ? new System.Windows.Controls.Image { Source = bodySprite, Width = 72, Height = 72 }
+            : Emoji(StageEmoji(data.Stage), 58);
+        ((FrameworkElement)body).HorizontalAlignment = HorizontalAlignment.Center;
+        ((FrameworkElement)body).VerticalAlignment = VerticalAlignment.Center;
         avatar.Children.Add(body);
 
-        foreach (var (slot, emoji) in data.Worn)
+        foreach (var (slot, id, emoji) in data.Worn)
         {
-            var piece = Emoji(emoji, slot == AccessorySlot.Head ? 34 : 26);
+            var sprite = BuddySprites.TryLoad(id);
+            var size = slot == AccessorySlot.Head ? 40 : 30;
+            FrameworkElement piece = sprite is not null
+                ? new System.Windows.Controls.Image { Source = sprite, Width = size, Height = size }
+                : Emoji(emoji, slot == AccessorySlot.Head ? 34 : 26);
             piece.HorizontalAlignment = HorizontalAlignment.Center;
             piece.VerticalAlignment = slot switch { AccessorySlot.Head => VerticalAlignment.Top, AccessorySlot.Face => VerticalAlignment.Center, _ => VerticalAlignment.Bottom };
-            piece.Margin = slot switch { AccessorySlot.Head => new Thickness(0, -8, 0, 0), AccessorySlot.Face => new Thickness(0, 10, 0, 0), _ => new Thickness(0, 0, 0, -4) };
+            piece.Margin = slot switch { AccessorySlot.Head => new Thickness(0, -10, 0, 0), AccessorySlot.Face => new Thickness(0, 8, 0, 0), _ => new Thickness(0, 0, 0, -6) };
             avatar.Children.Add(piece);
         }
 

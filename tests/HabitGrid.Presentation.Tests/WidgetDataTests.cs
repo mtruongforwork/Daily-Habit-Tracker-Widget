@@ -44,6 +44,7 @@ public class WidgetDataTests
         buddy.TodayDue.Should().Be(2);
         buddy.TodayFraction.Should().Be(0.5);
         buddy.Worn.Select(w => w.Slot).Should().Equal(AccessorySlot.Head, AccessorySlot.Face);
+        buddy.Worn.Select(w => w.Id).Should().Equal("cap", "shades");
     }
 
     [Fact]

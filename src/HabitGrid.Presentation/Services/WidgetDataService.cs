@@ -8,7 +8,7 @@ using IDayProvider = HabitGrid.Core.Services.IDayProvider;
 
 namespace HabitGrid.Presentation.Services;
 
-public sealed record BuddyWidgetData(string Name, int Level, BuddyStage Stage, IReadOnlyList<(AccessorySlot Slot, string Emoji)> Worn, int TodayDone, int TodayDue, int FreezeTokens)
+public sealed record BuddyWidgetData(string Name, int Level, BuddyStage Stage, IReadOnlyList<(AccessorySlot Slot, string Id, string Emoji)> Worn, int TodayDone, int TodayDue, int FreezeTokens)
 {
     public double TodayFraction => TodayDue == 0 ? 0 : TodayDone / (double)TodayDue;
 }
@@ -66,7 +66,7 @@ public sealed class WidgetDataService
         var (done, due) = await TodayProgressAsync(today, ct);
         var worn = wardrobe.Worn
             .OrderBy(p => p.Key)
-            .Select(p => (p.Key, p.Value.Emoji))
+            .Select(p => (p.Key, p.Value.Id, p.Value.Emoji))
             .ToList();
 
         return new BuddyWidgetData(profile.BuddyName, profile.Level, BuddyViewModel.StageFor(profile.Level), worn, done, due, profile.FreezeTokens);

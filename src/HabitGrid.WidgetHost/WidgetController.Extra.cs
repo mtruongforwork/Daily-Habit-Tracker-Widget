@@ -99,9 +99,12 @@ public sealed partial class WidgetController
 
         var key = WidgetRules.PositionKey(kind);
         window.Moved += async (_, _) =>
-            await _settings.SetAsync(key, string.Create(CultureInfo.InvariantCulture, $"{(int)window.Left},{(int)window.Top}"));
+        {
+            SnapToGrid(window);
+            await SavePositionAsync(key, string.Create(CultureInfo.InvariantCulture, $"{(int)window.Left},{(int)window.Top}"));
+        };
 
-        var saved = await _settings.GetAsync(key);
+        var saved = await LoadPositionAsync(key);
 
         if (saved?.Split(',') is [var left, var top] && double.TryParse(left, CultureInfo.InvariantCulture, out var l) && double.TryParse(top, CultureInfo.InvariantCulture, out var t))
         {
@@ -122,6 +125,58 @@ public sealed partial class WidgetController
         }
 
         return window;
+    }
+
+    /// <summary>Chữ ký cấu hình màn hình hiện tại (vị trí widget được nhớ theo chữ ký này).</summary>
+    private string ScreenSignature() =>
+        ScreenLayout.Signature(_screen.GetScreens().Select(s => new ScreenLayout.Monitor(s.DevicePath, s.WorkArea.Left, s.WorkArea.Top, s.WorkArea.Width, s.WorkArea.Height)));
+
+    /// <summary>Đọc vị trí theo cấu hình màn hình hiện tại; chưa có thì dùng vị trí chung gần nhất.</summary>
+    private async Task<string?> LoadPositionAsync(string baseKey) =>
+        await _settings.GetAsync(ScreenLayout.KeyFor(baseKey, ScreenSignature())) ?? await _settings.GetAsync(baseKey);
+
+    /// <summary>Ghi vị trí cho cấu hình màn hình hiện tại và làm vị trí chung (dự phòng khi gặp cấu hình mới).</summary>
+    private async Task SavePositionAsync(string baseKey, string value)
+    {
+        await _settings.SetAsync(ScreenLayout.KeyFor(baseKey, ScreenSignature()), value);
+        await _settings.SetAsync(baseKey, value);
+    }
+
+    /// <summary>Căn widget Plus vào lưới 8 px của màn hình đang chứa nó (giống widget lưới); đổi giữa DIP của WPF và pixel vật lý.</summary>
+    private void SnapToGrid(ExtraWidgetWindow window)
+    {
+        var scale = System.Windows.Media.VisualTreeHelper.GetDpi(window).DpiScaleX;
+        var left = (int)Math.Round(window.Left * scale);
+        var top = (int)Math.Round(window.Top * scale);
+
+        if (_screen.GetScreenAt(left, top) is not { } screen)
+        {
+            return;
+        }
+
+        var (snappedLeft, snappedTop) = WidgetPlacement.Snap(left, top, screen, (int)Math.Round(window.Width * scale), (int)Math.Round(window.Height * scale));
+        window.Left = snappedLeft / scale;
+        window.Top = snappedTop / scale;
+    }
+
+    /// <summary>Đổi cấu hình màn hình (rút/cắm): đưa widget Plus về vị trí đã nhớ cho cấu hình đó, hoặc về màn hình chính nếu đang nằm ngoài.</summary>
+    private async Task RepositionExtrasAsync()
+    {
+        foreach (var (kind, window) in _extras)
+        {
+            var saved = await LoadPositionAsync(WidgetRules.PositionKey(kind));
+
+            if (saved?.Split(',') is [var left, var top] && double.TryParse(left, CultureInfo.InvariantCulture, out var l) && double.TryParse(top, CultureInfo.InvariantCulture, out var t) && IsPointVisible((int)l, (int)t))
+            {
+                window.Left = l;
+                window.Top = t;
+            }
+            else if (!IsOnAnyScreen(new System.Windows.Interop.WindowInteropHelper(window).Handle))
+            {
+                window.Left = System.Windows.SystemParameters.WorkArea.Right - window.Width - 40;
+                window.Top = 60 + (int)kind * 170;
+            }
+        }
     }
 
     private bool ReattachExtras()
