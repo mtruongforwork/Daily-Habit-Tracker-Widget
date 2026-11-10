@@ -9,6 +9,7 @@ $ErrorActionPreference = "Stop"
 
 $root = Split-Path -Parent $PSScriptRoot
 $proj = Join-Path $root "src\HabitGrid.WinUI\HabitGrid.WinUI.csproj"
+$widgetsProj = Join-Path $root "src\HabitGrid.WidgetHost\HabitGrid.WidgetHost.csproj"
 $pkgDir = Join-Path $root "src\HabitGrid.Package"
 $out = Join-Path $root "artifacts\store"
 $layout = Join-Path $out "layout"
@@ -20,6 +21,14 @@ New-Item -ItemType Directory -Force -Path $layout | Out-Null
 Write-Host "[1/4] Publish HabitGrid.WinUI (self-contained, win-x64)" -ForegroundColor Yellow
 dotnet publish $proj -c $Configuration -r win-x64 --self-contained true -p:Platform=x64 -p:DebugType=none -p:DebugSymbols=false -o $layout
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish thất bại" }
+
+# WidgetHost cùng thư mục: hai exe dùng chung runtime .NET và các thư viện HabitGrid.* (cùng phiên bản nên ghi đè an toàn).
+Write-Host "[1b/4] Publish HabitGrid.WidgetHost vào cùng layout" -ForegroundColor Yellow
+dotnet publish $widgetsProj -c $Configuration -r win-x64 --self-contained true -p:DebugType=none -p:DebugSymbols=false -o $layout
+if ($LASTEXITCODE -ne 0) { throw "dotnet publish WidgetHost thất bại" }
+foreach ($exe in "HabitGrid.WinUI.exe", "HabitGrid.WidgetHost.exe") {
+    if (-not (Test-Path (Join-Path $layout $exe))) { throw "Thiếu $exe trong layout" }
+}
 
 Write-Host "[2/4] Manifest + logo" -ForegroundColor Yellow
 $manifest = (Get-Content (Join-Path $pkgDir "AppxManifest.WinUI.xml") -Raw) -replace 'Version="1\.0\.0\.0"', "Version=`"$Version`""

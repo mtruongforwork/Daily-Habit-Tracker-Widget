@@ -13,6 +13,9 @@ public static class HostLink
     private const string ProcessName = "HabitGrid.WidgetHost";
     private const string ExeName = ProcessName + ".exe";
 
+    /// <summary>Khớp <c>Alias</c> trong AppxManifest.WinUI.xml.</summary>
+    public const string PackagedAlias = "habitgrid-widgets.exe";
+
     public static async Task<bool> SendAsync(string command)
     {
         await App.Host.Get<ISettingsStore>().SetAsync(ReminderSettingsStore.HostCommandKey, command);
@@ -30,7 +33,10 @@ public static class HostLink
             return true;
         }
 
-        if (FindExecutable() is not { } path)
+        // Trong gói MSIX: mở qua alias để WidgetHost có cùng danh tính gói (và vì thế cùng vùng dữ liệu) với app chính.
+        var path = HabitGrid.Core.Services.PackageIdentity.IsPackaged ? PackagedAlias : FindExecutable();
+
+        if (path is null)
         {
             return false;
         }

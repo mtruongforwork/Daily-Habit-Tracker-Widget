@@ -34,6 +34,11 @@ public static class Program
     [STAThread]
     public static int Main(string[] args)
     {
+        if (args.Contains("--package-check", StringComparer.OrdinalIgnoreCase))
+        {
+            return PackageCheck();
+        }
+
         var explorerTest = args.Contains("--selftest-explorer", StringComparer.OrdinalIgnoreCase);
         var selfTest = explorerTest || args.Contains("--selftest", StringComparer.OrdinalIgnoreCase);
         var customDir = Environment.GetEnvironmentVariable(DataDirVariable);
@@ -145,6 +150,41 @@ public static class Program
         controller.Dispose();
         database.Dispose();
         return exitCode;
+    }
+
+    /// <summary>
+    /// CI kiểm tra gói MSIX đã cài: tiến trình này phải có danh tính gói và thấy CHÍNH CSDL mà app chính vừa tạo
+    /// (app chính chạy <c>--package-check</c> trước để gieo hai thói quen mẫu). 0 = đạt, 2 = hỏng, 3 = không thấy CSDL.
+    /// </summary>
+    private static int PackageCheck()
+    {
+        try
+        {
+            if (!HabitGrid.Core.Services.PackageIdentity.IsPackaged)
+            {
+                Console.Error.WriteLine("Không có danh tính gói.");
+                return 2;
+            }
+
+            var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HabitGrid");
+            var path = Path.Combine(dir, HabitGridV3.FileName);
+
+            if (!File.Exists(path))
+            {
+                return 3;
+            }
+
+            using var database = HabitGridV3.Open(path);
+            var habits = new HabitGrid.Data.V3.HabitRepository(database, new HabitGrid.Core.Domain.HlcClock("pkgcheck"), null).GetAllActiveAsync().GetAwaiter().GetResult();
+            var found = habits.Count(h => h.Name.StartsWith("PKG-CHECK", StringComparison.Ordinal));
+            File.WriteAllText(Path.Combine(dir, "widgethost-package-check.txt"), $"package={HabitGrid.Core.Services.PackageIdentity.FullName}\nhabits={found}\n");
+            return found >= 2 ? 0 : 2;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine(ex);
+            return 2;
+        }
     }
 
     private static void OpenMainApp()

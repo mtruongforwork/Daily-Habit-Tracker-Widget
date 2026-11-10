@@ -46,6 +46,13 @@ public partial class App : Application
 
             Host = await AppHost.CreateAsync(DispatcherQueue.GetForCurrentThread());
 
+            // CI kiểm tra gói MSIX đã cài: tạo CSDL ở vị trí mặc định (vùng dữ liệu của gói) và gieo hai thói quen mẫu cho WidgetHost đọc.
+            if (arguments.Contains("--package-check", StringComparer.OrdinalIgnoreCase))
+            {
+                Environment.Exit(await PackageCheckAsync());
+                return;
+            }
+
             var window = new MainWindow();
             MainWindowInstance = window;
             main.Activated += (_, _) => window.DispatcherQueue.TryEnqueue(window.BringToFront);
@@ -60,6 +67,35 @@ public partial class App : Application
         catch (Exception ex)
         {
             ReportFatal(ex);
+        }
+    }
+
+    private static async Task<int> PackageCheckAsync()
+    {
+        try
+        {
+            if (!HabitGrid.Core.Services.PackageIdentity.IsPackaged)
+            {
+                return 2;
+            }
+
+            var habits = Host.Get<HabitGrid.Core.Domain.IHabitRepository>();
+
+            for (var i = 1; i <= 2; i++)
+            {
+                if (!(await habits.GetAllActiveAsync()).Any(h => h.Name == $"PKG-CHECK-{i}"))
+                {
+                    await habits.InsertAsync(new HabitGrid.Core.Domain.Habit { Name = $"PKG-CHECK-{i}", SortKey = $"V{i}" });
+                }
+            }
+
+            File.WriteAllText(Path.Combine(AppPaths.DataDir, "app-package-check.txt"), $"package={HabitGrid.Core.Services.PackageIdentity.FullName}\n");
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            LogSafe("package-check", ex);
+            return 2;
         }
     }
 
