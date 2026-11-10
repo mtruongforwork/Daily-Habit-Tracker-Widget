@@ -59,3 +59,11 @@
 2. **Cách kiểm chứng**: dùng CI ký cert tạm (không cần đụng SAC), cộng bản cài từ Store để bạn thử tay. Bạn đồng ý không tắt SAC?
 3. **Giới hạn Free/Plus của widget** ở M1 (1 lưới + Today List cho Free; Plus nhiều hơn và có Buddy/Thử thách/Multi Grid).
 4. Widgets Board (M3) có đáng làm không, hay dừng ở widget desktop? Mình đề xuất quyết định sau khi có số đo M4.
+
+## Tiến độ (10/11/2026)
+### M0 — xong, đã kiểm chứng trên CI
+- Gói MSIX chứa cả app WinUI và **HabitGrid Widgets** (WidgetHost) như ứng dụng thứ hai: alias `habitgrid.exe` và `habitgrid-widgets.exe`, StartupTask `HabitGridWidgetsStartup` (tắt mặc định, WidgetHost tự bật/tắt theo Cài đặt), kích hoạt toast qua COM cho nút trên thông báo nhắc nhở.
+- `PackageIdentity` (Core) cho biết tiến trình có danh tính gói; trong gói `HostLink` mở WidgetHost qua alias, tự chạy dùng StartupTask thay khóa Run.
+- Job CI `MSIX install smoke` (`.github/workflows/msix.yml`): dựng MSIX, ký chứng chỉ tạm, **cài thật** rồi chạy: app `--package-check` (tạo CSDL trong vùng dữ liệu của gói), WidgetHost `--package-check` (cùng danh tính gói, thấy đúng CSDL đó) và `--selftest` đầu-cuối (widget, check-in, làm mới, Quick check-in, toast, Focus). Cả ba bước đạt.
+- Hai phát hiện khi làm: (1) thư viện toast chỉ đọc `Application` **đầu tiên** của manifest nên WidgetHost phải đứng trước app trong manifest; (2) **nhắc nhở (toast) chỉ chạy trong WidgetHost**, nên bản Store v1 (không chứa WidgetHost) chưa có nhắc nhở dù Cài đặt có thẻ Nhắc nhở. Bản 1.1 sửa được việc này.
+- Chưa kiểm chứng: bản Store thật (do Microsoft ký) có mở được qua alias như bản ký tạm hay không; nút "Mở" của Store với manifest có `Application` ẩn đứng đầu; nhấn nút trên toast bằng tay; widget hiển thị trên màn hình thật (CI không có hình nền/WorkerW thật).
