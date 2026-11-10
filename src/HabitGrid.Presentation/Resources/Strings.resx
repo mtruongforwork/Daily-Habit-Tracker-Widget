@@ -685,4 +685,5 @@
   <data name="accessory.pumpkin" xml:space="preserve"><value>Bí ngô</value></data>
   <data name="accessory.santa" xml:space="preserve"><value>Mũ ông già Noel</value></data>
   <data name="accessory.snowflake" xml:space="preserve"><value>Bông tuyết</value></data>
+  <data name="plus.soon" xml:space="preserve"><value>Mua gói Plus sẽ có trong bản cập nhật sắp tới. Hiện tại bạn đang dùng thử Plus miễn phí.</value></data>
 </root>

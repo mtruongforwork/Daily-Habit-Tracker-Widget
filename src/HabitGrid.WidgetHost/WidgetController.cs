@@ -296,12 +296,33 @@ public sealed partial class WidgetController : IDisposable
         }
     }
 
+    /// <summary>Khớp <c>TaskId</c> trong AppxManifest.WinUI.xml.</summary>
+    public const string PackagedStartupTaskId = "HabitGridWidgetsStartup";
+
     private async Task ApplyAutoStartAsync()
     {
         try
         {
             // Mặc định bật; cài đặt "widgets.autostart" = "0" (do app chính ghi) thì gỡ.
             var enabled = await _settings.GetAsync("widgets.autostart") != "0";
+
+            // Trong gói MSIX: dùng StartupTask của gói (khóa Run trỏ vào WindowsApps sẽ chạy KHÔNG có danh tính gói và đọc nhầm CSDL).
+            if (HabitGrid.Core.Services.PackageIdentity.IsPackaged)
+            {
+                var task = await global::Windows.ApplicationModel.StartupTask.GetAsync(PackagedStartupTaskId);
+
+                if (enabled && task.State == global::Windows.ApplicationModel.StartupTaskState.Disabled)
+                {
+                    await task.RequestEnableAsync();
+                }
+                else if (!enabled && task.State == global::Windows.ApplicationModel.StartupTaskState.Enabled)
+                {
+                    task.Disable();
+                }
+
+                return;
+            }
+
             var exe = Environment.ProcessPath;
 
             if (exe is not null)

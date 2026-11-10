@@ -685,4 +685,5 @@
   <data name="accessory.pumpkin" xml:space="preserve"><value>Pumpkin</value></data>
   <data name="accessory.santa" xml:space="preserve"><value>Santa hat</value></data>
   <data name="accessory.snowflake" xml:space="preserve"><value>Snowflake</value></data>
+  <data name="plus.soon" xml:space="preserve"><value>Buying Plus will be available in an upcoming update. For now you are on the free Plus trial.</value></data>
 </root>

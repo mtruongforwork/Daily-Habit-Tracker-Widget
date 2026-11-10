@@ -44,6 +44,12 @@ public sealed partial class PaywallViewModel : ObservableObject
 
     public bool StoreAvailable => _plus.StoreAvailable;
 
+    /// <summary>Store có trả về sản phẩm Plus thật chưa. Chưa có (chưa tạo add-on trên Partner Center) thì không mở bán: tránh hiện nút mua cho thứ không mua được.</summary>
+    public bool HasStoreProducts { get; private set; }
+
+    /// <summary>Nút Mua chỉ hoạt động khi chạy trong Store và Store có sản phẩm.</summary>
+    public bool PurchasesOpen => StoreAvailable && HasStoreProducts;
+
     public bool IsPlus => _plus.Status.IsPlus;
 
     public bool PricesAreReference { get; private set; }
@@ -70,6 +76,7 @@ public sealed partial class PaywallViewModel : ObservableObject
 
         var byPlan = products.ToDictionary(p => p.Plan);
         PricesAreReference = products.Count == 0 || products.Any(p => p.IsReferencePrice);
+        HasStoreProducts = products.Count > 0;
 
         Plans =
         [
@@ -79,6 +86,7 @@ public sealed partial class PaywallViewModel : ObservableObject
         ];
         OnPropertyChanged(nameof(Plans));
         OnPropertyChanged(nameof(StoreAvailable));
+        OnPropertyChanged(nameof(PurchasesOpen));
     }
 
     /// <summary>Nút "Mua": đường duy nhất trong UI gọi mua hàng.</summary>

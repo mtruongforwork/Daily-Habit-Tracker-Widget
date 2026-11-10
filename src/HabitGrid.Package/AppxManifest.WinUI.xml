@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Manifest của gói MSIX cho app WinUI (HabitGrid.WinUI). Danh tính (Name/Publisher/PublisherDisplayName) lấy từ
+  Partner Center > HabitGrid > Product identity; phải khớp đúng, nếu không Store sẽ từ chối gói.
+  Không có widget/StartupTask: widget đã dừng phát triển. Quyền: runFullTrust và webcam (chụp ảnh khoảnh khắc).
+-->
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:uap5="http://schemas.microsoft.com/appx/manifest/uap/windows10/5"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  IgnorableNamespaces="uap rescap uap5 desktop com">
+
+  <Identity
+    Name="MTDStudio.HabitGrid"
+    Publisher="CN=F6CFEAEE-C755-4C7E-BDC5-FD89DA169656"
+    Version="1.0.0.0"
+    ProcessorArchitecture="x64" />
+
+  <Properties>
+    <DisplayName>HabitGrid</DisplayName>
+    <PublisherDisplayName>MTD Studio</PublisherDisplayName>
+    <Logo>Images\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us" />
+    <Resource Language="vi-vn" />
+  </Resources>
+
+  <Applications>
+    <!--
+      HabitGrid Widgets (WidgetHost): widget ghim desktop, Quick check-in, khay hệ thống và NHẮC NHỞ (toast).
+      Là ứng dụng thứ hai TRONG CÙNG GÓI nên có cùng danh tính và cùng vùng dữ liệu với app chính. Phải được mở qua alias hoặc StartupTask
+      (không bao giờ bằng khóa Run trỏ vào WindowsApps: tiến trình đó không có danh tính gói và sẽ đọc nhầm CSDL).
+    -->
+    <Application Id="Widgets" Executable="HabitGrid.WidgetHost.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="HabitGrid Widgets"
+        Description="Widget ghim màn hình nền, nhắc nhở và check-in nhanh của HabitGrid."
+        BackgroundColor="transparent"
+        Square150x150Logo="Images\Square150x150Logo.png"
+        Square44x44Logo="Images\Square44x44Logo.png"
+        AppListEntry="none" />
+      <Extensions>
+        <uap5:Extension Category="windows.appExecutionAlias" Executable="HabitGrid.WidgetHost.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap5:AppExecutionAlias>
+            <uap5:ExecutionAlias Alias="habitgrid-widgets.exe" />
+          </uap5:AppExecutionAlias>
+        </uap5:Extension>
+        <desktop:Extension Category="windows.startupTask" Executable="HabitGrid.WidgetHost.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="HabitGridWidgetsStartup" Enabled="false" DisplayName="HabitGrid Widgets" />
+        </desktop:Extension>
+        <!-- Nút trên toast nhắc nhở: Windows kích hoạt WidgetHost qua COM (CommunityToolkit.WinUI.Notifications). -->
+        <desktop:Extension Category="windows.toastNotificationActivation">
+          <desktop:ToastNotificationActivation ToastActivatorCLSID="EB817000-E529-41D1-9134-2FB3A9D3D418" />
+        </desktop:Extension>
+        <com:Extension Category="windows.comServer">
+          <com:ComServer>
+            <com:ExeServer Executable="HabitGrid.WidgetHost.exe" Arguments="-ToastActivated" DisplayName="HabitGrid toast activator">
+              <com:Class Id="EB817000-E529-41D1-9134-2FB3A9D3D418" DisplayName="HabitGrid toast activator" />
+            </com:ExeServer>
+          </com:ComServer>
+        </com:Extension>
+      </Extensions>
+    </Application>
+
+    <Application Id="App" Executable="HabitGrid.WinUI.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="HabitGrid"
+        Description="Theo dõi thói quen hằng ngày: chuỗi, Buddy, thử thách, Insights. Dữ liệu lưu trên máy bạn."
+        BackgroundColor="transparent"
+        Square150x150Logo="Images\Square150x150Logo.png"
+        Square44x44Logo="Images\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png" Square310x310Logo="Images\Square310x310Logo.png" ShortName="HabitGrid" />
+        <uap:SplashScreen Image="Images\SplashScreen.png" BackgroundColor="#1B1530" />
+      </uap:VisualElements>
+      <Extensions>
+        <uap5:Extension Category="windows.appExecutionAlias" Executable="HabitGrid.WinUI.exe" EntryPoint="Windows.FullTrustApplication">
+          <uap5:AppExecutionAlias>
+            <uap5:ExecutionAlias Alias="habitgrid.exe" />
+          </uap5:AppExecutionAlias>
+        </uap5:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+    <!-- Chụp ảnh khoảnh khắc bằng camera (CameraCaptureUI). Không dùng micro, vị trí hay mạng. -->
+    <DeviceCapability Name="webcam" />
+  </Capabilities>
+</Package>

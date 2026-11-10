@@ -212,6 +212,45 @@ public class PlusServiceTests
 
 public class PaywallTests
 {
+    private sealed class NoProductsStore : IPlusStore
+    {
+        public bool IsAvailable => true;
+
+        public Task<IReadOnlyList<PlusProduct>> GetProductsAsync(CancellationToken ct = default) => Task.FromResult<IReadOnlyList<PlusProduct>>([]);
+
+        public Task<IReadOnlyList<OwnedAddOn>> GetOwnedAsync(CancellationToken ct = default) => Task.FromResult<IReadOnlyList<OwnedAddOn>>([]);
+
+        public Task<PurchaseOutcome> PurchaseAsync(PlusPlan plan, IntPtr ownerWindow, CancellationToken ct = default) => Task.FromResult(PurchaseOutcome.Failed);
+    }
+
+    [Fact]
+    public async Task WhenTheStoreHasNoPlusProductsYet_PurchasesAreNotOpened()
+    {
+        using var f = new AppFixture();
+        var service = new PlusService(new NoProductsStore(), new MemoryLicenseCache(), new LiveEntitlements(), f.Settings, f.Habits) { PromoEnabled = false };
+        var vm = new PaywallViewModel(service, PaywallSource.Settings);
+
+        await service.InitializeAsync();
+        await vm.LoadAsync();
+
+        vm.StoreAvailable.Should().BeTrue();
+        vm.HasStoreProducts.Should().BeFalse();
+        vm.PurchasesOpen.Should().BeFalse("không hiện nút mua cho sản phẩm chưa tồn tại");
+    }
+
+    [Fact]
+    public async Task WhenTheStoreHasProducts_PurchasesAreOpened()
+    {
+        using var f = new AppFixture();
+        var service = new PlusService(new FakePlusStore(), new MemoryLicenseCache(), new LiveEntitlements(), f.Settings, f.Habits) { PromoEnabled = false };
+        var vm = new PaywallViewModel(service, PaywallSource.Settings);
+
+        await service.InitializeAsync();
+        await vm.LoadAsync();
+
+        vm.PurchasesOpen.Should().BeTrue();
+    }
+
     [Fact]
     public async Task OpeningPaywall_LoadingPrices_AndRestoring_NeverPurchase()
     {

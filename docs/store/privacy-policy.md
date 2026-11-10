@@ -1,0 +1,72 @@
+# Chính sách quyền riêng tư — HabitGrid
+
+*Nhà phát triển: MTD Studio. Hiệu lực từ: 06/11/2026. Phiên bản áp dụng: HabitGrid 1.0.*
+
+HabitGrid là ứng dụng theo dõi thói quen chạy trên máy tính Windows. Ứng dụng được thiết kế để dữ liệu của bạn ở lại trên máy của bạn.
+
+## 1. Dữ liệu ứng dụng lưu
+Những gì bạn nhập hoặc tạo trong ứng dụng được lưu **cục bộ trên máy của bạn**:
+- Tên thói quen, lịch, nhật ký check-in, ghi chú, cảm xúc trong ngày, thử thách, routine.
+- Cấp độ, XP, huy hiệu và các tùy chọn giao diện/ngôn ngữ.
+- Ảnh khoảnh khắc bạn chụp hoặc chọn (đã được mã hóa lại và bỏ siêu dữ liệu như vị trí GPS).
+- Các bản sao lưu và file báo lỗi do ứng dụng tạo ra.
+
+## 2. Dữ liệu ứng dụng gửi đi
+**HabitGrid không thu thập và không gửi dữ liệu cá nhân của bạn tới nhà phát triển hay bất kỳ bên thứ ba nào.** Ứng dụng không yêu cầu tài khoản, không có quảng cáo, không có phân tích hành vi (analytics) và không chứa bộ theo dõi.
+
+## 3. Camera
+Camera chỉ được dùng khi bạn bấm chụp ảnh khoảnh khắc. Ứng dụng không truy cập camera ở chế độ nền. Bạn có thể bỏ qua tính năng này hoặc chọn ảnh có sẵn.
+
+## 4. Sao lưu
+Ứng dụng tự sao lưu mỗi ngày vào thư mục trên máy. Nếu bạn bật tùy chọn "sao lưu vào thư mục cloud", ứng dụng chỉ **chép file sao lưu vào thư mục bạn chọn** (ví dụ thư mục OneDrive, Google Drive hoặc Dropbox trên máy). Việc đồng bộ thư mục đó lên mạng do dịch vụ tương ứng thực hiện theo chính sách của dịch vụ đó; HabitGrid không đăng nhập vào các dịch vụ này.
+
+## 5. Chia sẻ
+Thẻ chia sẻ và ảnh Wrapped là file ảnh lưu trên máy bạn (hoặc sao chép vào bộ nhớ tạm). Bạn tự quyết định có đăng ảnh đó ở đâu hay không; HabitGrid không đăng thay bạn.
+
+## 6. Báo lỗi
+Khi ứng dụng gặp lỗi nghiêm trọng, nó ghi một file báo lỗi (phiên bản ứng dụng, hệ điều hành, thông tin lỗi và vài dòng nhật ký gần nhất) **trên máy bạn**. File này không được gửi đi tự động. Chỉ khi bạn chủ động gửi file cho nhà phát triển để được hỗ trợ thì chúng tôi mới nhận được nó.
+
+## 7. Mua hàng
+Việc kiểm tra và mua gói trả phí (nếu có trong các phiên bản sau) được thực hiện qua Microsoft Store; HabitGrid không nhận thông tin thanh toán của bạn.
+
+## 8. Xóa dữ liệu
+Gỡ cài đặt HabitGrid sẽ xóa dữ liệu ứng dụng khỏi máy. Hãy sao chép các bản sao lưu ra ngoài trước nếu bạn muốn giữ chúng. Ảnh chia sẻ bạn đã lưu vào thư mục Pictures không bị xóa.
+
+## 9. Trẻ em
+HabitGrid không thu thập thông tin cá nhân của bất kỳ ai, kể cả trẻ em.
+
+## 10. Thay đổi chính sách
+Nếu một phiên bản sau thay đổi cách xử lý dữ liệu (ví dụ thêm đồng bộ qua máy chủ), chính sách này sẽ được cập nhật trước khi phiên bản đó phát hành.
+
+## 11. Liên hệ
+MTD Studio — *[điền email hỗ trợ của bạn]*
+
+---
+
+# Privacy Policy — HabitGrid (English)
+
+*Developer: MTD Studio. Effective: 6 Nov 2026. Applies to HabitGrid 1.0.*
+
+HabitGrid is a habit-tracking app for Windows PCs, built so your data stays on your PC.
+
+**Data stored.** Everything you enter or create (habits, schedules, check-ins, notes, moods, challenges, routines, level/XP/badges, appearance and language settings, moment photos with metadata such as GPS removed, backups and crash-report files) is stored **locally on your PC**.
+
+**Data sent.** HabitGrid does **not** collect or transmit your personal data to the developer or to any third party. There is no account, no advertising, no analytics and no trackers.
+
+**Camera.** The camera is used only when you tap to take a moment photo, never in the background. You can skip it or pick an existing image instead.
+
+**Backups.** The app makes a daily backup on your PC. If you enable the cloud-folder option, it only **copies the backup file into the folder you choose** (for example a OneDrive, Google Drive or Dropbox folder). Syncing that folder is done by that service under its own policy; HabitGrid does not sign in to those services.
+
+**Sharing.** Share cards and Wrapped images are image files on your PC (or copied to the clipboard). You decide where to post them; HabitGrid never posts for you.
+
+**Crash reports.** On a serious error the app writes a report file **on your PC**. It is not sent automatically; we only receive it if you choose to send it to us for support.
+
+**Purchases.** Any paid plan, if offered in a later version, is handled by the Microsoft Store; HabitGrid does not receive your payment details.
+
+**Deleting data.** Uninstalling HabitGrid removes the app's data from your PC. Copy your backups elsewhere first if you want to keep them. Images you saved to your Pictures folder are not removed.
+
+**Children.** HabitGrid collects no personal information from anyone, including children.
+
+**Changes.** If a later version changes how data is handled (for example server-based sync), this policy will be updated before that version is released.
+
+**Contact.** MTD Studio — *[add your support email]*

@@ -109,9 +109,19 @@ public static class SelfTest
             Require(controller.Toasts.ScheduledCount() == controller.Toasts.LastPlan.Count, "Lịch của Windows không khớp kế hoạch sau khi check-in.");
 
             // 6b) Widget khoảnh khắc (Plus tặng + smoke đã thêm ảnh): phải hiện.
-            await controller.SyncMomentWidgetAsync();
-            Require(controller.MomentWidget is { IsVisible: true }, "Widget khoảnh khắc không hiện dù đang Plus và có ảnh.");
-            Note(dbPath, "moment widget visible");
+            // Chỉ kiểm khi dữ liệu có ảnh (smoke của app thêm ảnh; dữ liệu tối thiểu của job kiểm gói MSIX thì không).
+            var momentsDir = Path.Combine(Path.GetDirectoryName(dbPath)!, "moments");
+
+            if (Directory.Exists(momentsDir) && Directory.EnumerateFiles(momentsDir, "*", SearchOption.AllDirectories).Any())
+            {
+                await controller.SyncMomentWidgetAsync();
+                Require(controller.MomentWidget is { IsVisible: true }, "Widget khoảnh khắc không hiện dù đang Plus và có ảnh.");
+                Note(dbPath, "moment widget visible");
+            }
+            else
+            {
+                Note(dbPath, "moment widget skipped (no photos)");
+            }
 
             // 7) Focus: phiên đếm ngược 1 phút tự kết thúc và được ghi vào nhật ký.
             var before2 = (await controller.FocusService.HistoryAsync()).Count;

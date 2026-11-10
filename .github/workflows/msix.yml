@@ -1,0 +1,101 @@
+name: MSIX install smoke
+
+# Dựng gói MSIX, ký bằng chứng chỉ tạm, CÀI THẬT lên runner rồi chạy app + WidgetHost qua alias của gói.
+# Kiểm: (1) gói cài được, (2) cả hai tiến trình có danh tính gói, (3) WidgetHost thấy CHÍNH CSDL app vừa tạo (cùng vùng dữ liệu của gói),
+# (4) widget/Quick check-in/làm mới chạy đúng khi đóng gói (SelfTest). Không dùng cho bản phát hành: Store ký gói thật.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['store/**', 'widgets/**']
+
+jobs:
+  msix:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Build MSIX (WinUI app + WidgetHost)
+        shell: pwsh
+        run: ./build/package-store.ps1
+
+      - name: Sign with a throwaway certificate and trust it
+        shell: pwsh
+        run: |
+          $publisher = ([xml](Get-Content src/HabitGrid.Package/AppxManifest.WinUI.xml -Raw)).Package.Identity.Publisher
+          $cert = New-SelfSignedCertificate -Type Custom -Subject $publisher -KeyUsage DigitalSignature `
+            -FriendlyName 'HabitGrid CI' -CertStoreLocation 'Cert:\CurrentUser\My' `
+            -TextExtension @('2.5.29.37={text}1.3.6.1.5.5.7.3.3', '2.5.29.19={text}')
+          $pass = ConvertTo-SecureString -String 'ci-only' -Force -AsPlainText
+          $pfx = Join-Path $env:RUNNER_TEMP 'ci.pfx'
+          $cer = Join-Path $env:RUNNER_TEMP 'ci.cer'
+          Export-PfxCertificate -Cert $cert -FilePath $pfx -Password $pass | Out-Null
+          Export-Certificate -Cert $cert -FilePath $cer | Out-Null
+          Import-Certificate -FilePath $cer -CertStoreLocation 'Cert:\LocalMachine\TrustedPeople' | Out-Null
+          $signtool = Get-ChildItem 'C:\Program Files (x86)\Windows Kits\10\bin' -Filter signtool.exe -Recurse |
+            Where-Object { $_.FullName -match '\\x64\\' } | Sort-Object FullName -Descending | Select-Object -First 1
+          $msix = Get-ChildItem artifacts/store -Filter *.msix | Select-Object -First 1
+          & $signtool.FullName sign /fd SHA256 /f $pfx /p 'ci-only' $msix.FullName
+          if ($LASTEXITCODE -ne 0) { throw 'signtool failed' }
+          "MSIX=$($msix.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Install the package
+        shell: pwsh
+        run: |
+          Add-AppxPackage -Path $env:MSIX
+          $pkg = Get-AppxPackage -Name 'MTDStudio.HabitGrid'
+          if (-not $pkg) { throw 'Package not installed' }
+          Write-Host "Installed: $($pkg.PackageFullName)"
+          $aliases = Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps'
+          foreach ($a in 'habitgrid.exe', 'habitgrid-widgets.exe') {
+            if (-not (Test-Path (Join-Path $aliases $a))) { throw "Alias missing: $a" }
+          }
+
+      - name: App creates its database in the package data area (--package-check)
+        shell: pwsh
+        run: |
+          $alias = Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps\habitgrid.exe'
+          $p = Start-Process $alias -ArgumentList '--package-check' -PassThru
+          if (-not $p.WaitForExit(120000)) { $p.Kill(); throw 'app --package-check timed out' }
+          Write-Host "app exit code: $($p.ExitCode)"
+          if ($p.ExitCode -ne 0) { throw "app --package-check failed ($($p.ExitCode)); 2 = no package identity or error" }
+
+      - name: WidgetHost sees the same database (--package-check)
+        shell: pwsh
+        run: |
+          $alias = Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps\habitgrid-widgets.exe'
+          $p = Start-Process $alias -ArgumentList '--package-check' -PassThru
+          if (-not $p.WaitForExit(60000)) { $p.Kill(); throw 'widgets --package-check timed out' }
+          Write-Host "widgets exit code: $($p.ExitCode) (0 = same database, 3 = database not found = data areas differ)"
+          if ($p.ExitCode -ne 0) { throw "widgets --package-check failed ($($p.ExitCode))" }
+
+      - name: WidgetHost end-to-end self-test inside the package
+        shell: pwsh
+        run: |
+          $alias = Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps\habitgrid-widgets.exe'
+          $p = Start-Process $alias -ArgumentList '--selftest' -PassThru
+          if (-not $p.WaitForExit(90000)) { $p.Kill(); throw 'widgets --selftest timed out' }
+          Write-Host "selftest exit code: $($p.ExitCode)"
+          $logs = Get-ChildItem (Join-Path $env:LOCALAPPDATA 'Packages') -Recurse -Filter 'widgethost-selftest.log' -ErrorAction SilentlyContinue
+          foreach ($l in $logs) { Write-Host "--- $($l.FullName)"; Get-Content $l.FullName }
+          exit $p.ExitCode
+
+      - name: Collect diagnostics
+        if: always()
+        shell: pwsh
+        run: |
+          $out = Join-Path $env:RUNNER_TEMP 'msix-diag'
+          New-Item -ItemType Directory -Force -Path $out | Out-Null
+          Get-ChildItem (Join-Path $env:LOCALAPPDATA 'Packages') -Recurse -Include *.log, *.txt -ErrorAction SilentlyContinue |
+            Where-Object { $_.FullName -match 'MTDStudio\.HabitGrid' } |
+            ForEach-Object { Copy-Item $_.FullName (Join-Path $out ($_.Name)) -ErrorAction SilentlyContinue }
+          Get-AppxPackage -Name 'MTDStudio.HabitGrid' | Format-List * | Out-File (Join-Path $out 'package.txt')
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: msix-diagnostics
+          path: ${{ runner.temp }}/msix-diag/*
+          if-no-files-found: ignore

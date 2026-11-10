@@ -37,6 +37,20 @@ public static class SmokeRunner
             }
 
             await Task.Delay(800);
+
+            // Chụp ảnh cho hồ sơ Store: HABITGRID_SMOKE_SIZE=1600x1000 đổi cỡ cửa sổ, HABITGRID_SMOKE_LANG=vi|en đổi ngôn ngữ trước khi chụp.
+            if (Environment.GetEnvironmentVariable("HABITGRID_SMOKE_SIZE")?.Split('x') is [var width, var height]
+                && int.TryParse(width, out var w) && int.TryParse(height, out var h))
+            {
+                window.AppWindow.Resize(new Windows.Graphics.SizeInt32(w, h));
+                await Task.Delay(500);
+            }
+
+            if (Environment.GetEnvironmentVariable("HABITGRID_SMOKE_LANG") is { Length: > 0 } language)
+            {
+                await window.SetLanguageAsync(language);
+            }
+
             GamificationCoordinator.DialogsEnabled = false;
             var celebrations = 0;
             App.Host.Get<GamificationService>().Celebrated += (_, _) => celebrations++;

@@ -96,6 +96,11 @@ public static class PaywallDialog
             {
                 panel.Children.Add(new TextBlock { Text = Ui.T("plus.nostore"), TextWrapping = TextWrapping.Wrap, Foreground = (Brush)Application.Current.Resources["WarningBrush"] });
             }
+            else if (!vm.HasStoreProducts)
+            {
+                // Chưa có sản phẩm Plus trên Store: không hiện như đang bán.
+                panel.Children.Add(new TextBlock { Text = Ui.T("plus.soon"), TextWrapping = TextWrapping.Wrap, Foreground = (Brush)Application.Current.Resources["WarningBrush"] });
+            }
             else if (vm.PricesAreReference)
             {
                 panel.Children.Add(new TextBlock { Text = Ui.T("plus.reference"), TextWrapping = TextWrapping.Wrap, Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"] });
@@ -160,7 +165,7 @@ public static class PaywallDialog
             Style = (Style)Application.Current.Resources["GradientButtonStyle"],
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Margin = new Thickness(0, 6, 0, 0),
-            IsEnabled = vm.StoreAvailable && !vm.IsPlus
+            IsEnabled = vm.PurchasesOpen && !vm.IsPlus
         };
         AutomationProperties.SetName(buy, $"{Ui.T("plus.buy")}: {Ui.T(nameKey)}, {plan.Price}");
 
@@ -178,7 +183,7 @@ public static class PaywallDialog
             }
             else
             {
-                buy.IsEnabled = vm.StoreAvailable;
+                buy.IsEnabled = vm.PurchasesOpen;
             }
         };
         stack.Children.Add(buy);

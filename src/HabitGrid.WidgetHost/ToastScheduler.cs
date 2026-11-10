@@ -43,7 +43,7 @@ public sealed class ToastScheduler
         }
         catch (Exception ex)
         {
-            LastError = ex.Message;
+            LastError = $"{ex.GetType().Name} 0x{ex.HResult:X8}: {ex.Message}" + (ex.InnerException is { } inner ? $" / inner {inner.GetType().Name} 0x{inner.HResult:X8}: {inner.Message}" : string.Empty);
             return -1;
         }
     }
@@ -105,7 +105,7 @@ public sealed class ToastScheduler
         catch (Exception ex)
         {
             // Máy không có nền tảng thông báo (Windows Server lõi, chính sách công ty…): widget vẫn chạy bình thường.
-            LastError = ex.Message;
+            LastError = $"{ex.GetType().Name} 0x{ex.HResult:X8}: {ex.Message}" + (ex.InnerException is { } inner ? $" / inner {inner.GetType().Name} 0x{inner.HResult:X8}: {inner.Message}" : string.Empty);
         }
     }
 
