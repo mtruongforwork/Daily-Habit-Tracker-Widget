@@ -207,6 +207,31 @@ public sealed partial class SettingsPage : Page
             widgetsCard.Children.Add(toggle);
         }
 
+
+        // Kiểu ghim widget (đổi có hiệu lực sau vài giây, WidgetHost tự dựng lại).
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.pin"), Style = Res("SectionHeader"), Margin = new Thickness(0, 10, 0, 0) });
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.pin.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
+        var pinChips = new ChipGroup { MinChipWidth = 190, MaxWidth = 640, HorizontalAlignment = HorizontalAlignment.Left };
+        var pinChoices = Enum.GetValues<HabitGrid.Core.Domain.Widgets.PinChoice>();
+
+        foreach (var choice in pinChoices)
+        {
+            pinChips.Add(Ui.T("settings.pin." + choice));
+        }
+
+        var currentPin = HabitGrid.Core.Domain.Widgets.PinChoices.Parse(settingsStore.GetAsync(HabitGrid.Core.Domain.Widgets.PinChoices.SettingKey).GetAwaiter().GetResult());
+        pinChips.SelectedIndex = Array.IndexOf(pinChoices, currentPin);
+        pinChips.SelectionChanged += async (_, _) =>
+        {
+            if (_building || pinChips.SelectedIndex < 0)
+            {
+                return;
+            }
+
+            await settingsStore.SetAsync(HabitGrid.Core.Domain.Widgets.PinChoices.SettingKey, HabitGrid.Core.Domain.Widgets.PinChoices.ToStored(pinChoices[pinChips.SelectedIndex]));
+            HostLink.EnsureRunning();
+        };
+        widgetsCard.Children.Add(pinChips);
         Wrap(widgetsCard);
 
         // Hỗ trợ: phiên bản, thư mục log và báo lỗi (người dùng tự gửi, app không tải gì lên).

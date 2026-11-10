@@ -108,6 +108,7 @@ public sealed partial class WidgetController : IDisposable
 
     public async Task StartAsync()
     {
+        await ApplyPinChoiceAsync(initial: true);
         _today = CurrentDay();
         await _quick.LoadAsync(_today);
         await CreateAuxiliaryWindowsAsync();
@@ -296,8 +297,9 @@ public sealed partial class WidgetController : IDisposable
             }
             else if (!IsOnAnyScreen(new WindowInteropHelper(list).Handle))
             {
-                list.Left = System.Windows.SystemParameters.WorkArea.Right - list.Width - 40;
-                list.Top = 80;
+                var slot = await DefaultSlotAsync("today");
+                list.Left = slot.Left;
+                list.Top = slot.Top;
             }
         }
     }
@@ -495,8 +497,9 @@ public sealed partial class WidgetController : IDisposable
         }
         else
         {
-            list.Left = System.Windows.SystemParameters.WorkArea.Right - list.Width - 40;
-            list.Top = 80;
+            var slot = await DefaultSlotAsync("today");
+            list.Left = slot.Left;
+            list.Top = slot.Top;
         }
 
         if (list.Pin(_desktop, DesktopPinningMode.DesktopLevel).UsedFallback)
@@ -667,7 +670,7 @@ public sealed partial class WidgetController : IDisposable
     private async Task CreateAsync(Habit habit, Dictionary<DateOnly, int> values, bool dark, int index)
     {
         var shades = _palette.GenerateFromHex(habit.ColorHue, dark);
-        var model = new WidgetViewModel(WidgetMapper.ToWidgetHabit(habit), values, shades, _today, V1.WidgetSize.Large, dark);
+        var model = new WidgetViewModel(WidgetMapper.ToWidgetHabit(habit), values, shades, _today, V1.WidgetSize.Small, dark);
         var window = new WidgetWindow(_screen);
 
         window.Bind(model);
@@ -688,7 +691,9 @@ public sealed partial class WidgetController : IDisposable
         }
         else
         {
-            window.SetScreenPosition(60 + index * 36, 80 + index * 160);
+            var slot = await DefaultSlotAsync("grid" + index);
+            var scale = System.Windows.Media.VisualTreeHelper.GetDpi(window).DpiScaleX;
+            window.SetScreenPosition((int)Math.Round(slot.Left * scale), (int)Math.Round(slot.Top * scale));
         }
 
         if (window.ApplyPinning(DesktopPinningMode.DesktopLevel).UsedFallback)
@@ -759,6 +764,7 @@ public sealed partial class WidgetController : IDisposable
             {
                 await ApplyAutoStartAsync();
                 await ApplyHotKeysAsync();
+                await ApplyPinChoiceAsync(initial: false);
                 await SyncMomentWidgetAsync();
                 await SyncExtraWidgetsAsync();
             }

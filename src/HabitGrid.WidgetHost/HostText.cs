@@ -83,4 +83,6 @@ public static class HostText
     public static string GoalsIntention => IsVietnamese ? "Ý định tuần" : "Intention";
 
     public static string GoalsDay(int day, int total) => IsVietnamese ? $"Ngày {day}/{total}" : $"Day {day}/{total}";
+
+    public static string GoalsNone => IsVietnamese ? "Chưa có mục tiêu" : "No goals yet";
 }

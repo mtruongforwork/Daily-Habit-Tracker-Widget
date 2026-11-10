@@ -73,8 +73,9 @@ public sealed partial class WidgetController
         }
         else
         {
-            widget.Left = System.Windows.SystemParameters.WorkArea.Right - widget.Width - 40;
-            widget.Top = System.Windows.SystemParameters.WorkArea.Bottom - widget.Height - 40;
+            var slot = await DefaultSlotAsync("moment");
+            widget.Left = slot.Left;
+            widget.Top = slot.Top;
         }
 
         if (widget.Pin(_desktop, DesktopPinningMode.DesktopLevel).UsedFallback)

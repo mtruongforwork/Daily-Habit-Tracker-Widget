@@ -691,4 +691,9 @@
   <data name="settings.widget.Goals" xml:space="preserve"><value>Goals widget (Plus)</value></data>
   <data name="settings.widget.MultiGrid" xml:space="preserve"><value>Multi Grid widget (Plus)</value></data>
   <data name="plus.benefit.widgets" xml:space="preserve"><value>More desktop widgets: Buddy, Goals, Multi Grid and up to 3 grid widgets (Free: 1)</value></data>
+  <data name="settings.pin" xml:space="preserve"><value>Widget pinning</value></data>
+  <data name="settings.pin.hint" xml:space="preserve"><value>Widgets are compact; hover or click to expand. If widgets do not show in the "Below windows" or "On wallpaper" modes, keep "Always on top".</value></data>
+  <data name="settings.pin.Top" xml:space="preserve"><value>Always on top (recommended)</value></data>
+  <data name="settings.pin.AboveDesktop" xml:space="preserve"><value>Below windows (just above the wallpaper)</value></data>
+  <data name="settings.pin.Desktop" xml:space="preserve"><value>On the wallpaper (old way)</value></data>
 </root>

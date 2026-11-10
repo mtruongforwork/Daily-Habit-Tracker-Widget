@@ -149,8 +149,38 @@ public static class SelfTest
 
             foreach (var (kind, window) in controller.Extras)
             {
-                SaveShot(window, Path.Combine(shots, $"widget-{kind.ToString().ToLowerInvariant()}.png"));
+                var name = kind.ToString().ToLowerInvariant();
+                Require(!window.IsExpanded, $"Widget {name} phải khởi đầu ở dạng nhỏ gọn.");
+                window.UpdateLayout();
+                SaveShot(window, Path.Combine(shots, $"widget-{name}-compact.png"));
+                var compact = (window.Width, window.Height);
+
+                window.SetExpanded(true, animate: false);
+                await Task.Delay(300);
+                window.UpdateLayout();
+                Require(window.IsExpanded && window.Width > compact.Width && window.Height >= compact.Height, $"Widget {name} không mở rộng được.");
+                SaveShot(window, Path.Combine(shots, $"widget-{name}-expanded.png"));
+
+                window.SetExpanded(false, animate: false);
+                await Task.Delay(200);
+                Require(!window.IsExpanded && Math.Abs(window.Width - compact.Width) < 1, $"Widget {name} không thu gọn lại được.");
             }
+
+            // Ngữ cảnh động: Buddy đổi trạng thái theo giờ và tiến độ; Mục tiêu luân phiên; Multi Grid thu gọn còn tối đa 13 ngày.
+            var sample = new HabitGrid.Presentation.Services.BuddyWidgetData("B", 5, HabitGrid.Presentation.ViewModels.BuddyStage.Baby, [], 1, 3, 0);
+            var morning = new DateTime(2026, 11, 11, 9, 0, 0);
+            var evening = new DateTime(2026, 11, 11, 20, 0, 0);
+            Require(HabitGrid.WidgetHost.BuddyWidgetWindow.MoodFor(sample, morning) == HabitGrid.WidgetHost.BuddyWidgetWindow.Mood.Normal, "Sáng còn việc phải là Normal.");
+            Require(HabitGrid.WidgetHost.BuddyWidgetWindow.MoodFor(sample, evening) == HabitGrid.WidgetHost.BuddyWidgetWindow.Mood.AtRisk, "Tối còn việc phải là AtRisk (sắp mất chuỗi).");
+            Require(HabitGrid.WidgetHost.BuddyWidgetWindow.MoodFor(sample with { TodayDone = 3 }, evening) == HabitGrid.WidgetHost.BuddyWidgetWindow.Mood.AllDone, "Xong hết phải là AllDone.");
+            Require(HabitGrid.WidgetHost.BuddyWidgetWindow.MoodFor(sample with { TodayDue = 0, TodayDone = 0 }, evening) == HabitGrid.WidgetHost.BuddyWidgetWindow.Mood.Normal, "Không có việc đến hạn thì không báo nguy cơ.");
+
+            var rotation = HabitGrid.WidgetHost.GoalsWidgetWindow.Rotation(new HabitGrid.Presentation.Services.GoalsWidgetData(new HabitGrid.Presentation.Services.IntentProgress(Guid.NewGuid(), "A", "emoji:🏃", "#10B981", 1, 3), []));
+            Require(rotation.Count == 1 && rotation[0].Fraction > 0.3, "Luân phiên Mục tiêu sai.");
+
+            var longRow = new HabitGrid.Presentation.Services.MultiGridRow(Guid.NewGuid(), "H", "emoji:🏃", "#10B981", 3, HabitGrid.Core.Domain.StreakUnit.Day, Enumerable.Range(0, 91).Select(i => i < 85 ? 1 : -1).ToList());
+            var last = HabitGrid.WidgetHost.MultiGridWidgetWindow.LastDays(longRow);
+            Require(last.Count == 13 && last.All(v => v == 1), "Dạng nhỏ gọn của Multi Grid phải lấy 13 ngày gần nhất đến hôm nay.");
 
             // Hình màu của Buddy: đủ 5 giai đoạn và mọi phụ kiện trong danh mục phải nạp được (thiếu thì widget rơi về emoji đơn sắc).
             var spriteIds = Enum.GetValues<HabitGrid.Presentation.ViewModels.BuddyStage>().Select(HabitGrid.WidgetHost.BuddySprites.StageId)

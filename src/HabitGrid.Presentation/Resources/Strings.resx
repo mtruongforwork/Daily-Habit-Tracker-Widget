@@ -691,4 +691,9 @@
   <data name="settings.widget.Goals" xml:space="preserve"><value>Widget Mục tiêu (Plus)</value></data>
   <data name="settings.widget.MultiGrid" xml:space="preserve"><value>Widget Multi Grid (Plus)</value></data>
   <data name="plus.benefit.widgets" xml:space="preserve"><value>Thêm widget desktop: Buddy, Mục tiêu, Multi Grid và tới 3 widget lưới (Free: 1)</value></data>
+  <data name="settings.pin" xml:space="preserve"><value>Kiểu ghim widget</value></data>
+  <data name="settings.pin.hint" xml:space="preserve"><value>Widget nhỏ gọn, rê chuột vào hoặc bấm để mở rộng. Nếu widget không hiện ở kiểu "Dưới cửa sổ" hay "Trên hình nền" thì giữ "Luôn trên cùng".</value></data>
+  <data name="settings.pin.Top" xml:space="preserve"><value>Luôn trên cùng (khuyên dùng)</value></data>
+  <data name="settings.pin.AboveDesktop" xml:space="preserve"><value>Dưới cửa sổ (ngay trên hình nền)</value></data>
+  <data name="settings.pin.Desktop" xml:space="preserve"><value>Trên hình nền (cách cũ)</value></data>
 </root>

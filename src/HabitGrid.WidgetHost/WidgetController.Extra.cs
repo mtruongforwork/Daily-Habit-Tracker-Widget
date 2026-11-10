@@ -19,6 +19,89 @@ public sealed partial class WidgetController
     private readonly LiveEntitlements _entitlements = new();
     private WidgetDataService? _data;
 
+    private PinChoice? _appliedPin;
+    private readonly DesktopPinningMode? _envPin = DesktopHostService.PinOverride;
+
+    /// <summary>Kiểu ghim mặc định khi người dùng chưa chọn (tự kiểm tra trên CI dùng Desktop vì runner có WorkerW thật).</summary>
+    public PinChoice DefaultPin { get; init; } = PinChoice.Top;
+
+    /// <summary>
+    /// Đọc kiểu ghim từ cài đặt (<c>widgets.pinmode</c>) và áp dụng. Đổi kiểu thì dựng lại toàn bộ cửa sổ (cửa sổ đã là con của lớp desktop
+    /// không đổi sang nổi được). Biến môi trường <c>HABITGRID_PIN</c>, nếu có, được ưu tiên.
+    /// </summary>
+    private async Task ApplyPinChoiceAsync(bool initial)
+    {
+        var stored = await _settings.GetAsync(PinChoices.SettingKey);
+        var choice = stored is null ? DefaultPin : PinChoices.Parse(stored);
+
+        if (_appliedPin == choice)
+        {
+            return;
+        }
+
+        DesktopHostService.PinOverride = _envPin ?? choice switch
+        {
+            PinChoice.Top => DesktopPinningMode.AlwaysOnTop,
+            PinChoice.AboveDesktop => DesktopPinningMode.AboveDesktop,
+            _ => null
+        };
+        var changed = _appliedPin is not null;
+        _appliedPin = choice;
+
+        if (changed && !initial)
+        {
+            await RebuildAllAsync();
+        }
+    }
+
+    /// <summary>Kích thước danh nghĩa (DIP) của từng widget để xếp vị trí mặc định; widget Plus ở dạng nhỏ gọn.</summary>
+    private static (int Width, int Height) NominalSize(string key) => key switch
+    {
+        "buddy" => (92, 92),
+        "goals" => (190, 52),
+        "multigrid" => (146, 94),
+        "moment" => (160, 190),
+        "today" => (300, 150),
+        _ => (270, 130)
+    };
+
+    /// <summary>
+    /// Vị trí mặc định (DIP) cho widget chưa có vị trí lưu: xếp theo <see cref="WidgetLayout"/> trên mọi widget đang bật để không chồng nhau.
+    /// </summary>
+    private async Task<WidgetLayout.Slot> DefaultSlotAsync(string key)
+    {
+        var plus = await IsPlusAsync();
+        var keys = new List<string>();
+
+        foreach (var kind in Enum.GetValues<ExtraWidget>())
+        {
+            if (WidgetRules.ShouldShow(kind, plus, await _settings.GetAsync(WidgetRules.EnabledKey(kind))))
+            {
+                keys.Add(kind.ToString().ToLowerInvariant());
+            }
+        }
+
+        if (plus && await _settings.GetAsync(MomentWidgetEnabledKey) != "0")
+        {
+            keys.Add("moment");
+        }
+
+        keys.Add("today");
+        var grids = Math.Min(Math.Min(MaxWidgets, WidgetRules.MaxGrids(plus)), Math.Max(1, _widgets.Count));
+        keys.AddRange(Enumerable.Range(0, grids).Select(i => "grid" + i));
+
+        if (!keys.Contains(key))
+        {
+            keys.Add(key);
+        }
+
+        var work = System.Windows.SystemParameters.WorkArea;
+        var plan = WidgetLayout.Plan(
+            (int)work.Left, (int)work.Top, (int)work.Right, (int)work.Bottom,
+            keys.Select(k => new WidgetLayout.Item(k, NominalSize(k).Width, NominalSize(k).Height)));
+        return plan[key];
+    }
+
     /// <summary>Các widget Plus đang hiển thị (kiểm tra tự động và ghim lại dùng).</summary>
     public IReadOnlyDictionary<ExtraWidget, ExtraWidgetWindow> Extras => _extras;
 
@@ -113,10 +196,9 @@ public sealed partial class WidgetController
         }
         else
         {
-            // Xếp lệch nhau ở góc phải để mới bật không chồng lên nhau.
-            var index = (int)kind;
-            window.Left = System.Windows.SystemParameters.WorkArea.Right - window.Width - 40;
-            window.Top = 60 + index * 170;
+            var slot = await DefaultSlotAsync(kind.ToString().ToLowerInvariant());
+            window.Left = slot.Left;
+            window.Top = slot.Top;
         }
 
         if (window.Pin(_desktop, DesktopPinningMode.DesktopLevel).UsedFallback)
@@ -173,8 +255,9 @@ public sealed partial class WidgetController
             }
             else if (!IsOnAnyScreen(new System.Windows.Interop.WindowInteropHelper(window).Handle))
             {
-                window.Left = System.Windows.SystemParameters.WorkArea.Right - window.Width - 40;
-                window.Top = 60 + (int)kind * 170;
+                var slot = await DefaultSlotAsync(kind.ToString().ToLowerInvariant());
+                window.Left = slot.Left;
+                window.Top = slot.Top;
             }
         }
     }
