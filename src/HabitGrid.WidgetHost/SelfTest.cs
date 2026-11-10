@@ -11,6 +11,18 @@ namespace HabitGrid.WidgetHost;
 /// </summary>
 public static class SelfTest
 {
+    private static void SaveShot(System.Windows.Window window, string path)
+    {
+        var width = (int)Math.Ceiling(window.ActualWidth);
+        var height = (int)Math.Ceiling(window.ActualHeight);
+        var bitmap = new System.Windows.Media.Imaging.RenderTargetBitmap(width, height, 96, 96, System.Windows.Media.PixelFormats.Pbgra32);
+        bitmap.Render(window.Content as System.Windows.Media.Visual ?? window);
+        var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+        encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+        using var stream = File.Create(path);
+        encoder.Save(stream);
+    }
+
     public static async Task<int> RunAsync(WidgetController controller, string dbPath)
     {
         try
@@ -122,6 +134,28 @@ public static class SelfTest
             {
                 Note(dbPath, "moment widget skipped (no photos)");
             }
+
+            // 6c) Widget Plus (M1): Free không thấy; Plus bật thì cả ba hiện đúng và có nội dung; hết Plus lại ẩn.
+            await controller.Settings_SetPlusForTestAsync(false);
+            await controller.SyncExtraWidgetsAsync();
+            Require(controller.Extras.Count == 0, "Free mà vẫn thấy widget Plus.");
+
+            await controller.EnableExtrasForTestAsync();
+            await Task.Delay(800);
+            Require(controller.Extras.Count == 3 && controller.Extras.Values.All(w => w.IsVisible), "Plus bật đủ ba widget nhưng không hiện đủ.");
+            Require(controller.Extras.ContainsKey(HabitGrid.Core.Domain.Widgets.ExtraWidget.MultiGrid), "Thiếu widget Multi Grid.");
+            var shots = Path.Combine(Path.GetDirectoryName(dbPath)!, "shots");
+            Directory.CreateDirectory(shots);
+
+            foreach (var (kind, window) in controller.Extras)
+            {
+                SaveShot(window, Path.Combine(shots, $"widget-{kind.ToString().ToLowerInvariant()}.png"));
+            }
+
+            await controller.Settings_SetPlusForTestAsync(false);
+            await controller.SyncExtraWidgetsAsync();
+            Require(controller.Extras.Count == 0, "Hết Plus mà widget Plus vẫn hiện.");
+            Note(dbPath, "extra widgets ok (hidden for Free, 3 shown for Plus, hidden again)");
 
             // 7) Focus: phiên đếm ngược 1 phút tự kết thúc và được ghi vào nhật ký.
             var before2 = (await controller.FocusService.HistoryAsync()).Count;

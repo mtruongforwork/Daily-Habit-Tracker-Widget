@@ -175,6 +175,38 @@ public sealed partial class SettingsPage : Page
         };
         widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.momentWidget.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
         widgetsCard.Children.Add(momentToggle);
+
+        // Widget Plus (M1): Buddy, Mục tiêu, Multi Grid. Mặc định tắt; bật khi chưa có Plus thì mở paywall (người dùng vừa bấm tính năng khóa).
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.widgets.limits"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 8, 0, 0) });
+
+        foreach (var kind in Enum.GetValues<HabitGrid.Core.Domain.Widgets.ExtraWidget>())
+        {
+            var key = HabitGrid.Core.Domain.Widgets.WidgetRules.EnabledKey(kind);
+            var label = Ui.T("settings.widget." + kind);
+            var toggle = new ToggleSwitch { OnContent = label, OffContent = label };
+            AutomationProperties.SetName(toggle, label);
+            _ = LoadExtraAsync();
+            async Task LoadExtraAsync() => toggle.IsOn = HabitGrid.Core.Domain.Widgets.WidgetRules.IsEnabled(await settingsStore.GetAsync(key));
+
+            toggle.Toggled += async (_, _) =>
+            {
+                if (_building)
+                {
+                    return;
+                }
+
+                if (toggle.IsOn && !App.Host.Get<PlusService>().Status.IsPlus && !await PaywallDialog.ShowAsync(XamlRoot, PaywallSource.Settings))
+                {
+                    toggle.IsOn = false;
+                    return;
+                }
+
+                await settingsStore.SetAsync(key, toggle.IsOn ? "1" : "0");
+                HostLink.EnsureRunning();
+            };
+            widgetsCard.Children.Add(toggle);
+        }
+
         Wrap(widgetsCard);
 
         // Hỗ trợ: phiên bản, thư mục log và báo lỗi (người dùng tự gửi, app không tải gì lên).

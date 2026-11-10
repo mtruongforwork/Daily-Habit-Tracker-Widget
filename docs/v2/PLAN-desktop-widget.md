@@ -67,3 +67,11 @@
 - Job CI `MSIX install smoke` (`.github/workflows/msix.yml`): dựng MSIX, ký chứng chỉ tạm, **cài thật** rồi chạy: app `--package-check` (tạo CSDL trong vùng dữ liệu của gói), WidgetHost `--package-check` (cùng danh tính gói, thấy đúng CSDL đó) và `--selftest` đầu-cuối (widget, check-in, làm mới, Quick check-in, toast, Focus). Cả ba bước đạt.
 - Hai phát hiện khi làm: (1) thư viện toast chỉ đọc `Application` **đầu tiên** của manifest nên WidgetHost phải đứng trước app trong manifest; (2) **nhắc nhở (toast) chỉ chạy trong WidgetHost**, nên bản Store v1 (không chứa WidgetHost) chưa có nhắc nhở dù Cài đặt có thẻ Nhắc nhở. Bản 1.1 sửa được việc này.
 - Chưa kiểm chứng: bản Store thật (do Microsoft ký) có mở được qua alias như bản ký tạm hay không; nút "Mở" của Store với manifest có `Application` ẩn đứng đầu; nhấn nút trên toast bằng tay; widget hiển thị trên màn hình thật (CI không có hình nền/WorkerW thật).
+
+### M1 — xong phần lõi, đã kiểm chứng trên CI (10/11/2026)
+- Ba widget Plus mới trong WidgetHost: **Buddy** (linh vật + phụ kiện đang đeo + cấp + tiến độ hôm nay + token đóng băng), **Mục tiêu** (ý định tuần + tối đa 3 thử thách đang chạy; gộp hai widget "Thử thách" và "Ý định tuần" trong kế hoạch làm một), **Multi Grid** (2–4 thói quen, mỗi thói quen heatmap 13 tuần + chuỗi).
+- Phân gói (`WidgetRules`, có test): Free 1 widget lưới + Today List; Plus tối đa 3 widget lưới và thêm ba widget trên (tổng tối đa 6). Widget Plus mặc định **tắt**, bật trong Cài đặt → Widget (chưa có Plus thì mở paywall); hết Plus thì ẩn, cấu hình giữ nguyên.
+- Dữ liệu dựng ở `WidgetDataService` (Presentation, có test) dùng lại đúng dịch vụ của app (phụ kiện, thử thách, ý định tuần) nên widget khớp app.
+- Self-test CI (cả bản thường lẫn trong gói MSIX đã cài) kiểm: Free không thấy widget Plus, Plus bật thì cả ba hiện, hết Plus thì ẩn lại; lưu ảnh từng widget.
+- **Hạn chế đã biết:** WPF chỉ vẽ emoji đơn sắc (không hỗ trợ phông màu) nên Buddy và phụ kiện hiện dạng nét trắng, kém sinh động hơn trong app. Hướng khắc phục ở M2: xuất sẵn hình PNG của Buddy theo giai đoạn và phụ kiện từ app, đóng kèm WidgetHost.
+- Chưa kiểm chứng: hiển thị trên màn hình nền thật, nhiều màn hình/DPI khác nhau, RAM/CPU với 6 widget (M4).
