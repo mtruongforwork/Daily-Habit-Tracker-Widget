@@ -72,15 +72,25 @@ public abstract class ExtraWidgetWindow : Window
     public DesktopHostResult Pin(DesktopHostService host, DesktopPinningMode mode) =>
         host.Attach(new WindowInteropHelper(this).EnsureHandle(), mode);
 
-    protected static TextBlock Text(string text, double size, bool bold = false, double opacity = 1) => new()
+    protected static TextBlock Text(string text, double size, bool bold = false, double opacity = 1, bool wrap = false) => new()
     {
         Text = text,
         FontSize = size,
         FontWeight = bold ? FontWeights.SemiBold : FontWeights.Normal,
         Foreground = Brushes.White,
         Opacity = opacity,
-        TextTrimming = TextTrimming.CharacterEllipsis
+        TextWrapping = wrap ? TextWrapping.Wrap : TextWrapping.NoWrap,
+        TextTrimming = wrap ? TextTrimming.None : TextTrimming.CharacterEllipsis
     };
+
+    /// <summary>Biểu tượng thói quen để hiện trong widget: emoji thì bỏ tiền tố <c>emoji:</c>; biểu tượng Fluent (không có chữ) thì dùng dấu chấm.</summary>
+    protected static string IconText(string icon) =>
+        icon.StartsWith(HabitIcon.EmojiPrefix, StringComparison.Ordinal) ? icon[HabitIcon.EmojiPrefix.Length..] : "•";
+
+    /// <summary>
+    /// WPF chỉ vẽ emoji đơn sắc (không hỗ trợ phông màu): ép màu trắng để thấy rõ trên nền tối thay vì mặc định đen.
+    /// </summary>
+    protected static TextBlock Emoji(string emoji, double size) => new() { Text = emoji, FontSize = size, Foreground = Brushes.White, FontFamily = new FontFamily("Segoe UI Emoji") };
 
     protected static Border Bar(double fraction, double width, Color from, Color to)
     {
@@ -138,18 +148,18 @@ public sealed class BuddyWidgetWindow : ExtraWidgetWindow
     public void Update(BuddyWidgetData data)
     {
         var avatar = new Grid { Width = 84, Height = 96 };
-        avatar.Children.Add(new TextBlock { Text = StageEmoji(data.Stage), FontSize = 58, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
+        var body = Emoji(StageEmoji(data.Stage), 58);
+        body.HorizontalAlignment = HorizontalAlignment.Center;
+        body.VerticalAlignment = VerticalAlignment.Center;
+        avatar.Children.Add(body);
 
         foreach (var (slot, emoji) in data.Worn)
         {
-            avatar.Children.Add(new TextBlock
-            {
-                Text = emoji,
-                FontSize = slot == AccessorySlot.Head ? 34 : 26,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = slot switch { AccessorySlot.Head => VerticalAlignment.Top, AccessorySlot.Face => VerticalAlignment.Center, _ => VerticalAlignment.Bottom },
-                Margin = slot switch { AccessorySlot.Head => new Thickness(0, -8, 0, 0), AccessorySlot.Face => new Thickness(0, 10, 0, 0), _ => new Thickness(0, 0, 0, -4) }
-            });
+            var piece = Emoji(emoji, slot == AccessorySlot.Head ? 34 : 26);
+            piece.HorizontalAlignment = HorizontalAlignment.Center;
+            piece.VerticalAlignment = slot switch { AccessorySlot.Head => VerticalAlignment.Top, AccessorySlot.Face => VerticalAlignment.Center, _ => VerticalAlignment.Bottom };
+            piece.Margin = slot switch { AccessorySlot.Head => new Thickness(0, -8, 0, 0), AccessorySlot.Face => new Thickness(0, 10, 0, 0), _ => new Thickness(0, 0, 0, -4) };
+            avatar.Children.Add(piece);
         }
 
         var info = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(12, 0, 0, 0) };
@@ -199,12 +209,12 @@ public sealed class GoalsWidgetWindow : ExtraWidgetWindow
 
         if (data.IsEmpty)
         {
-            stack.Put(Text(HostText.GoalsEmpty, 12, opacity: 0.8));
+            stack.Put(Text(HostText.GoalsEmpty, 12, opacity: 0.8, wrap: true));
         }
 
         if (data.Intent is { } intent)
         {
-            stack.Put(Text($"{HostText.GoalsIntention}: {intent.Icon} {intent.Name}", 12));
+            stack.Put(Text($"{HostText.GoalsIntention}: {IconText(intent.Icon)} {intent.Name}", 12));
             stack.Put(Row(intent.Fraction, HostText.Progress(intent.Done, intent.Due), Hex(intent.ColorHue)));
         }
 
@@ -254,7 +264,7 @@ public sealed class MultiGridWidgetWindow : ExtraWidgetWindow
             line.ColumnDefinitions.Add(new ColumnDefinition());
 
             var titles = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
-            titles.Children.Add(Text($"{row.Icon} {row.Name}", 12, bold: true));
+            titles.Children.Add(Text($"{IconText(row.Icon)} {row.Name}", 12, bold: true));
             titles.Children.Add(Text($"🔥 {row.Streak}", 11, opacity: 0.8));
             line.Children.Add(titles);
 
