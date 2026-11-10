@@ -274,7 +274,9 @@ public sealed class MultiGridWidgetWindow : ExtraWidgetWindow
             stack.Put(line);
         }
 
-        Height = 28 + Math.Max(1, data.Rows.Count) * 66;
+        // Mỗi hàng cao 70 (heatmap 7 ô), cách nhau 8, cộng viền và lề của thẻ.
+        var count = Math.Max(1, data.Rows.Count);
+        Height = 34 + count * 70 + (count - 1) * 8;
         SetCard(stack);
     }
 
