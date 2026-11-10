@@ -9,6 +9,7 @@ using System.Windows.Threading;
 using HabitGrid.Core.Domain;
 using HabitGrid.Core.Domain.Challenges;
 using HabitGrid.Core.Domain.Gamification;
+using HabitGrid.Core.Domain.Widgets;
 using HabitGrid.Platform.Desktop;
 using HabitGrid.Presentation.Services;
 using HabitGrid.Presentation.ViewModels;
@@ -382,7 +383,7 @@ public sealed class BuddyWidgetWindow : ExtraWidgetWindow
         return row;
     }
 
-    private static Grid BuildAvatar(BuddyWidgetData data, double scale)
+    internal static Grid BuildAvatar(BuddyWidgetData data, double scale)
     {
         var avatar = new Grid { Width = 84 * scale, Height = 96 * scale };
         var bodySprite = BuddySprites.TryLoad(BuddySprites.StageId(data.Stage));
@@ -597,6 +598,28 @@ public sealed class MultiGridWidgetWindow : ExtraWidgetWindow
         return row.Cells.Skip(today + 1 - take).Take(take).ToList();
     }
 
+    /// <summary>Dải 13 ngày gần nhất của một thói quen (dùng ở dạng nhỏ gọn và trong widget gộp).</summary>
+    internal static Canvas Strip(MultiGridRow row)
+    {
+        var strip = new Canvas { Width = 13 * (Cell + Gap), Height = Cell + 2 };
+        var days = LastDays(row);
+
+        for (var i = 0; i < days.Count; i++)
+        {
+            if (days[i] < 0)
+            {
+                continue;
+            }
+
+            var rect = new Rectangle { Width = Cell, Height = Cell, RadiusX = 2, RadiusY = 2, Fill = Fill(row, days[i]) };
+            Canvas.SetLeft(rect, i * (Cell + Gap));
+            Canvas.SetTop(rect, 1);
+            strip.Children.Add(rect);
+        }
+
+        return strip;
+    }
+
     protected override UIElement BuildCompact()
     {
         var data = _data!;
@@ -610,23 +633,7 @@ public sealed class MultiGridWidgetWindow : ExtraWidgetWindow
 
         foreach (var row in data.Rows)
         {
-            var strip = new Canvas { Width = 13 * (Cell + Gap), Height = Cell + 2 };
-            var days = LastDays(row);
-
-            for (var i = 0; i < days.Count; i++)
-            {
-                if (days[i] < 0)
-                {
-                    continue;
-                }
-
-                var rect = new Rectangle { Width = Cell, Height = Cell, RadiusX = 2, RadiusY = 2, Fill = Fill(row, days[i]) };
-                Canvas.SetLeft(rect, i * (Cell + Gap));
-                Canvas.SetTop(rect, 1);
-                strip.Children.Add(rect);
-            }
-
-            stack.Put(strip, 4);
+            stack.Put(Strip(row), 4);
         }
 
         return stack;
@@ -662,7 +669,7 @@ public sealed class MultiGridWidgetWindow : ExtraWidgetWindow
         return stack;
     }
 
-    private static Brush Fill(MultiGridRow row, int value) => value switch
+    internal static Brush Fill(MultiGridRow row, int value) => value switch
     {
         1 => new SolidColorBrush(Hex(row.ColorHue)),
         2 => new SolidColorBrush(Color.FromRgb(56, 189, 248)),
@@ -687,5 +694,266 @@ public sealed class MultiGridWidgetWindow : ExtraWidgetWindow
         }
 
         return canvas;
+    }
+}
+
+/// <summary>Dữ liệu của widget gộp: Buddy, danh sách Hôm nay (check được), Mục tiêu và lưới thói quen (hai mục sau chỉ có khi Plus).</summary>
+public sealed record HubData(BuddyWidgetData Buddy, IReadOnlyList<QuickItem> Today, GoalsWidgetData? Goals, MultiGridData? Grid);
+
+/// <summary>
+/// Widget gộp duy nhất. Nhỏ gọn: viên thuốc 210×60 gồm vòng tiến độ quanh Buddy và một dòng tự luân phiên mỗi 4 giây
+/// (tiến độ hôm nay, việc kế tiếp, ý định tuần, thử thách; nếu tối mà còn việc thì dòng đầu cảnh báo "giữ chuỗi").
+/// Mở rộng: Buddy, danh sách Hôm nay (bấm một dòng để check/bỏ check), Mục tiêu và lưới thói quen (Plus).
+/// </summary>
+public sealed class HubWidgetWindow : ExtraWidgetWindow
+{
+    private readonly DispatcherTimer _rotate = new() { Interval = TimeSpan.FromSeconds(4) };
+    private HubData? _data;
+    private int _index;
+
+    public HubWidgetWindow() : base("HabitGrid")
+    {
+        _rotate.Tick += (_, _) =>
+        {
+            _index++;
+
+            if (!IsExpanded && _data is not null && CompactLines(_data, Now()).Count > 1)
+            {
+                Render();
+            }
+        };
+        _rotate.Start();
+        Closed += (_, _) => _rotate.Stop();
+    }
+
+    /// <summary>Gọi khi người dùng bấm một việc trong danh sách Hôm nay.</summary>
+    public Func<QuickItem, Task>? OnToggle { get; set; }
+
+    public Func<DateTime> Now { get; set; } = () => DateTime.Now;
+
+    /// <summary>Các mục đang hiển thị (để kiểm tra phân gói).</summary>
+    public HubSection Sections => (_data is null ? HubSection.None : HubSection.Buddy | HubSection.Today)
+                                  | (_data?.Goals is not null ? HubSection.Goals : HubSection.None)
+                                  | (_data?.Grid is not null ? HubSection.Grid : HubSection.None);
+
+    protected override Size CompactSize => new(WidgetLayout.HubWidth, WidgetLayout.HubHeight);
+
+    protected override Size ExpandedSize => new(320, EstimateHeight(_data));
+
+    /// <summary>Chiều cao dạng mở rộng theo nội dung (ước lượng để hoạt ảnh biết đích đến).</summary>
+    public static double EstimateHeight(HubData? data)
+    {
+        if (data is null)
+        {
+            return 220;
+        }
+
+        var height = 32 + 84;
+        height += 24 + Math.Max(1, Math.Min(data.Today.Count, 6)) * 28;
+
+        if (data.Goals is { IsEmpty: false } goals)
+        {
+            height += 24 + ((goals.Intent is null ? 0 : 1) + goals.Challenges.Count) * 30;
+        }
+
+        if (data.Grid is { Rows.Count: > 0 } grid)
+        {
+            height += 24 + grid.Rows.Count * 22;
+        }
+
+        return height;
+    }
+
+    public void Update(HubData data)
+    {
+        _data = data;
+        var size = IsExpanded ? ExpandedSize : CompactSize;
+        Width = size.Width;
+        Height = size.Height;
+        Render();
+    }
+
+    /// <summary>Các dòng luân phiên ở dạng nhỏ gọn. Tối còn việc: dòng đầu là cảnh báo giữ chuỗi.</summary>
+    public static IReadOnlyList<string> CompactLines(HubData data, DateTime now)
+    {
+        var lines = new List<string>();
+        var buddy = data.Buddy;
+        var mood = BuddyWidgetWindow.MoodFor(buddy, now);
+        var pending = data.Today.Where(i => !i.IsDone && !i.IsSkipped).ToList();
+
+        if (mood == BuddyWidgetWindow.Mood.AtRisk)
+        {
+            lines.Add(HostText.HubAtRisk(pending.Count));
+        }
+
+        lines.Add(buddy.TodayDue == 0 ? HostText.NothingDue : mood == BuddyWidgetWindow.Mood.AllDone ? HostText.AllDone : $"{HostText.Today}  {HostText.Progress(buddy.TodayDone, buddy.TodayDue)}");
+
+        if (pending.Count > 0)
+        {
+            lines.Add("▸ " + pending[0].Name);
+        }
+
+        if (data.Goals is { } goals)
+        {
+            lines.AddRange(GoalsWidgetWindow.Rotation(goals).Select(r => $"{r.Label} · {r.Detail}"));
+        }
+
+        return lines;
+    }
+
+    protected override UIElement BuildCompact()
+    {
+        var data = _data!;
+        var now = Now();
+        var mood = BuddyWidgetWindow.MoodFor(data.Buddy, now);
+        var color = mood switch
+        {
+            BuddyWidgetWindow.Mood.AllDone => Color.FromRgb(52, 211, 153),
+            BuddyWidgetWindow.Mood.AtRisk => Color.FromRgb(251, 191, 36),
+            _ => Color.FromRgb(167, 139, 250)
+        };
+
+        var ring = Ring(mood == BuddyWidgetWindow.Mood.AllDone ? 1 : data.Buddy.TodayDue == 0 ? 0 : data.Buddy.TodayFraction, 44, 4, color, BuddyWidgetWindow.BuildAvatar(data.Buddy, 0.36));
+
+        if (mood == BuddyWidgetWindow.Mood.AtRisk)
+        {
+            ring.BeginAnimation(OpacityProperty, new DoubleAnimation(1, 0.55, new Duration(TimeSpan.FromMilliseconds(900))) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever });
+        }
+
+        var lines = CompactLines(data, now);
+        var text = Text(lines[_index % lines.Count], 12, bold: true);
+        text.VerticalAlignment = VerticalAlignment.Center;
+        text.Margin = new Thickness(10, 0, 0, 0);
+
+        var row = new Grid { VerticalAlignment = VerticalAlignment.Center };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition());
+        row.Children.Add(ring);
+        Grid.SetColumn(text, 1);
+        row.Children.Add(text);
+        return row;
+    }
+
+    protected override UIElement BuildExpanded()
+    {
+        var data = _data!;
+        var stack = new StackPanel();
+
+        // Buddy
+        var header = new Grid();
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        header.ColumnDefinitions.Add(new ColumnDefinition());
+        var avatar = BuddyWidgetWindow.BuildAvatar(data.Buddy, 0.85);
+        header.Children.Add(avatar);
+        var info = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(10, 0, 0, 0) };
+        info.Children.Add(Text(data.Buddy.Name, 17, bold: true));
+        info.Children.Add(Text(HostText.BuddyLevel(data.Buddy.Level) + (data.Buddy.FreezeTokens > 0 ? $"   ❄ {data.Buddy.FreezeTokens}" : string.Empty), 11, opacity: 0.8));
+        info.Children.Add(new Border { Height = 6 });
+        info.Children.Add(Text(data.Buddy.TodayDue == 0 ? HostText.NothingDue : $"{HostText.Today}  {HostText.Progress(data.Buddy.TodayDone, data.Buddy.TodayDue)}", 11, opacity: 0.9));
+        info.Children.Add(new Border { Height = 4 });
+        info.Children.Add(Bar(data.Buddy.TodayFraction, 150, Color.FromRgb(139, 92, 246), Color.FromRgb(236, 72, 153), 6));
+        Grid.SetColumn(info, 1);
+        header.Children.Add(info);
+        stack.Put(header);
+
+        // Hôm nay: bấm một dòng để check / bỏ check.
+        stack.Put(Text(HostText.Today.ToUpperInvariant(), 10, bold: true, opacity: 0.6), 10);
+
+        if (data.Today.Count == 0)
+        {
+            stack.Put(Text(HostText.NothingDue, 12, opacity: 0.8), 4);
+        }
+
+        foreach (var item in data.Today.Take(6))
+        {
+            stack.Put(TodayRow(item), 2);
+        }
+
+        if (data.Today.Count > 6)
+        {
+            stack.Put(Text("+" + (data.Today.Count - 6), 11, opacity: 0.6), 2);
+        }
+
+        // Mục tiêu (Plus).
+        if (data.Goals is { IsEmpty: false } goals)
+        {
+            stack.Put(Text(HostText.GoalsTitle.ToUpperInvariant(), 10, bold: true, opacity: 0.6), 10);
+
+            foreach (var (label, fraction, detail) in GoalsWidgetWindow.Rotation(goals))
+            {
+                var line = new Grid();
+                line.ColumnDefinitions.Add(new ColumnDefinition());
+                line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                line.Children.Add(Text(label, 11));
+                var d = Text(detail, 10, opacity: 0.8);
+                Grid.SetColumn(d, 1);
+                line.Children.Add(d);
+                stack.Put(line, 4);
+                stack.Put(Bar(fraction, 288, Color.FromRgb(139, 92, 246), Color.FromRgb(236, 72, 153), 4), 2);
+            }
+        }
+
+        // Lưới thói quen (Plus).
+        if (data.Grid is { Rows.Count: > 0 } grid)
+        {
+            stack.Put(Text("🔥", 10, bold: true, opacity: 0.6), 10);
+
+            foreach (var row in grid.Rows)
+            {
+                var line = new Grid();
+                line.ColumnDefinitions.Add(new ColumnDefinition());
+                line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+                line.Children.Add(Text($"{IconText(row.Icon)} {row.Name}  🔥{row.Streak}", 11));
+                var strip = MultiGridWidgetWindow.Strip(row);
+                Grid.SetColumn(strip, 1);
+                line.Children.Add(strip);
+                stack.Put(line, 3);
+            }
+        }
+
+        return stack;
+    }
+
+    private UIElement TodayRow(QuickItem item)
+    {
+        var done = item.IsDone;
+        var box = new Border
+        {
+            Width = 16,
+            Height = 16,
+            CornerRadius = new CornerRadius(8),
+            BorderThickness = new Thickness(1.5),
+            BorderBrush = new SolidColorBrush(done ? Color.FromRgb(52, 211, 153) : Color.FromArgb(0xAA, 0xFF, 0xFF, 0xFF)),
+            Background = done ? new SolidColorBrush(Color.FromRgb(52, 211, 153)) : Brushes.Transparent,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        var label = Text(item.Name, 12, opacity: done || item.IsSkipped ? 0.5 : 1);
+
+        if (done)
+        {
+            label.TextDecorations = TextDecorations.Strikethrough;
+        }
+
+        var row = new Grid { Background = Brushes.Transparent, Cursor = Cursors.Hand, Margin = new Thickness(0, 0, 0, 0), Height = 26 };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition());
+        row.Children.Add(box);
+        label.Margin = new Thickness(8, 0, 0, 0);
+        label.VerticalAlignment = VerticalAlignment.Center;
+        Grid.SetColumn(label, 1);
+        row.Children.Add(label);
+
+        // Bấm dòng = check/bỏ check; chặn sự kiện để không đổi trạng thái giữ-mở của cả widget.
+        row.MouseLeftButtonUp += async (_, e) =>
+        {
+            e.Handled = true;
+
+            if (OnToggle is { } toggle && !item.IsSkipped)
+            {
+                await toggle(item);
+            }
+        };
+        return row;
     }
 }

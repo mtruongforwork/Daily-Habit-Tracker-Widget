@@ -13,6 +13,41 @@ public enum PinChoice
     Desktop
 }
 
+/// <summary>Cách hiển thị widget: một widget gọn duy nhất (mặc định) hay nhiều widget riêng.</summary>
+public enum WidgetLayoutMode
+{
+    /// <summary>Một widget nhỏ gọn duy nhất, rê chuột/bấm để mở ra đủ mọi mục (Buddy, Hôm nay, Mục tiêu, lưới thói quen).</summary>
+    Hub,
+
+    /// <summary>Các widget riêng lẻ (lưới thói quen, Today List, Khoảnh khắc, Buddy, Mục tiêu, Multi Grid).</summary>
+    Separate
+}
+
+/// <summary>Các mục trong widget gộp.</summary>
+[Flags]
+public enum HubSection
+{
+    None = 0,
+    Buddy = 1,
+    Today = 2,
+    Goals = 4,
+    Grid = 8
+}
+
+public static class WidgetLayoutModes
+{
+    public const string SettingKey = "widgets.layout";
+
+    public static WidgetLayoutMode Parse(string? stored) =>
+        string.Equals(stored?.Trim(), "separate", StringComparison.OrdinalIgnoreCase) ? WidgetLayoutMode.Separate : WidgetLayoutMode.Hub;
+
+    public static string ToStored(WidgetLayoutMode mode) => mode == WidgetLayoutMode.Separate ? "separate" : "hub";
+
+    /// <summary>Free: Buddy và danh sách Hôm nay (check được ngay). Plus: thêm Mục tiêu và lưới thói quen.</summary>
+    public static HubSection Sections(bool isPlus) =>
+        isPlus ? HubSection.Buddy | HubSection.Today | HubSection.Goals | HubSection.Grid : HubSection.Buddy | HubSection.Today;
+}
+
 public static class PinChoices
 {
     public const string SettingKey = "widgets.pinmode";
@@ -39,6 +74,8 @@ public static class PinChoices
 public static class WidgetLayout
 {
     public const int Margin = 24;
+    public const int HubWidth = 210;
+    public const int HubHeight = 60;
     public const int Gap = 12;
 
     public readonly record struct Item(string Key, int Width, int Height);

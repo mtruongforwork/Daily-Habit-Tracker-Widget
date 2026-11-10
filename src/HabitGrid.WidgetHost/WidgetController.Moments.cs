@@ -30,7 +30,8 @@ public sealed partial class WidgetController
             return;
         }
 
-        var allowed = await _settings.GetAsync(PlusService.PlusFlagKey) == "1"
+        var allowed = LayoutMode == HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Separate
+                      && await _settings.GetAsync(PlusService.PlusFlagKey) == "1"
                       && await _settings.GetAsync(MomentWidgetEnabledKey) != "0";
 
         if (!allowed)

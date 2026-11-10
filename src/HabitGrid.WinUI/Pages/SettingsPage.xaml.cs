@@ -208,6 +208,31 @@ public sealed partial class SettingsPage : Page
         }
 
 
+        // Cách hiển thị: một widget gộp (mặc định) hay nhiều widget riêng.
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.layout"), Style = Res("SectionHeader"), Margin = new Thickness(0, 10, 0, 0) });
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.layout.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
+        var layoutChips = new ChipGroup { MinChipWidth = 230, MaxWidth = 640, HorizontalAlignment = HorizontalAlignment.Left };
+        var layoutModes = Enum.GetValues<HabitGrid.Core.Domain.Widgets.WidgetLayoutMode>();
+
+        foreach (var mode in layoutModes)
+        {
+            layoutChips.Add(Ui.T("settings.layout." + mode));
+        }
+
+        var currentLayout = HabitGrid.Core.Domain.Widgets.WidgetLayoutModes.Parse(settingsStore.GetAsync(HabitGrid.Core.Domain.Widgets.WidgetLayoutModes.SettingKey).GetAwaiter().GetResult());
+        layoutChips.SelectedIndex = Array.IndexOf(layoutModes, currentLayout);
+        layoutChips.SelectionChanged += async (_, _) =>
+        {
+            if (_building || layoutChips.SelectedIndex < 0)
+            {
+                return;
+            }
+
+            await settingsStore.SetAsync(HabitGrid.Core.Domain.Widgets.WidgetLayoutModes.SettingKey, HabitGrid.Core.Domain.Widgets.WidgetLayoutModes.ToStored(layoutModes[layoutChips.SelectedIndex]));
+            HostLink.EnsureRunning();
+        };
+        widgetsCard.Children.Add(layoutChips);
+
         // Kiểu ghim widget (đổi có hiệu lực sau vài giây, WidgetHost tự dựng lại).
         widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.pin"), Style = Res("SectionHeader"), Margin = new Thickness(0, 10, 0, 0) });
         widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.pin.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });

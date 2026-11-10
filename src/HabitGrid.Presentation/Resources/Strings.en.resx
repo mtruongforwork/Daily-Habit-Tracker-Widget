@@ -696,4 +696,8 @@
   <data name="settings.pin.Top" xml:space="preserve"><value>Always on top (recommended)</value></data>
   <data name="settings.pin.AboveDesktop" xml:space="preserve"><value>Below windows (just above the wallpaper)</value></data>
   <data name="settings.pin.Desktop" xml:space="preserve"><value>On the wallpaper (old way)</value></data>
+  <data name="settings.layout" xml:space="preserve"><value>Widget layout</value></data>
+  <data name="settings.layout.hint" xml:space="preserve"><value>One compact widget: hover or click to open Buddy, today's tasks (click to check), goals and the habit grid. Or choose separate widgets.</value></data>
+  <data name="settings.layout.Hub" xml:space="preserve"><value>One compact widget (recommended)</value></data>
+  <data name="settings.layout.Separate" xml:space="preserve"><value>Separate widgets</value></data>
 </root>

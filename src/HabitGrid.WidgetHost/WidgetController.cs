@@ -109,6 +109,7 @@ public sealed partial class WidgetController : IDisposable
     public async Task StartAsync()
     {
         await ApplyPinChoiceAsync(initial: true);
+        await ApplyLayoutModeAsync(initial: true);
         _today = CurrentDay();
         await _quick.LoadAsync(_today);
         await CreateAuxiliaryWindowsAsync();
@@ -413,7 +414,8 @@ public sealed partial class WidgetController : IDisposable
             _today = today;
 
             // Free: một widget lưới; Plus: tối đa ba (WidgetRules).
-            var maxGrids = HabitGrid.Core.Domain.Widgets.WidgetRules.MaxGrids(await IsPlusAsync());
+            // Chế độ Hub không có widget lưới riêng.
+            var maxGrids = LayoutMode == HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Hub ? 0 : HabitGrid.Core.Domain.Widgets.WidgetRules.MaxGrids(await IsPlusAsync());
             var habits = (await _habits.GetAllActiveAsync())
                 .Where(h => h.Kind != HabitKind.Quit)
                 .OrderBy(h => h.SortKey, StringComparer.Ordinal)
@@ -481,6 +483,11 @@ public sealed partial class WidgetController : IDisposable
 
     private async Task CreateTodayListAsync()
     {
+        if (LayoutMode == HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Hub)
+        {
+            return;
+        }
+
         var list = new TodayListWindow(_quick, ActAsync);
         _todayList = list;
         list.ApplyTheme(IsSystemDark());
@@ -733,6 +740,11 @@ public sealed partial class WidgetController : IDisposable
                 {
                     extra.EditMode = edit;
                 }
+
+                if (_hub is not null)
+                {
+                    _hub.EditMode = edit;
+                }
             }
 
             _pollCount++;
@@ -765,6 +777,7 @@ public sealed partial class WidgetController : IDisposable
                 await ApplyAutoStartAsync();
                 await ApplyHotKeysAsync();
                 await ApplyPinChoiceAsync(initial: false);
+                await ApplyLayoutModeAsync(initial: false);
                 await SyncMomentWidgetAsync();
                 await SyncExtraWidgetsAsync();
             }

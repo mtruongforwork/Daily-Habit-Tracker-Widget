@@ -65,7 +65,7 @@ public static class Program
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         var database = HabitGridV3.Open(dbPath);
         var settings = new AppSettings(new MemorySettings());
-        var controller = new WidgetController(database) { EditMode = () => settings.EditMode, OpenMainApp = OpenMainApp, DataDir = dataDir, DefaultPin = selfTest ? HabitGrid.Core.Domain.Widgets.PinChoice.Desktop : HabitGrid.Core.Domain.Widgets.PinChoice.Top };
+        var controller = new WidgetController(database) { EditMode = () => settings.EditMode, OpenMainApp = OpenMainApp, DataDir = dataDir, DefaultPin = selfTest ? HabitGrid.Core.Domain.Widgets.PinChoice.Desktop : HabitGrid.Core.Domain.Widgets.PinChoice.Top, DefaultLayout = selfTest ? HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Separate : HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Hub };
         var started = false;
         var pendingToasts = new List<ToastArguments>();
 

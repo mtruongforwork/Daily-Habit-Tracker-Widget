@@ -76,3 +76,41 @@ public class WidgetLayoutTests
         plan["a"].Left.Should().BeGreaterThan(1920).And.BeLessThan(3840);
     }
 }
+
+public class WidgetLayoutModeTests
+{
+    [Theory]
+    [InlineData(null, WidgetLayoutMode.Hub)]
+    [InlineData("", WidgetLayoutMode.Hub)]
+    [InlineData("hub", WidgetLayoutMode.Hub)]
+    [InlineData("junk", WidgetLayoutMode.Hub)]
+    [InlineData("separate", WidgetLayoutMode.Separate)]
+    [InlineData(" SEPARATE ", WidgetLayoutMode.Separate)]
+    public void DefaultsToASingleHubWidget(string? stored, WidgetLayoutMode expected) =>
+        WidgetLayoutModes.Parse(stored).Should().Be(expected);
+
+    [Fact]
+    public void ModeRoundTrips()
+    {
+        foreach (var mode in Enum.GetValues<WidgetLayoutMode>())
+        {
+            WidgetLayoutModes.Parse(WidgetLayoutModes.ToStored(mode)).Should().Be(mode);
+        }
+    }
+
+    [Fact]
+    public void FreeSeesBuddyAndToday_PlusSeesEverything()
+    {
+        WidgetLayoutModes.Sections(false).Should().Be(HubSection.Buddy | HubSection.Today);
+        WidgetLayoutModes.Sections(true).Should().Be(HubSection.Buddy | HubSection.Today | HubSection.Goals | HubSection.Grid);
+    }
+
+    [Fact]
+    public void TheHubIsSmall_AndFitsInTheCornerColumn()
+    {
+        WidgetLayout.HubWidth.Should().BeLessThan(260);
+        WidgetLayout.HubHeight.Should().BeLessThan(90);
+        WidgetLayout.Plan(0, 0, 1920, 1040, [new("hub", WidgetLayout.HubWidth, WidgetLayout.HubHeight)])["hub"]
+            .Left.Should().Be(1920 - WidgetLayout.Margin - WidgetLayout.HubWidth);
+    }
+}

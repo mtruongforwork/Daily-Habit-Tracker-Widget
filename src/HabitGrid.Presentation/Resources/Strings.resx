@@ -696,4 +696,8 @@
   <data name="settings.pin.Top" xml:space="preserve"><value>Luôn trên cùng (khuyên dùng)</value></data>
   <data name="settings.pin.AboveDesktop" xml:space="preserve"><value>Dưới cửa sổ (ngay trên hình nền)</value></data>
   <data name="settings.pin.Desktop" xml:space="preserve"><value>Trên hình nền (cách cũ)</value></data>
+  <data name="settings.layout" xml:space="preserve"><value>Cách hiển thị widget</value></data>
+  <data name="settings.layout.hint" xml:space="preserve"><value>Một widget nhỏ gọn duy nhất: rê chuột hoặc bấm để mở ra đủ Buddy, việc hôm nay (bấm để check), mục tiêu và lưới thói quen. Hoặc chọn nhiều widget riêng.</value></data>
+  <data name="settings.layout.Hub" xml:space="preserve"><value>Một widget gọn (khuyên dùng)</value></data>
+  <data name="settings.layout.Separate" xml:space="preserve"><value>Nhiều widget riêng</value></data>
 </root>

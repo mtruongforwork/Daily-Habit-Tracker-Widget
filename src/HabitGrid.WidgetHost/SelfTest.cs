@@ -193,6 +193,37 @@ public static class SelfTest
             Require(controller.Extras.Count == 0, "Hết Plus mà widget Plus vẫn hiện.");
             Note(dbPath, "extra widgets ok (hidden for Free, 3 shown for Plus, hidden again)");
 
+            // 6d) Một widget gộp (chế độ Hub): chỉ có đúng một cửa sổ; Free thấy Buddy + Hôm nay, Plus thêm Mục tiêu + lưới; bấm một việc thì check.
+            await controller.Settings_SetPlusForTestAsync(true);
+            await controller.SetLayoutForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Hub);
+            await Task.Delay(1500);
+            var hub = controller.Hub ?? throw new InvalidOperationException("Chế độ Hub không dựng widget gộp.");
+            Require(hub.IsVisible && controller.Windows.Count == 0 && controller.Extras.Count == 0 && controller.TodayList is null && controller.MomentWidget is null,
+                "Chế độ Hub phải chỉ còn một widget gộp (không còn widget lưới/Today/Khoảnh khắc/Plus riêng).");
+            Require(hub.Sections.HasFlag(HabitGrid.Core.Domain.Widgets.HubSection.Goals) && hub.Sections.HasFlag(HabitGrid.Core.Domain.Widgets.HubSection.Grid), "Plus phải thấy Mục tiêu và lưới trong widget gộp.");
+            Require(!hub.IsExpanded && Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.HubWidth) < 1, "Widget gộp phải khởi đầu ở dạng nhỏ gọn.");
+
+            hub.UpdateLayout();
+            SaveShot(hub, Path.Combine(shots, "hub-compact.png"));
+            hub.SetExpanded(true, animate: false);
+            await Task.Delay(400);
+            hub.UpdateLayout();
+            Require(hub.IsExpanded && hub.Height > 200, "Widget gộp không mở rộng được.");
+            SaveShot(hub, Path.Combine(shots, "hub-expanded.png"));
+
+            hub.SetExpanded(false, animate: false);
+
+            await controller.Settings_SetPlusForTestAsync(false);
+            await controller.SyncExtraWidgetsAsync();
+            await Task.Delay(500);
+            Require(controller.Hub is { } freeHub && !freeHub.Sections.HasFlag(HabitGrid.Core.Domain.Widgets.HubSection.Goals) && !freeHub.Sections.HasFlag(HabitGrid.Core.Domain.Widgets.HubSection.Grid), "Free không được thấy Mục tiêu/lưới trong widget gộp.");
+
+            // Quay lại các widget riêng cho phần còn lại của bài kiểm tra.
+            await controller.SetLayoutForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Separate);
+            await Task.Delay(1500);
+            Require(controller.Hub is null && controller.Windows.Count > 0 && controller.TodayList is not null, "Chuyển về widget riêng phải dựng lại widget lưới và Today List.");
+            Note(dbPath, "hub widget ok (single window, Free/Plus sections, expand, back to separate)");
+
             // 7) Focus: phiên đếm ngược 1 phút tự kết thúc và được ghi vào nhật ký.
             var before2 = (await controller.FocusService.HistoryAsync()).Count;
             await controller.Focus.StartAsync(HabitGrid.Core.Domain.Focus.FocusMode.Countdown, 1, null, keepHabit: false);

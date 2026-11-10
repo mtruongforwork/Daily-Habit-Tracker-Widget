@@ -62,6 +62,7 @@ public sealed partial class WidgetController
         "multigrid" => (146, 94),
         "moment" => (160, 190),
         "today" => (300, 150),
+        "hub" => (WidgetLayout.HubWidth, WidgetLayout.HubHeight),
         _ => (270, 130)
     };
 
@@ -72,6 +73,13 @@ public sealed partial class WidgetController
     {
         var plus = await IsPlusAsync();
         var keys = new List<string>();
+
+        if (LayoutMode == WidgetLayoutMode.Hub)
+        {
+            keys.Add("hub");
+            var area = System.Windows.SystemParameters.WorkArea;
+            return WidgetLayout.Plan((int)area.Left, (int)area.Top, (int)area.Right, (int)area.Bottom, [new WidgetLayout.Item("hub", WidgetLayout.HubWidth, WidgetLayout.HubHeight)])["hub"];
+        }
 
         foreach (var kind in Enum.GetValues<ExtraWidget>())
         {
@@ -132,6 +140,15 @@ public sealed partial class WidgetController
     /// <summary>Tạo/đóng từng widget theo quyền + cài đặt rồi cập nhật dữ liệu. Gọi khi khởi động, khi dữ liệu đổi và mỗi ~30 giây.</summary>
     public async Task SyncExtraWidgetsAsync()
     {
+        // Chế độ Hub: chỉ có một widget gộp, không có widget Plus riêng lẻ.
+        if (LayoutMode == WidgetLayoutMode.Hub)
+        {
+            ResetExtrasOnly();
+            await SyncHubAsync();
+            return;
+        }
+
+        CloseHub();
         var plus = await IsPlusAsync();
 
         foreach (var kind in Enum.GetValues<ExtraWidget>())
@@ -266,6 +283,11 @@ public sealed partial class WidgetController
     {
         var ok = true;
 
+        if (_hub is not null)
+        {
+            ok &= !_hub.Pin(_desktop, DesktopPinningMode.DesktopLevel).UsedFallback;
+        }
+
         foreach (var window in _extras.Values)
         {
             ok &= !window.Pin(_desktop, DesktopPinningMode.DesktopLevel).UsedFallback;
@@ -276,6 +298,12 @@ public sealed partial class WidgetController
 
     /// <summary>Explorer khởi động lại: đóng widget cũ để lần đồng bộ sau dựng lại.</summary>
     private void ResetExtras()
+    {
+        ResetExtrasOnly();
+        CloseHub();
+    }
+
+    private void ResetExtrasOnly()
     {
         foreach (var window in _extras.Values)
         {

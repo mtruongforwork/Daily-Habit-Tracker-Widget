@@ -85,4 +85,6 @@ public static class HostText
     public static string GoalsDay(int day, int total) => IsVietnamese ? $"Ngày {day}/{total}" : $"Day {day}/{total}";
 
     public static string GoalsNone => IsVietnamese ? "Chưa có mục tiêu" : "No goals yet";
+
+    public static string HubAtRisk(int pending) => IsVietnamese ? $"⚠ Còn {pending} việc, giữ chuỗi nhé!" : $"⚠ {pending} left, keep your streak!";
 }
