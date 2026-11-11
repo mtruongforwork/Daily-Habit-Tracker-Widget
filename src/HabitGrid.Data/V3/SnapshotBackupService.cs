@@ -13,7 +13,8 @@ public sealed record BackupPayload(
     IReadOnlyList<Habit> Habits,
     IReadOnlyList<DayLog> DayLogs,
     IReadOnlyList<Routine> Routines,
-    UserProfile Profile);
+    UserProfile Profile,
+    IReadOnlyList<HabitGrid.Core.Domain.Journal.JournalEntry>? Journal = null);
 
 public sealed class UnsupportedBackupException : Exception
 {
@@ -42,6 +43,7 @@ public sealed class SnapshotBackupService
     private readonly IRoutineRepository _routines;
     private readonly IProfileRepository _profile;
     private readonly IDataChangeBus? _bus;
+    private readonly HabitGrid.Core.Domain.Journal.IJournalRepository? _journal;
 
     public SnapshotBackupService(
         HabitGridDatabase database,
@@ -50,8 +52,10 @@ public sealed class SnapshotBackupService
         IDayLogRepository dayLogs,
         IRoutineRepository routines,
         IProfileRepository profile,
-        IDataChangeBus? bus = null)
+        IDataChangeBus? bus = null,
+        HabitGrid.Core.Domain.Journal.IJournalRepository? journal = null)
     {
+        _journal = journal;
         _database = database ?? throw new ArgumentNullException(nameof(database));
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         _habits = habits ?? throw new ArgumentNullException(nameof(habits));
@@ -72,7 +76,7 @@ public sealed class SnapshotBackupService
             logs.AddRange(await _dayLogs.GetAllForHabitAsync(habit.Id, ct));
         }
 
-        var payload = new BackupPayload(habits, logs, await _routines.GetAllAsync(ct), await _profile.GetAsync(ct));
+        var payload = new BackupPayload(habits, logs, await _routines.GetAllAsync(ct), await _profile.GetAsync(ct), _journal is null ? [] : await _journal.GetAllAsync(ct));
         var manifest = new BackupManifest(
             MigrationV3Schema.SchemaVersion,
             DateTime.UtcNow,
@@ -147,7 +151,7 @@ public sealed class SnapshotBackupService
 
         try
         {
-            foreach (var table in new[] { "day_logs", "reminders", "routines", "profile", "habits", "sync_outbox" })
+            foreach (var table in new[] { "journal_entries", "day_logs", "reminders", "routines", "profile", "habits", "sync_outbox" })
             {
                 await using var wipe = connection.CreateCommand();
                 wipe.Transaction = transaction;
@@ -193,6 +197,18 @@ public sealed class SnapshotBackupService
                 command.Parameters.AddWithValue("$hlc", hlc.ToString());
                 await command.ExecuteNonQueryAsync(ct);
                 await EnqueueAsync(connection, transaction, "routine", routine.Id.ToString("D"), routine with { HabitIds = [] }, hlc, ct);
+            }
+
+            foreach (var entry in (payload.Journal ?? []).Select(HabitGrid.Core.Domain.Journal.JournalRules.Normalize).Where(e => !e.IsEmpty))
+            {
+                await using var command = connection.CreateCommand();
+                command.Transaction = transaction;
+                command.CommandText = "INSERT OR REPLACE INTO journal_entries (day, text, mood, updated_at) VALUES ($day, $text, $mood, $updated);";
+                command.Parameters.AddWithValue("$day", Sql.ToSqlDate(entry.Day));
+                command.Parameters.AddWithValue("$text", entry.Text);
+                command.Parameters.AddWithValue("$mood", (object?)entry.Mood ?? DBNull.Value);
+                command.Parameters.AddWithValue("$updated", Sql.ToSqlTimestamp(entry.UpdatedAt));
+                await command.ExecuteNonQueryAsync(ct);
             }
 
             await transaction.CommitAsync(ct);

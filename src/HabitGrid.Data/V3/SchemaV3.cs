@@ -179,6 +179,6 @@ public static class HabitGridV3
     public static void Migrate(HabitGridDatabase database)
     {
         ArgumentNullException.ThrowIfNull(database);
-        new MigrationRunner(database, [new MigrationV3Schema()]).ApplyMigrations();
+        new MigrationRunner(database, [new MigrationV3Schema(), new MigrationV4Journal()]).ApplyMigrations();
     }
 }

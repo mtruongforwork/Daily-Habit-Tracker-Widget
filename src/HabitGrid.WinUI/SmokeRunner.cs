@@ -1,4 +1,4 @@
-using IDayProvider = HabitGrid.Core.Services.IDayProvider;
+﻿using IDayProvider = HabitGrid.Core.Services.IDayProvider;
 using HabitGrid.Core.Domain;
 using HabitGrid.Core.Domain.Challenges;
 using HabitGrid.Core.Domain.Insights;
@@ -67,6 +67,7 @@ public static class SmokeRunner
             }
 
             await CalendarJourneyAsync(window, logger);
+            await JournalJourneyAsync(window, logger);
             await DashboardJourneyAsync(window, logger);
             await DetailJourneyAsync(window, logger);
             await BuddyJourneyAsync(window, logger, () => celebrations);
@@ -670,6 +671,52 @@ public static class SmokeRunner
         logger.Info("SMOKE dashboard OK (hide, reorder, persist, reset)");
     }
 
+    /// <summary>Nhật ký: gõ rồi lưu, đổi sang ngày khác không mất bài cũ, tìm thấy bài đã viết, rời trang cũng lưu phần đang gõ.</summary>
+    private static async Task JournalJourneyAsync(MainWindow window, IAppLogger logger)
+    {
+        await GoToAsync(window, PageKeys.Journal);
+        var page = window.CurrentPage as JournalPage ?? throw new InvalidOperationException("Không mở được trang Nhật ký.");
+        await page.Ready;
+        await Task.Delay(300);
+
+        var model = page.Model;
+        Require(page.Editor is not null, "Trang Nhật ký không có ô soạn thảo.");
+        page.Editor!.Text = "Một ngày để nhớ: đã chạy bộ và đọc sách.";
+        await Task.Delay(150); // TextChanged của WinUI chạy bất đồng bộ
+        await page.FlushAsync();
+        Require(model.Current?.Text.StartsWith("Một ngày để nhớ", StringComparison.Ordinal) == true, "Nhật ký không được lưu.");
+
+        // Sang ngày hôm qua, viết bài khác; bài hôm nay vẫn còn.
+        await page.FlushAsync();
+        await model.ShiftDayAsync(-1);
+        await model.SaveAsync("Hôm qua hơi mệt.", 2);
+        await model.LoadAsync(model.Today);
+        Require(model.Current?.Text.Contains("chạy bộ", StringComparison.Ordinal) == true, "Bài hôm nay bị mất sau khi viết ngày khác.");
+
+        await model.SearchAsync("mệt");
+        Require(model.Entries.Count == 1 && model.Entries[0].Mood == 2, "Tìm kiếm nhật ký không ra đúng bài.");
+        await model.SearchAsync(string.Empty);
+        Require(model.Entries.Count == 2, "Danh sách gần đây thiếu bài.");
+
+        // Gõ dở rồi rời trang: phần đang gõ phải được lưu.
+        await GoToAsync(window, PageKeys.Journal);
+        page = (JournalPage)window.CurrentPage!;
+        await page.Ready;
+        await Task.Delay(300);
+        page.Editor!.Text = page.Editor.Text + " Gõ thêm dòng cuối.";
+        await Task.Delay(150);
+        await GoToAsync(window, PageKeys.Today);
+        await Task.Delay(500);
+        var saved = await App.Host.Get<HabitGrid.Core.Domain.Journal.IJournalRepository>().GetAsync(model.Today);
+        Require(saved?.Text.EndsWith("Gõ thêm dòng cuối.", StringComparison.Ordinal) == true, "Rời trang không lưu phần đang gõ.");
+
+        await GoToAsync(window, PageKeys.Journal);
+        await ((JournalPage)window.CurrentPage!).Ready;
+        await Task.Delay(300);
+        await SnapAsync(window, "journal");
+        logger.Info("SMOKE journal OK (save, other day, search, leave-page flush)");
+    }
+
     /// <summary>Lịch tháng: dựng được lưới, chọn một ngày quá khứ, check-in ngày đó và ô trên lưới đổi theo.</summary>
     private static async Task CalendarJourneyAsync(MainWindow window, IAppLogger logger)
     {
@@ -759,7 +806,7 @@ public static class SmokeRunner
     {
         var problems = new List<string>();
 
-        foreach (var key in new[] { PageKeys.Today, PageKeys.Calendar, PageKeys.Habits, PageKeys.Insights, PageKeys.Buddy, PageKeys.Settings })
+        foreach (var key in new[] { PageKeys.Today, PageKeys.Calendar, PageKeys.Journal, PageKeys.Habits, PageKeys.Insights, PageKeys.Buddy, PageKeys.Settings })
         {
             await GoToAsync(window, key);
             await Task.Delay(700);

@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using FluentAssertions;
 using HabitGrid.Core.Domain;
 using HabitGrid.Data;
@@ -21,9 +21,9 @@ public class SchemaTests
         var tables = fixture.Strings("SELECT name FROM sqlite_master WHERE type = 'table';");
         tables.Should().Contain([
             "habits", "reminders", "day_logs", "routines", "profile", "xp_events", "achievements",
-            "widgets", "settings", "sync_outbox", "sync_state", "schema_info"]);
+            "widgets", "settings", "sync_outbox", "sync_state", "schema_info", "journal_entries"]);
 
-        fixture.Scalar("SELECT MAX(version) FROM schema_info;").Should().Be(3);
+        fixture.Scalar("SELECT MAX(version) FROM schema_info;").Should().Be(4);
     }
 
     [Fact]

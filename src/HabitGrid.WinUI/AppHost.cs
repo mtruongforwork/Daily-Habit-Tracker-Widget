@@ -220,7 +220,8 @@ public sealed class AppHost : IDisposable
                     sp.GetRequiredService<IDayLogRepository>(),
                     sp.GetRequiredService<IRoutineRepository>(),
                     sp.GetRequiredService<IProfileRepository>(),
-                    bus),
+                    bus,
+                    sp.GetRequiredService<HabitGrid.Core.Domain.Journal.IJournalRepository>()),
                 Path.Combine(AppPaths.DataDir, "backups"));
 
             // P3 (Plus): nhân bản sang thư mục cloud người dùng chọn. Đọc lại mỗi lần nên bật/tắt/đổi thư mục có hiệu lực ngay;
@@ -269,6 +270,10 @@ public sealed class AppHost : IDisposable
             sp.GetRequiredService<IEntitlements>(),
             sp.GetRequiredService<IDayProvider>(),
             sp.GetRequiredService<MomentStore>()));
+        services.AddSingleton<HabitGrid.Core.Domain.Journal.IJournalRepository>(_ => new JournalRepository(database));
+        services.AddTransient<JournalModel>(sp => new JournalModel(
+            sp.GetRequiredService<HabitGrid.Core.Domain.Journal.IJournalRepository>(),
+            sp.GetRequiredService<IDayProvider>()));
         services.AddTransient<CalendarModel>(sp => new CalendarModel(
             sp.GetRequiredService<IHabitRepository>(),
             sp.GetRequiredService<IDayLogRepository>(),

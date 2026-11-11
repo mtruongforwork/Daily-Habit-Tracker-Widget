@@ -753,4 +753,16 @@
   <data name="dashboard.section.routines" xml:space="preserve"><value>Routines</value></data>
   <data name="dashboard.section.challenges" xml:space="preserve"><value>Challenges</value></data>
   <data name="dashboard.section.hero" xml:space="preserve"><value>Progress and streak</value></data>
+  <data name="nav.journal" xml:space="preserve"><value>Journal</value></data>
+  <data name="journal.title" xml:space="preserve"><value>Journal</value></data>
+  <data name="journal.today" xml:space="preserve"><value>Today</value></data>
+  <data name="journal.prev" xml:space="preserve"><value>Previous day</value></data>
+  <data name="journal.next" xml:space="preserve"><value>Next day</value></data>
+  <data name="journal.search" xml:space="preserve"><value>Search your journal (Enter)</value></data>
+  <data name="journal.empty" xml:space="preserve"><value>No entries yet. Write a few lines for today on the right.</value></data>
+  <data name="journal.noResults" xml:space="preserve"><value>No entries match.</value></data>
+  <data name="journal.placeholder" xml:space="preserve"><value>How was today? Write a few lines for yourself. Your journal stays on this PC.</value></data>
+  <data name="journal.saving" xml:space="preserve"><value>Saving…</value></data>
+  <data name="journal.saved" xml:space="preserve"><value>Saved</value></data>
+  <data name="journal.failed" xml:space="preserve"><value>Could not save</value></data>
 </root>

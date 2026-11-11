@@ -11,7 +11,7 @@ public static class DataEraser
     /// <summary>Danh sách bảng cố định trong mã (không bao giờ ghép từ dữ liệu bên ngoài). Thứ tự: bảng con trước bảng cha.</summary>
     private static readonly string[] Tables =
     [
-        "day_logs", "reminders", "routines", "xp_events", "achievements", "widgets", "profile", "settings", "sync_outbox", "sync_state", "habits"
+        "journal_entries", "day_logs", "reminders", "routines", "xp_events", "achievements", "widgets", "profile", "settings", "sync_outbox", "sync_state", "habits"
     ];
 
     /// <summary>Số dòng đã xóa (tổng các bảng).</summary>
