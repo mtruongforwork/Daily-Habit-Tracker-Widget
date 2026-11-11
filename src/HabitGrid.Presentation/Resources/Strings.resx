@@ -753,4 +753,16 @@
   <data name="dashboard.section.routines" xml:space="preserve"><value>Routine</value></data>
   <data name="dashboard.section.challenges" xml:space="preserve"><value>Thử thách</value></data>
   <data name="dashboard.section.hero" xml:space="preserve"><value>Tiến độ và chuỗi</value></data>
+  <data name="nav.journal" xml:space="preserve"><value>Nhật ký</value></data>
+  <data name="journal.title" xml:space="preserve"><value>Nhật ký</value></data>
+  <data name="journal.today" xml:space="preserve"><value>Hôm nay</value></data>
+  <data name="journal.prev" xml:space="preserve"><value>Ngày trước</value></data>
+  <data name="journal.next" xml:space="preserve"><value>Ngày sau</value></data>
+  <data name="journal.search" xml:space="preserve"><value>Tìm trong nhật ký (Enter)</value></data>
+  <data name="journal.empty" xml:space="preserve"><value>Chưa có nhật ký nào. Viết vài dòng cho hôm nay ở bên phải.</value></data>
+  <data name="journal.noResults" xml:space="preserve"><value>Không có nhật ký nào khớp.</value></data>
+  <data name="journal.placeholder" xml:space="preserve"><value>Hôm nay thế nào? Viết vài dòng cho riêng bạn. Nhật ký chỉ nằm trên máy này.</value></data>
+  <data name="journal.saving" xml:space="preserve"><value>Đang lưu…</value></data>
+  <data name="journal.saved" xml:space="preserve"><value>Đã lưu</value></data>
+  <data name="journal.failed" xml:space="preserve"><value>Không lưu được</value></data>
 </root>

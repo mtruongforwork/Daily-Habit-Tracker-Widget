@@ -6,7 +6,7 @@ HabitGrid là ứng dụng theo dõi thói quen chạy trên máy tính Windows.
 
 1. Dữ liệu ứng dụng lưu
 Những gì bạn nhập hoặc tạo trong ứng dụng được lưu cục bộ trên máy của bạn:
-- Tên thói quen, lịch, nhật ký check-in, ghi chú, cảm xúc trong ngày, thử thách, routine.
+- Tên thói quen, lịch, nhật ký check-in, ghi chú, nhật ký ngày, cảm xúc trong ngày, thử thách, routine.
 - Cấp độ, XP, huy hiệu và các tùy chọn giao diện/ngôn ngữ.
 - Ảnh khoảnh khắc bạn chụp hoặc chọn (đã được mã hóa lại và bỏ siêu dữ liệu như vị trí GPS).
 - Vị trí và cấu hình của các widget trên màn hình nền (widget chạy cục bộ trên máy, không kết nối mạng).
@@ -49,7 +49,7 @@ Developer: MTD Studio. Last updated: 11 Nov 2026. Applies to HabitGrid 1.0 and l
 
 HabitGrid is a habit-tracking app for Windows PCs, built so your data stays on your PC.
 
-Data stored. Everything you enter or create (habits, schedules, check-ins, notes, moods, challenges, routines, level/XP/badges, appearance and language settings, moment photos with metadata such as GPS removed, desktop widget positions and settings, backups and crash-report files) is stored locally on your PC.
+Data stored. Everything you enter or create (habits, schedules, check-ins, notes, journal entries, moods, challenges, routines, level/XP/badges, appearance and language settings, moment photos with metadata such as GPS removed, desktop widget positions and settings, backups and crash-report files) is stored locally on your PC.
 
 Data sent. HabitGrid does not collect or transmit your personal data to the developer or to any third party. There is no account, no advertising, no analytics, no trackers and no third-party SDKs. The only network connection is to the Microsoft Store for licence checks and purchases (see Purchases). The app handles only the data you enter, only to run the features you use.
 
