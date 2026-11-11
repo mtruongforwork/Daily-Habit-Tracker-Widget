@@ -229,7 +229,20 @@ public abstract class ExtraWidgetWindow : Window
             Content = _card;
         }
 
-        _card.Padding = IsExpanded ? new Thickness(16, 14, 16, 14) : peek ? new Thickness(14, 6, 14, 6) : new Thickness(8);
+        var padding = IsExpanded ? new Thickness(16, 14, 16, 14) : peek ? new Thickness(14, 6, 14, 6) : new Thickness(8);
+        _card.Padding = padding;
+
+        // Nội dung có kích thước CỐ ĐỊNH bằng đích đến và bị cắt theo thẻ: khi thẻ co giãn bằng lò xo, WPF không phải đo/sắp xếp lại
+        // cả cây giao diện ở mỗi khung hình (nguyên nhân chính của việc khựng), chỉ khung cửa sổ đổi.
+        if (child is FrameworkElement fixedChild)
+        {
+            fixedChild.Width = Math.Max(1, size.Width - padding.Left - padding.Right - 2);
+            fixedChild.Height = Math.Max(1, size.Height - padding.Top - padding.Bottom - 2);
+            fixedChild.HorizontalAlignment = HorizontalAlignment.Left;
+            fixedChild.VerticalAlignment = VerticalAlignment.Top;
+        }
+
+        _card.ClipToBounds = true;
         _card.Child = child;
 
         if (crossfade && Animations)
