@@ -68,6 +68,7 @@ public static class SmokeRunner
 
             await CalendarJourneyAsync(window, logger);
             await JournalJourneyAsync(window, logger);
+            await FocusJourneyAsync(window, logger);
             await DashboardJourneyAsync(window, logger);
             await DetailJourneyAsync(window, logger);
             await BuddyJourneyAsync(window, logger, () => celebrations);
@@ -671,6 +672,41 @@ public static class SmokeRunner
         logger.Info("SMOKE dashboard OK (hide, reorder, persist, reset)");
     }
 
+    /// <summary>
+    /// Trang Focus: dựng được, đồng hồ lấy từ trạng thái phiên đã lưu (không bắt đầu phiên thật để không bật WidgetHost trong smoke),
+    /// thống kê tính từ lịch sử, đổi chế độ ẩn/hiện ô nhập đúng.
+    /// </summary>
+    private static async Task FocusJourneyAsync(MainWindow window, IAppLogger logger)
+    {
+        // Một phiên đã ghi trong lịch sử để có thống kê.
+        var focusRepo = App.Host.Get<HabitGrid.Core.Domain.IFocusRepository>();
+        await focusRepo.AddAsync(new HabitGrid.Core.Domain.Focus.FocusRecord(Guid.NewGuid(), null, DateTime.UtcNow.AddMinutes(-40), DateTime.UtcNow.AddMinutes(-15), 25, HabitGrid.Core.Domain.Focus.FocusMode.Pomodoro));
+
+        await GoToAsync(window, PageKeys.Focus);
+        var page = window.CurrentPage as FocusPage ?? throw new InvalidOperationException("Không mở được trang Focus.");
+        await page.Ready;
+        await Task.Delay(300);
+        Require(page.Model.Stats is { Sessions: >= 1, TotalMinutes: >= 25 }, "Trang Focus không tính thống kê từ lịch sử.");
+        Require((await page.Model.DisplayAsync(DateTime.UtcNow)).Phase == HabitGrid.Core.Domain.Focus.FocusPhase.Idle, "Trang Focus báo đang chạy dù chưa có phiên.");
+
+        // Có trạng thái phiên đang chạy (do WidgetHost ghi): trang hiển thị đúng thời gian còn lại.
+        var timer = new HabitGrid.Core.Domain.Focus.FocusTimer(HabitGrid.Core.Domain.Focus.FocusMode.Pomodoro, TimeSpan.FromMinutes(25), TimeSpan.FromMinutes(5), null);
+        timer.Start(DateTime.UtcNow.AddMinutes(-10));
+        var store = App.Host.Get<ISettingsStore>();
+        await store.SetAsync("focus.state", System.Text.Json.JsonSerializer.Serialize(timer.State));
+        await page.RefreshAsync();
+        var display = await page.Model.DisplayAsync(DateTime.UtcNow);
+        Require(display.Phase == HabitGrid.Core.Domain.Focus.FocusPhase.Work && display.Remaining!.Value.TotalMinutes is > 14 and < 15.1, "Đồng hồ Focus hiển thị sai thời gian còn lại.");
+        await SnapAsync(window, "focus-running");
+
+        await store.RemoveAsync("focus.state");
+        await GoToAsync(window, PageKeys.Focus);
+        await ((FocusPage)window.CurrentPage!).Ready;
+        await Task.Delay(300);
+        await SnapAsync(window, "focus");
+        logger.Info("SMOKE focus OK (stats, running state, idle)");
+    }
+
     /// <summary>Nhật ký: gõ rồi lưu, đổi sang ngày khác không mất bài cũ, tìm thấy bài đã viết, rời trang cũng lưu phần đang gõ.</summary>
     private static async Task JournalJourneyAsync(MainWindow window, IAppLogger logger)
     {
@@ -806,7 +842,7 @@ public static class SmokeRunner
     {
         var problems = new List<string>();
 
-        foreach (var key in new[] { PageKeys.Today, PageKeys.Calendar, PageKeys.Journal, PageKeys.Habits, PageKeys.Insights, PageKeys.Buddy, PageKeys.Settings })
+        foreach (var key in new[] { PageKeys.Today, PageKeys.Calendar, PageKeys.Journal, PageKeys.Focus, PageKeys.Habits, PageKeys.Insights, PageKeys.Buddy, PageKeys.Settings })
         {
             await GoToAsync(window, key);
             await Task.Delay(700);

@@ -274,6 +274,18 @@ public sealed class AppHost : IDisposable
         services.AddTransient<JournalModel>(sp => new JournalModel(
             sp.GetRequiredService<HabitGrid.Core.Domain.Journal.IJournalRepository>(),
             sp.GetRequiredService<IDayProvider>()));
+        services.AddSingleton<FocusService>(sp => new FocusService(
+            sp.GetRequiredService<IHabitRepository>(),
+            sp.GetRequiredService<IDayLogRepository>(),
+            sp.GetRequiredService<IFocusRepository>(),
+            sp.GetRequiredService<IDayProvider>(),
+            sp.GetRequiredService<ISettingsStore>()));
+        services.AddSingleton<IFocusCommands, HostFocusCommands>();
+        services.AddTransient<FocusPageModel>(sp => new FocusPageModel(
+            sp.GetRequiredService<FocusService>(),
+            sp.GetRequiredService<ISettingsStore>(),
+            sp.GetRequiredService<IDayProvider>(),
+            sp.GetRequiredService<IFocusCommands>()));
         services.AddTransient<CalendarModel>(sp => new CalendarModel(
             sp.GetRequiredService<IHabitRepository>(),
             sp.GetRequiredService<IDayLogRepository>(),

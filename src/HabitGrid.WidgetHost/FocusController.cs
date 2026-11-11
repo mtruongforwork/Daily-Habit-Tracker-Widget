@@ -59,12 +59,13 @@ public sealed class FocusController : IDisposable
     }
 
     /// <summary>Bắt đầu phiên mới theo lựa chọn đã lưu (hoặc tham số).</summary>
-    public async Task StartAsync(FocusMode? mode = null, int? minutes = null, Guid? habitId = null, bool keepHabit = true)
+    public async Task StartAsync(FocusMode? mode = null, int? minutes = null, Guid? habitId = null, bool keepHabit = true, int? breakMinutes = null)
     {
         var prefs = Prefs with
         {
             Mode = mode ?? Prefs.Mode,
             WorkMinutes = minutes ?? Prefs.WorkMinutes,
+            BreakMinutes = breakMinutes ?? Prefs.BreakMinutes,
             HabitId = keepHabit ? habitId ?? Prefs.HabitId : habitId
         };
         await SavePrefsAsync(prefs);

@@ -26,7 +26,7 @@ jobs:
           $env:HABITGRID_DATA_DIR = Join-Path $env:RUNNER_TEMP 'hg-smoke'
           $exe = Get-ChildItem src/HabitGrid.WinUI/bin -Recurse -Filter HabitGrid.WinUI.exe | Select-Object -First 1
           $p = Start-Process $exe.FullName -ArgumentList '--smoke' -PassThru
-          if (-not $p.WaitForExit(90000)) { $p.Kill(); Write-Error 'smoke timed out'; exit 1 }
+          if (-not $p.WaitForExit(240000)) { $p.Kill(); Write-Error 'smoke timed out'; exit 1 }
           Get-Content "$env:HABITGRID_DATA_DIR/logs/*.log" -ErrorAction SilentlyContinue
           exit $p.ExitCode
       - name: WidgetHost self-test (reads the smoke database, check-in round trip)

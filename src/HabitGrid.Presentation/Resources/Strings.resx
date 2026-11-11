@@ -765,4 +765,31 @@
   <data name="journal.saving" xml:space="preserve"><value>Đang lưu…</value></data>
   <data name="journal.saved" xml:space="preserve"><value>Đã lưu</value></data>
   <data name="journal.failed" xml:space="preserve"><value>Không lưu được</value></data>
+  <data name="nav.focus" xml:space="preserve"><value>Focus</value></data>
+  <data name="focus.title" xml:space="preserve"><value>Focus</value></data>
+  <data name="focus.start" xml:space="preserve"><value>Bắt đầu</value></data>
+  <data name="focus.pause" xml:space="preserve"><value>Tạm dừng</value></data>
+  <data name="focus.resume" xml:space="preserve"><value>Tiếp tục</value></data>
+  <data name="focus.skipBreak" xml:space="preserve"><value>Bỏ qua nghỉ</value></data>
+  <data name="focus.stop" xml:space="preserve"><value>Kết thúc</value></data>
+  <data name="focus.mode.pomodoro" xml:space="preserve"><value>Pomodoro</value></data>
+  <data name="focus.mode.countdown" xml:space="preserve"><value>Đếm ngược</value></data>
+  <data name="focus.mode.stopwatch" xml:space="preserve"><value>Bấm giờ</value></data>
+  <data name="focus.minutes" xml:space="preserve"><value>Số phút tập trung</value></data>
+  <data name="focus.break" xml:space="preserve"><value>Số phút nghỉ</value></data>
+  <data name="focus.habit" xml:space="preserve"><value>Thói quen (tùy chọn)</value></data>
+  <data name="focus.habit.none" xml:space="preserve"><value>Không gắn thói quen</value></data>
+  <data name="focus.hint" xml:space="preserve"><value>Phiên chạy nền: bạn có thể đóng HabitGrid, đồng hồ vẫn chạy ở widget. Phút tự cộng vào thói quen loại Thời lượng khi xong.</value></data>
+  <data name="focus.phase.ready" xml:space="preserve"><value>Sẵn sàng</value></data>
+  <data name="focus.phase.work" xml:space="preserve"><value>Đang tập trung</value></data>
+  <data name="focus.phase.paused" xml:space="preserve"><value>Tạm dừng</value></data>
+  <data name="focus.phase.break" xml:space="preserve"><value>Nghỉ giải lao</value></data>
+  <data name="focus.stats" xml:space="preserve"><value>Thống kê</value></data>
+  <data name="focus.today" xml:space="preserve"><value>Hôm nay</value></data>
+  <data name="focus.week" xml:space="preserve"><value>Tuần này</value></data>
+  <data name="focus.total" xml:space="preserve"><value>Tổng cộng</value></data>
+  <data name="focus.recent" xml:space="preserve"><value>Phiên gần đây</value></data>
+  <data name="focus.none" xml:space="preserve"><value>Chưa có phiên nào. Bắt đầu phiên đầu tiên bên trái.</value></data>
+  <data name="focus.min" xml:space="preserve"><value>{0} phút</value></data>
+  <data name="focus.hm" xml:space="preserve"><value>{0} giờ {1:00}</value></data>
 </root>
