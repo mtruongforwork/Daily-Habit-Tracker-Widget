@@ -73,9 +73,9 @@ public abstract class ExtraWidgetWindow : Window
     private Border? _card;
     private readonly SpringValue _w = new();
     private readonly SpringValue _h = new();
-    private readonly SpringValue _l = new() { Stiffness = 280, Damping = 32 };
-    private readonly SpringValue _t = new() { Stiffness = 280, Damping = 32 };
-    private readonly SpringValue _r = new() { Stiffness = 280, Damping = 32 };
+    private readonly SpringValue _l = new();
+    private readonly SpringValue _t = new();
+    private readonly SpringValue _r = new();
     private bool _morphing;
     private DateTime _lastFrame;
     private int _peekVersion;

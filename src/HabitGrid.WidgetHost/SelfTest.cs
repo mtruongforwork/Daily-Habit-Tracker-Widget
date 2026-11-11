@@ -198,6 +198,20 @@ public static class SelfTest
             Require(peak < 320 * 1.03, $"Lò xo kiểu êm không được vượt đích quá 3%, đỉnh = {peak:0.0}.");
             Require(steps < 60, $"Lò xo phải lắng trong dưới 1 giây, mất {steps} khung hình.");
 
+            // Cảm giác: tới 98% quãng đường trong 250-350 ms (kiểu Dynamic Island), đo ở nhịp 240 Hz.
+            var timing = new HabitGrid.WidgetHost.SpringValue();
+            timing.Snap(0);
+            timing.Target = 300;
+            var elapsed = 0.0;
+
+            while (Math.Abs(timing.Value - 300) > 6 && elapsed < 2)
+            {
+                timing.Step(1.0 / 240);
+                elapsed += 1.0 / 240;
+            }
+
+            Require(elapsed is >= 0.25 and <= 0.35, $"Lò xo phải tới 98% trong 250-350 ms, thực tế {elapsed * 1000:0} ms.");
+
             // Hình màu của Buddy: đủ 5 giai đoạn và mọi phụ kiện trong danh mục phải nạp được (thiếu thì widget rơi về emoji đơn sắc).
             var spriteIds = Enum.GetValues<HabitGrid.Presentation.ViewModels.BuddyStage>().Select(HabitGrid.WidgetHost.BuddySprites.StageId)
                 .Concat(HabitGrid.Core.Domain.Gamification.BuddyAccessories.All.Select(a => a.Id)).ToList();

@@ -7,10 +7,10 @@ namespace HabitGrid.WidgetHost;
 public sealed class SpringValue
 {
     /// <summary>Độ cứng (càng lớn càng nhanh).</summary>
-    public double Stiffness { get; init; } = 240;
+    public double Stiffness { get; init; } = 380;
 
-    /// <summary>Giảm chấn (càng nhỏ càng nảy). 30 với độ cứng 240 cho tỷ số giảm chấn ≈ 0,97: gần như không vượt đích, êm và lắng nhanh.</summary>
-    public double Damping { get; init; } = 30;
+    /// <summary>Giảm chấn (càng nhỏ càng nảy). 38 với độ cứng 380 cho tỷ số giảm chấn ≈ 0,975: gần như không vượt đích; tới 98% quãng đường trong ~300 ms (kiểu Dynamic Island: nhanh mà êm).</summary>
+    public double Damping { get; init; } = 38;
 
     public double Value { get; set; }
 
