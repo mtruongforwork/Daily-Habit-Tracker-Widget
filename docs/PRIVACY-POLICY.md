@@ -1,4 +1,4 @@
-# Chính sách quyền riêng tư — HabitGrid
+﻿# Chính sách quyền riêng tư — HabitGrid
 
 *Nhà phát triển: MTD Studio. Cập nhật lần cuối: 11/11/2026. Áp dụng cho HabitGrid 1.0 trở lên.*
 
@@ -40,7 +40,7 @@ HabitGrid không thu thập thông tin cá nhân của bất kỳ ai, kể cả 
 Nếu một phiên bản sau thay đổi cách xử lý dữ liệu (ví dụ thêm đồng bộ qua máy chủ), chính sách này sẽ được cập nhật trước khi phiên bản đó phát hành.
 
 ## 11. Liên hệ
-MTD Studio — *[điền email hỗ trợ của bạn]*
+MTD Studio — developerhoangtruong@gmail.com
 
 ---
 
@@ -70,4 +70,4 @@ HabitGrid is a habit-tracking app for Windows PCs, built so your data stays on y
 
 **Changes.** If a later version changes how data is handled (for example server-based sync), this policy will be updated before that version is released.
 
-**Contact.** MTD Studio — *[add your support email]*
+**Contact.** MTD Studio — developerhoangtruong@gmail.com

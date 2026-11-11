@@ -1,4 +1,4 @@
-# Điều khoản sử dụng — HabitGrid
+﻿# Điều khoản sử dụng — HabitGrid
 
 *Nhà phát triển: MTD Studio. Cập nhật lần cuối: 11/11/2026. Áp dụng cho HabitGrid 1.0 trở lên.*
 
@@ -35,7 +35,7 @@ Chúng tôi có thể cập nhật điều khoản này khi ứng dụng thay đ
 Điều khoản này tuân theo pháp luật Việt Nam. Tranh chấp được ưu tiên giải quyết qua thương lượng; nếu không được, thuộc thẩm quyền của tòa án có thẩm quyền tại Việt Nam.
 
 ## 11. Liên hệ
-MTD Studio — *[điền email hỗ trợ của bạn]*
+MTD Studio — developerhoangtruong@gmail.com
 
 ---
 
@@ -65,4 +65,4 @@ By installing or using HabitGrid (the "app") you agree to these terms. If you do
 
 **10. Governing law.** These terms are governed by the laws of Vietnam. Disputes are first to be resolved by negotiation; failing that, by the competent courts of Vietnam.
 
-**11. Contact.** MTD Studio — *[add your support email]*
+**11. Contact.** MTD Studio — developerhoangtruong@gmail.com
