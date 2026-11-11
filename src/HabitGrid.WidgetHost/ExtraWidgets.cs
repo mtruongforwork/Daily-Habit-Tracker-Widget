@@ -374,8 +374,9 @@ public abstract class ExtraWidgetWindow : Window
 
         if (CenterAnchored)
         {
-            // Giữ nguyên tâm ngang và cạnh trên; chỉ không để tràn đáy màn hình.
-            var center = currentLeft + (currentWidth / 2);
+            // Island luôn nở quanh tâm màn hình chính (không phải tâm cửa sổ hiện tại: lúc mới dựng cửa sổ còn rất nhỏ và vị trí có thể
+            // được tính theo cỡ khác, nên dùng tâm cũ sẽ lệch khi trạng thái nghỉ đổi cỡ). Giữ nguyên cạnh trên; chỉ không để tràn đáy.
+            var center = SystemParameters.PrimaryScreenWidth / 2;
             return (center - (target.Width / 2), Math.Min(currentTop, Math.Max(0, work.Bottom - target.Height - 8)));
         }
 

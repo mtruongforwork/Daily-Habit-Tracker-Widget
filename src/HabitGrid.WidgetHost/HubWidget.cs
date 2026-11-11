@@ -263,7 +263,7 @@ public sealed partial class HubWidgetWindow : ExtraWidgetWindow
         buttons.Children.Add(later);
         stack.Children.Add(buttons);
 
-        Peek(stack, new Size(320, 84), holdMilliseconds, sticky: true, tint: TintReminder);
+        Peek(stack, new Size(Math.Max(320, WidgetLayout.IslandRestWidth), 84), holdMilliseconds, sticky: true, tint: TintReminder);
         return true;
     }
 
