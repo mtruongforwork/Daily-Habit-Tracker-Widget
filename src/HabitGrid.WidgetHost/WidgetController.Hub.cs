@@ -99,7 +99,8 @@ public sealed partial class WidgetController
     private string PrimarySignature()
     {
         var dpi = _hub is null ? 1.0 : System.Windows.Media.VisualTreeHelper.GetDpi(_hub).DpiScaleX;
-        return string.Create(CultureInfo.InvariantCulture, $"{System.Windows.SystemParameters.PrimaryScreenWidth:0.#}x{System.Windows.SystemParameters.PrimaryScreenHeight:0.#}@{dpi:0.###}");
+        var primary = _screen.GetPrimaryScreen().DevicePath;
+        return string.Create(CultureInfo.InvariantCulture, $"{System.Windows.SystemParameters.PrimaryScreenWidth:0.#}x{System.Windows.SystemParameters.PrimaryScreenHeight:0.#}@{dpi:0.###}|{_screen.GetScreens().Count}|{primary}");
     }
 
     /// <summary>Đặt widget gộp: giữa mép trên màn hình chính (cách 6 px vật lý) ở chế độ Dynamic Island, ngược lại về vị trí đã lưu hoặc mặc định.</summary>
@@ -297,6 +298,13 @@ public sealed partial class WidgetController
 
         TryClose(_hub);
         _hub = null;
+    }
+
+    /// <summary>Giả lập "màn hình chính đổi" (chỉ dùng cho tự kiểm tra): xoá chữ ký rồi để nhịp kiểm tra đặt lại vị trí.</summary>
+    public async Task ForceIslandRecheckForTestAsync()
+    {
+        _islandSignature = null;
+        await EnsureIslandPositionAsync();
     }
 
     /// <summary>Đổi vị trí widget gộp (chỉ dùng cho tự kiểm tra trên CI): ghi cài đặt rồi áp ngay như nhịp poll.</summary>

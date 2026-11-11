@@ -230,6 +230,9 @@ public static class SelfTest
             hub.SetExpanded(false, animate: false);
 
             // 6e) "Dynamic Island": giữa mép trên màn hình chính cách 6 px, trạng thái nghỉ nhỏ hơn viên thuốc thường, không kéo được, luôn ở trên cùng.
+            // Tự kiểm tra không phụ thuộc trạng thái thật của máy (runner CI có thể báo "bận"): dùng bộ phát hiện giả.
+            var fake = new FakeFullscreen();
+            controller.Fullscreen = fake;
             await controller.SetPlacementForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetPlacementMode.TopCenter);
             await Task.Delay(1200);
 
@@ -281,6 +284,23 @@ public static class SelfTest
             hub.SetExpanded(true, animate: false);
             Require(!hub.ShowReminder("x", () => Task.CompletedTask, () => Task.CompletedTask), "Không được nhô thẻ nhắc nhở khi người dùng đang mở danh sách.");
             hub.SetExpanded(false, animate: false);
+
+            // 6f) Đổi màn hình/độ phân giải/DPI: vị trí giữa mép trên được tính lại (giả lập bằng cách đẩy viên thuốc đi nơi khác rồi buộc kiểm tra lại).
+            var correctLeft = hub.Left;
+            var correctTop = hub.Top;
+            hub.PlaceAt(correctLeft + 200, correctTop + 120);
+            await controller.ForceIslandRecheckForTestAsync();
+            Require(Math.Abs(hub.Left - correctLeft) < 1 && Math.Abs(hub.Top - correctTop) < 1, "Đổi màn hình phải đặt lại viên thuốc về giữa mép trên.");
+
+            // 6g) App toàn màn hình: ẩn ngay; hiện lại chỉ sau hai lần đo liên tiếp không thấy (chống nhấp nháy khi Alt+Tab).
+            fake.Active = true;
+            controller.CheckFullscreen();
+            Require(controller.FullscreenSuppressed && !hub.IsVisible, "Có app toàn màn hình mà viên thuốc vẫn hiện.");
+            fake.Active = false;
+            controller.CheckFullscreen();
+            Require(controller.FullscreenSuppressed && !hub.IsVisible, "Viên thuốc hiện lại quá sớm (mới một lần đo không thấy toàn màn hình).");
+            controller.CheckFullscreen();
+            Require(!controller.FullscreenSuppressed && hub.IsVisible, "Hết toàn màn hình mà viên thuốc không hiện lại.");
 
             await controller.SetPlacementForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetPlacementMode.KeepPosition);
             await Task.Delay(1500);
@@ -394,4 +414,11 @@ public static class SelfTest
             throw new InvalidOperationException(message);
         }
     }
+}
+
+internal sealed class FakeFullscreen : HabitGrid.Platform.Desktop.IFullscreenDetector
+{
+    public bool Active { get; set; }
+
+    public bool IsFullscreenAppActive() => Active;
 }
