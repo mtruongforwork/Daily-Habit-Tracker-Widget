@@ -30,6 +30,14 @@ internal static class StackExtensions
     }
 }
 
+/// <summary>Mức hiển thị của một widget: nghỉ (nhỏ gọn), rê chuột (xem nhanh, chỉ widget có mức này) và bảng đầy đủ.</summary>
+public enum ViewLevel
+{
+    Rest,
+    Hover,
+    Panel
+}
+
 /// <summary>
 /// Nền chung của các widget Plus: cửa sổ không viền, nền tối bo góc (chữ trắng đọc được trên mọi hình nền), kéo được ở chế độ sắp xếp
 /// (hoặc giữ Alt), nhớ vị trí qua <see cref="Moved"/>, ghim theo kiểu người dùng chọn.
@@ -122,6 +130,23 @@ public abstract class ExtraWidgetWindow : Window
                 return;
             }
 
+            if (HasHoverLevel)
+            {
+                // Có mức xem nhanh: bấm viên thuốc = mở/đóng bảng đầy đủ (giữ mở); đang ở bảng đã giữ thì bấm để thu về nghỉ.
+                if (Level == ViewLevel.Panel && _pinnedOpen)
+                {
+                    _pinnedOpen = false;
+                    SetLevel(ViewLevel.Rest);
+                }
+                else
+                {
+                    _pinnedOpen = true;
+                    SetLevel(ViewLevel.Panel);
+                }
+
+                return;
+            }
+
             _pinnedOpen = !_pinnedOpen;
             SetExpanded(_pinnedOpen);
         };
@@ -132,6 +157,7 @@ public abstract class ExtraWidgetWindow : Window
 
             if (!IsExpanded)
             {
+                _expandTimer.Interval = HoverDelay;
                 _expandTimer.Start();
             }
         };
@@ -141,6 +167,7 @@ public abstract class ExtraWidgetWindow : Window
 
             if (IsExpanded && !_pinnedOpen)
             {
+                _collapseTimer.Interval = CollapseDelay;
                 _collapseTimer.Start();
             }
         };
@@ -172,7 +199,37 @@ public abstract class ExtraWidgetWindow : Window
     /// <summary>Cửa sổ này đang dùng kính mờ thật hay thẻ đặc.</summary>
     public bool IsGlass => _glass;
 
-    public bool IsExpanded { get; private set; }
+    /// <summary>Mức hiển thị hiện tại.</summary>
+    public ViewLevel Level { get; private set; }
+
+    public bool IsExpanded => Level != ViewLevel.Rest;
+
+    /// <summary>Độ trễ từ lúc rê chuột vào tới lúc mở.</summary>
+    protected virtual TimeSpan HoverDelay => TimeSpan.FromMilliseconds(220);
+
+    /// <summary>Độ trễ từ lúc chuột rời đi tới lúc thu lại.</summary>
+    protected virtual TimeSpan CollapseDelay => TimeSpan.FromMilliseconds(900);
+
+    /// <summary>True: rê chuột mở mức xem nhanh (<see cref="BuildHover"/>), bấm mới mở bảng đầy đủ.</summary>
+    protected virtual bool HasHoverLevel => false;
+
+    protected virtual Size HoverSize => ExpandedSize;
+
+    protected virtual UIElement BuildHover() => BuildExpanded();
+
+    private Size SizeFor(ViewLevel level) => level switch
+    {
+        ViewLevel.Rest => CompactSize,
+        ViewLevel.Hover => HoverSize,
+        _ => ExpandedSize
+    };
+
+    private UIElement BuildFor(ViewLevel level) => level switch
+    {
+        ViewLevel.Rest => BuildCompact(),
+        ViewLevel.Hover => BuildHover(),
+        _ => BuildExpanded()
+    };
 
     public event EventHandler? Moved;
 
@@ -205,8 +262,7 @@ public abstract class ExtraWidgetWindow : Window
             return;
         }
 
-        var size = IsExpanded ? ExpandedSize : CompactSize;
-        SetCardContent(IsExpanded ? BuildExpanded() : BuildCompact(), size, crossfade, peek: false);
+        SetCardContent(BuildFor(Level), SizeFor(Level), crossfade, peek: false);
     }
 
     private void SetCardContent(UIElement child, Size size, bool crossfade, bool peek)
@@ -373,21 +429,25 @@ public abstract class ExtraWidgetWindow : Window
     /// <summary>
     /// Mở rộng/thu gọn kiểu Dynamic Island: thẻ biến hình bằng lò xo (nảy nhẹ), nội dung đổi kèm hiệu ứng mờ-phóng.
     /// </summary>
-    public void SetExpanded(bool expanded, bool animate = true)
+    public void SetExpanded(bool expanded, bool animate = true) =>
+        SetLevel(expanded ? (HasHoverLevel ? ViewLevel.Hover : ViewLevel.Panel) : ViewLevel.Rest, animate);
+
+    /// <summary>Đổi mức hiển thị (nghỉ / xem nhanh / bảng đầy đủ) bằng một lần biến hình.</summary>
+    public void SetLevel(ViewLevel level, bool animate = true)
     {
         _peekVersion++;
         _peeking = false;
 
-        if (IsExpanded == expanded && _sized)
+        if (Level == level && _sized)
         {
             return;
         }
 
-        IsExpanded = expanded;
-        var target = expanded ? ExpandedSize : CompactSize;
+        Level = level;
+        var target = SizeFor(level);
         var at = AnchorFor(target);
         Render(crossfade: animate);
-        MorphTo(target, at, CardRadius(target, expanded), animate);
+        MorphTo(target, at, CardRadius(target, level != ViewLevel.Rest), animate);
     }
 
     /// <summary>Chiều cao/rộng của dạng hiện tại đổi vì dữ liệu (ví dụ thêm một việc): biến hình theo kích thước mới.</summary>
@@ -398,7 +458,7 @@ public abstract class ExtraWidgetWindow : Window
             return;
         }
 
-        var target = IsExpanded ? ExpandedSize : CompactSize;
+        var target = SizeFor(Level);
 
         if (Math.Abs(_w.Target - target.Width) > 0.5 || Math.Abs(_h.Target - target.Height) > 0.5)
         {
@@ -418,7 +478,7 @@ public abstract class ExtraWidgetWindow : Window
         }
 
         var version = ++_peekVersion;
-        var baseSize = IsExpanded ? ExpandedSize : CompactSize;
+        var baseSize = SizeFor(Level);
 
         // Đang mở rộng thì không cần nhô lên thêm.
         if (IsExpanded)

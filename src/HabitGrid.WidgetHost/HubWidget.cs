@@ -81,6 +81,25 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
 
     protected override bool CenterAnchored => IsIsland;
 
+    // Island: rê chuột vào là mở nhanh (hơi trễ để lướt qua mép trên không bật nhầm), rời đi thì thu lại sau nửa giây.
+    protected override TimeSpan HoverDelay => IsIsland ? TimeSpan.FromMilliseconds(140) : base.HoverDelay;
+
+    protected override TimeSpan CollapseDelay => IsIsland ? TimeSpan.FromMilliseconds(500) : base.CollapseDelay;
+
+    protected override bool HasHoverLevel => IsIsland;
+
+    /// <summary>Mức xem nhanh của Island: danh sách việc hôm nay, cao theo số việc (tối đa <see cref="MaxHoverRows"/> dòng).</summary>
+    protected override Size HoverSize => new(WidgetLayout.IslandListWidth, EstimateHoverHeight(_data));
+
+    public const int MaxHoverRows = 7;
+
+    public static double EstimateHoverHeight(HubData? data)
+    {
+        var rows = data is null ? 1 : Math.Max(1, Math.Min(data.Today.Count, MaxHoverRows));
+        var extra = data is not null && data.Today.Count > MaxHoverRows ? 22 : 0;
+        return 26 + 30 + (rows * 33) + extra + 8;
+    }
+
     protected override bool CanDrag => !IsIsland;
 
     protected override Size CompactSize =>
@@ -88,7 +107,7 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
             ? new Size(FocusProvider?.Invoke() is not null ? WidgetLayout.IslandFocusWidth : WidgetLayout.IslandRestWidth, WidgetLayout.IslandRestHeight)
             : new Size(WidgetLayout.HubWidth, WidgetLayout.HubHeight);
 
-    protected override Size ExpandedSize => new(ExpandedWidth, EstimateHeight(_data));
+    protected override Size ExpandedSize => new(IsIsland ? WidgetLayout.IslandPanelWidth : ExpandedWidth, EstimateHeight(_data));
 
     /// <summary>Chiều cao dạng mở rộng theo nội dung (ước lượng để hoạt ảnh biết đích đến).</summary>
     public static double EstimateHeight(HubData? data)
@@ -399,6 +418,55 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
         });
         row.Children.Add(left);
         return row;
+    }
+
+    /// <summary>
+    /// Mức xem nhanh của Island (rê chuột): tiêu đề "Hôm nay n/m" kèm chuỗi ngày, rồi danh sách việc hôm nay để check tại chỗ
+    /// (thói quen đếm có −/+). Bấm vào vùng trống của thẻ để mở bảng đầy đủ bên dưới.
+    /// </summary>
+    protected override UIElement BuildHover()
+    {
+        var data = _data!;
+        var buddy = data.Buddy;
+        var stack = new StackPanel();
+
+        var header = new Grid { Height = 24 };
+        header.ColumnDefinitions.Add(new ColumnDefinition());
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var title = Text($"{HostText.Today.ToUpperInvariant()}  {buddy.TodayDone}/{buddy.TodayDue}", 11, bold: true, opacity: 0.7);
+        title.VerticalAlignment = VerticalAlignment.Center;
+        header.Children.Add(title);
+
+        if (buddy.Streak > 0)
+        {
+            var streak = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            streak.Children.Add(new Ellipse { Width = 8, Height = 8, Fill = new SolidColorBrush(Color.FromRgb(251, 146, 60)), VerticalAlignment = VerticalAlignment.Center });
+            var days = Text(HostText.IslandStreak(buddy.Streak), 11, bold: true);
+            days.Margin = new Thickness(5, 0, 0, 0);
+            streak.Children.Add(days);
+            Grid.SetColumn(streak, 1);
+            header.Children.Add(streak);
+        }
+
+        stack.Children.Add(header);
+
+        if (data.Today.Count == 0)
+        {
+            stack.Put(Text(HostText.NothingDue, 12, opacity: 0.8), 8);
+            return stack;
+        }
+
+        foreach (var item in data.Today.Take(MaxHoverRows))
+        {
+            stack.Put(TodayRow(item), 3);
+        }
+
+        if (data.Today.Count > MaxHoverRows)
+        {
+            stack.Put(Text(HostText.IslandMore(data.Today.Count - MaxHoverRows), 11, opacity: 0.6), 2);
+        }
+
+        return stack;
     }
 
     /// <summary>Thanh XP: phần lấp đầy chạy từ giá trị đã hiện lần trước tới giá trị mới (không chạy khi tắt hoạt ảnh).</summary>

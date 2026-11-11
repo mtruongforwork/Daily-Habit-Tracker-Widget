@@ -244,12 +244,23 @@ public static class SelfTest
             Require(Math.Abs(hub.Top - (HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandTopGap / dpiScale)) < 1.5, $"Island phải cách mép trên 6 px, thực tế Top={hub.Top} (DPI {dpiScale}).");
             SaveShot(hub, Path.Combine(shots, "hub-island-rest.png"));
 
-            // Nở quanh tâm: mở rộng thì tâm ngang và cạnh trên giữ nguyên.
+            // Rê chuột: mức xem nhanh là danh sách rộng 340, nở quanh tâm và giữ cạnh trên; bấm: bảng 384 rộng nở xuống dưới.
             var centerBefore = hub.Left + (hub.Width / 2);
             var topBefore = hub.Top;
             hub.SetExpanded(true, animate: false);
             await Task.Delay(300);
+            hub.UpdateLayout();
+            Require(hub.Level == HabitGrid.WidgetHost.ViewLevel.Hover && Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandListWidth) < 1, $"Rê chuột trên Island phải mở danh sách {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandListWidth} rộng, thực tế {hub.Width} ({hub.Level}).");
             Require(Math.Abs((hub.Left + (hub.Width / 2)) - centerBefore) < 2 && Math.Abs(hub.Top - topBefore) < 1, "Island phải nở quanh tâm và giữ cạnh trên.");
+            Require(hub.Height > HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestHeight * 2, $"Danh sách xem nhanh phải cao hơn viên thuốc nghỉ (cao {hub.Height}).");
+            SaveShot(hub, Path.Combine(shots, "hub-island-hover.png"));
+
+            hub.SetLevel(HabitGrid.WidgetHost.ViewLevel.Panel, animate: false);
+            await Task.Delay(300);
+            hub.UpdateLayout();
+            Require(hub.Level == HabitGrid.WidgetHost.ViewLevel.Panel && Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandPanelWidth) < 1 && hub.Height > 200, "Bấm Island phải mở bảng đầy đủ.");
+            Require(Math.Abs((hub.Left + (hub.Width / 2)) - centerBefore) < 2 && Math.Abs(hub.Top - topBefore) < 1, "Bảng đầy đủ phải nở xuống dưới viên thuốc, giữ tâm và cạnh trên.");
+            SaveShot(hub, Path.Combine(shots, "hub-island-panel.png"));
             hub.SetExpanded(false, animate: false);
 
             await controller.SetPlacementForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetPlacementMode.KeepPosition);
