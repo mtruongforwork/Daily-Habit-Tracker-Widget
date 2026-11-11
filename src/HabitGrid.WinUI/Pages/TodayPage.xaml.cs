@@ -112,12 +112,16 @@ public sealed partial class TodayPage : Page
         try
         {
             ApplyTexts();
+            await LoadLayoutAsync();
             await ViewModel.LoadAsync();
             _wasAllDone = ViewModel.AllDone;
             ApplyTexts();
             await UpdateVacationBarAsync();
             await LoadMoodAsync();
             await LoadRoutinesAsync();
+
+            // Áp lại sau khi mọi thứ đã nạp (idempotent): lần áp đầu có thể chạy khi trang chưa gắn vào cây giao diện.
+            ApplyLayout();
         }
         catch (Exception ex)
         {
@@ -133,6 +137,8 @@ public sealed partial class TodayPage : Page
         DateText.Text = ViewModel.IsViewingPast ? string.Empty : Ui.LongDate(day);
         DateText.Visibility = ViewModel.IsViewingPast ? Visibility.Collapsed : Visibility.Visible;
         AddButtonText.Text = Ui.T("habits.add");
+        CustomizeButtonText.Text = Ui.T("dashboard.customize");
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(CustomizeButton, CustomizeButtonText.Text);
         // Nút có icon + chữ trong StackPanel: trình đọc màn hình không tự lấy tên, phải đặt.
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(AddButton, AddButtonText.Text);
         BackToTodayButton.Content = Ui.T("today.backToToday");

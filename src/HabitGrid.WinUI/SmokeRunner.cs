@@ -67,6 +67,7 @@ public static class SmokeRunner
             }
 
             await CalendarJourneyAsync(window, logger);
+            await DashboardJourneyAsync(window, logger);
             await DetailJourneyAsync(window, logger);
             await BuddyJourneyAsync(window, logger, () => celebrations);
             await ShortcutsJourneyAsync(window, logger);
@@ -584,6 +585,43 @@ public static class SmokeRunner
         stream.Seek(0);
         await stream.ReadAsync(System.Runtime.InteropServices.WindowsRuntime.WindowsRuntimeBufferExtensions.AsBuffer(bytes), (uint)bytes.Length, Windows.Storage.Streams.InputStreamOptions.None);
         return bytes;
+    }
+
+    /// <summary>Bảng điều khiển Hôm nay: ẩn một khối, đưa khối khác lên đầu, bố cục được lưu và áp đúng thứ tự trên giao diện; đặt lại trả về mặc định.</summary>
+    private static async Task DashboardJourneyAsync(MainWindow window, IAppLogger logger)
+    {
+        await GoToAsync(window, PageKeys.Today);
+        var page = window.CurrentPage as TodayPage ?? throw new InvalidOperationException("Không mở được trang Hôm nay.");
+        await Task.Delay(500);
+
+        var store = App.Host.Get<HabitGrid.Core.Domain.ISettingsStore>();
+        var custom = HabitGrid.Core.Domain.Dashboard.DashboardLayout.Default().WithVisible("mood", false).Move("hero", -5);
+        await store.SetAsync(HabitGrid.Core.Domain.Dashboard.DashboardLayout.SettingKey, custom.Serialize());
+
+        // Mở lại trang: bố cục phải được nạp từ cài đặt, khối bị ẩn thật sự ẩn, khối "hero" đứng đầu các khối.
+        await GoToAsync(window, PageKeys.Habits);
+        await GoToAsync(window, PageKeys.Today);
+        page = window.CurrentPage as TodayPage ?? throw new InvalidOperationException("Không mở lại được trang Hôm nay.");
+        await Task.Delay(600);
+
+        Require(page.CurrentLayout.Serialize() == custom.Serialize(), "Bố cục Hôm nay không được nạp lại từ cài đặt.");
+        var parent = (Microsoft.UI.Xaml.Controls.Panel)((Microsoft.UI.Xaml.Controls.ScrollViewer)page.FindName("Scroll")).Content;
+        var order = new[] { "SecHero", "SecWeek", "SecMood", "SecRecap", "SecRoutines", "SecChallenges" }
+            .Select(n => (Name: n, Element: (Microsoft.UI.Xaml.FrameworkElement)page.FindName(n)))
+            .OrderBy(x => parent.Children.IndexOf(x.Element))
+            .Select(x => x.Name)
+            .ToList();
+        Require(order.SequenceEqual(["SecHero", "SecWeek", "SecMood", "SecRecap", "SecRoutines", "SecChallenges"]), "Thứ tự khối trên giao diện sai: " + string.Join(",", order) + " | cha " + parent.GetType().Name + " con " + string.Join(",", parent.Children.Select(c => (c as Microsoft.UI.Xaml.FrameworkElement)?.Name is { Length: > 0 } n ? n : c.GetType().Name)) + " | layout " + page.CurrentLayout.Serialize());
+        Require(((Microsoft.UI.Xaml.FrameworkElement)page.FindName("SecMood")).Visibility == Microsoft.UI.Xaml.Visibility.Collapsed, "Khối bị ẩn vẫn hiện.");
+        await SnapAsync(window, "today-customized");
+
+        await store.RemoveAsync(HabitGrid.Core.Domain.Dashboard.DashboardLayout.SettingKey);
+        await GoToAsync(window, PageKeys.Habits);
+        await GoToAsync(window, PageKeys.Today);
+        page = (TodayPage)window.CurrentPage!;
+        await Task.Delay(400);
+        Require(page.CurrentLayout.Serialize() == HabitGrid.Core.Domain.Dashboard.DashboardLayout.Default().Serialize(), "Xóa cài đặt không trả về bố cục mặc định.");
+        logger.Info("SMOKE dashboard OK (hide, reorder, persist, reset)");
     }
 
     /// <summary>Lịch tháng: dựng được lưới, chọn một ngày quá khứ, check-in ngày đó và ô trên lưới đổi theo.</summary>

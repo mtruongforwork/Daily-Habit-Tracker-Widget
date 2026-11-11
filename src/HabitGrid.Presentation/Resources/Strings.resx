@@ -741,4 +741,16 @@
   <data name="privacy.erase.failed" xml:space="preserve"><value>Không xóa được hết dữ liệu. Hãy thử lại hoặc đóng widget rồi xóa thư mục dữ liệu.</value></data>
   <data name="privacy.erase.done.title" xml:space="preserve"><value>Đã xóa dữ liệu</value></data>
   <data name="privacy.erase.done" xml:space="preserve"><value>Dữ liệu đã được xóa khỏi máy. HabitGrid sẽ đóng lại; lần mở sau sẽ bắt đầu như mới cài.</value></data>
+  <data name="dashboard.customize" xml:space="preserve"><value>Tùy chỉnh</value></data>
+  <data name="dashboard.title" xml:space="preserve"><value>Bố cục trang Hôm nay</value></data>
+  <data name="dashboard.hint" xml:space="preserve"><value>Bật/tắt và đổi thứ tự các khối. Danh sách thói quen luôn hiện.</value></data>
+  <data name="dashboard.reset" xml:space="preserve"><value>Đặt lại mặc định</value></data>
+  <data name="dashboard.up" xml:space="preserve"><value>Lên</value></data>
+  <data name="dashboard.down" xml:space="preserve"><value>Xuống</value></data>
+  <data name="dashboard.section.week" xml:space="preserve"><value>Dải tuần</value></data>
+  <data name="dashboard.section.mood" xml:space="preserve"><value>Tâm trạng</value></data>
+  <data name="dashboard.section.recap" xml:space="preserve"><value>Tổng kết tuần</value></data>
+  <data name="dashboard.section.routines" xml:space="preserve"><value>Routine</value></data>
+  <data name="dashboard.section.challenges" xml:space="preserve"><value>Thử thách</value></data>
+  <data name="dashboard.section.hero" xml:space="preserve"><value>Tiến độ và chuỗi</value></data>
 </root>

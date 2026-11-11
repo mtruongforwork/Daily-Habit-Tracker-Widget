@@ -741,4 +741,16 @@
   <data name="privacy.erase.failed" xml:space="preserve"><value>Could not delete all data. Try again, or close the widgets and delete the data folder.</value></data>
   <data name="privacy.erase.done.title" xml:space="preserve"><value>Data deleted</value></data>
   <data name="privacy.erase.done" xml:space="preserve"><value>Your data has been removed from this PC. HabitGrid will close; the next launch starts as a fresh install.</value></data>
+  <data name="dashboard.customize" xml:space="preserve"><value>Customize</value></data>
+  <data name="dashboard.title" xml:space="preserve"><value>Today layout</value></data>
+  <data name="dashboard.hint" xml:space="preserve"><value>Show, hide and reorder the blocks. Your habit list is always shown.</value></data>
+  <data name="dashboard.reset" xml:space="preserve"><value>Reset to default</value></data>
+  <data name="dashboard.up" xml:space="preserve"><value>Move up</value></data>
+  <data name="dashboard.down" xml:space="preserve"><value>Move down</value></data>
+  <data name="dashboard.section.week" xml:space="preserve"><value>Week strip</value></data>
+  <data name="dashboard.section.mood" xml:space="preserve"><value>Mood</value></data>
+  <data name="dashboard.section.recap" xml:space="preserve"><value>Weekly recap</value></data>
+  <data name="dashboard.section.routines" xml:space="preserve"><value>Routines</value></data>
+  <data name="dashboard.section.challenges" xml:space="preserve"><value>Challenges</value></data>
+  <data name="dashboard.section.hero" xml:space="preserve"><value>Progress and streak</value></data>
 </root>
