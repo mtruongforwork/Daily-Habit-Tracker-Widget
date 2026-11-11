@@ -23,6 +23,32 @@ public class WidgetDataTests
     }
 
     [Fact]
+    public async Task Buddy_Streak_CountsConsecutiveDaysWithAnyHabitDone()
+    {
+        using var f = new AppFixture();
+        var a = await f.AddAsync("A", startDaysAgo: 10);
+        var b = await f.AddAsync("B", startDaysAgo: 10);
+        await f.LogAsync(a, Today, 1);
+        await f.LogAsync(b, Today, 1);
+        await f.LogAsync(a, Today.AddDays(-1), 1);
+        await f.LogAsync(b, Today.AddDays(-2), 1);
+        await f.LogAsync(a, Today.AddDays(-4), 1);
+        var (data, _, _, _) = Create(f);
+
+        (await data.BuddyAsync()).Streak.Should().Be(3, "hôm nay, hôm qua, hôm kia; ngày thứ 4 trước bị đứt");
+    }
+
+    [Fact]
+    public async Task Buddy_Streak_IsZeroWithoutAnyCheckIns()
+    {
+        using var f = new AppFixture();
+        await f.AddAsync("A", startDaysAgo: 5);
+        var (data, _, _, _) = Create(f);
+
+        (await data.BuddyAsync()).Streak.Should().Be(0);
+    }
+
+    [Fact]
     public async Task Buddy_ShowsProfile_WornAccessories_AndTodaysProgress()
     {
         using var f = new AppFixture();

@@ -108,6 +108,7 @@ public sealed partial class WidgetController : IDisposable
 
     public async Task StartAsync()
     {
+        await ApplyPlacementAsync(initial: true);
         await ApplyPinChoiceAsync(initial: true);
         await ApplyLayoutModeAsync(initial: true);
         await ApplyGlassAsync(initial: true);
@@ -786,6 +787,11 @@ public sealed partial class WidgetController : IDisposable
                 await SyncMomentWidgetAsync();
                 await SyncExtraWidgetsAsync();
             }
+
+            // Đổi vị trí (giữa mép trên) trong Cài đặt phải có hiệu lực trong vài giây, không đợi nhịp 30 giây.
+            await ApplyPlacementAsync(initial: false);
+            await ApplyPinChoiceAsync(initial: false);
+            await EnsureIslandPositionAsync();
 
             await ProcessHostCommandAsync();
 

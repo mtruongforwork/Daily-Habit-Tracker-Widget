@@ -1,3 +1,4 @@
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -53,7 +54,39 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
                                   | (_data?.Goals is not null ? HubSection.Goals : HubSection.None)
                                   | (_data?.Grid is not null ? HubSection.Grid : HubSection.None);
 
-    protected override Size CompactSize => new(WidgetLayout.HubWidth, WidgetLayout.HubHeight);
+    private WidgetPlacementMode _placement;
+
+    /// <summary>Vị trí/kiểu hiển thị. Giữa mép trên = "Dynamic Island": trạng thái nghỉ rất nhỏ, nở quanh tâm, không kéo được.</summary>
+    public WidgetPlacementMode Placement
+    {
+        get => _placement;
+        set
+        {
+            if (_placement == value)
+            {
+                return;
+            }
+
+            _placement = value;
+
+            if (_data is not null)
+            {
+                Render();
+                RefreshLayout();
+            }
+        }
+    }
+
+    public bool IsIsland => _placement == WidgetPlacementMode.TopCenter;
+
+    protected override bool CenterAnchored => IsIsland;
+
+    protected override bool CanDrag => !IsIsland;
+
+    protected override Size CompactSize =>
+        IsIsland
+            ? new Size(FocusProvider?.Invoke() is not null ? WidgetLayout.IslandFocusWidth : WidgetLayout.IslandRestWidth, WidgetLayout.IslandRestHeight)
+            : new Size(WidgetLayout.HubWidth, WidgetLayout.HubHeight);
 
     protected override Size ExpandedSize => new(ExpandedWidth, EstimateHeight(_data));
 
@@ -266,6 +299,11 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
 
     protected override UIElement BuildCompact()
     {
+        if (IsIsland)
+        {
+            return BuildIslandRest();
+        }
+
         var data = _data!;
         var now = Now();
         var mood = BuddyWidgetWindow.MoodFor(data.Buddy, now);
@@ -313,6 +351,53 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
             row.Children.Add(button);
         }
 
+        return row;
+    }
+
+    /// <summary>
+    /// Trạng thái nghỉ của "Dynamic Island": một dòng rất ngắn. Đang Focus thì chỉ hiện đồng hồ; không thì hiện chuỗi ngày và số việc còn lại hôm nay
+    /// (vàng khi tối mà còn việc, xanh khi xong hết).
+    /// </summary>
+    private UIElement BuildIslandRest()
+    {
+        var data = _data!;
+        var focus = FocusProvider?.Invoke();
+        var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+
+        if (focus is not null)
+        {
+            var clock = Text(focus.Clock + (focus.Paused ? " ⏸" : string.Empty), 13, bold: true);
+            clock.Foreground = new SolidColorBrush(focus.IsBreak ? Color.FromRgb(96, 165, 250) : Color.FromRgb(45, 212, 191));
+            clock.VerticalAlignment = VerticalAlignment.Center;
+            row.Children.Add(Emoji(focus.IsBreak ? "☕" : "⏱", 13));
+            clock.Margin = new Thickness(6, 0, 0, 0);
+            row.Children.Add(clock);
+            return row;
+        }
+
+        var buddy = data.Buddy;
+        var mood = BuddyWidgetWindow.MoodFor(buddy, Now());
+        var remaining = Math.Max(0, buddy.TodayDue - buddy.TodayDone);
+
+        if (buddy.Streak > 0)
+        {
+            var dot = new Ellipse { Width = 8, Height = 8, Fill = new SolidColorBrush(Color.FromRgb(251, 146, 60)), VerticalAlignment = VerticalAlignment.Center };
+            row.Children.Add(dot);
+            var streak = Text(buddy.Streak.ToString(CultureInfo.InvariantCulture), 13, bold: true);
+            streak.Margin = new Thickness(5, 0, 8, 0);
+            streak.VerticalAlignment = VerticalAlignment.Center;
+            row.Children.Add(streak);
+        }
+
+        var left = Text(buddy.TodayDue == 0 ? HostText.IslandNothing : remaining == 0 ? HostText.IslandAllDone : HostText.IslandLeft(remaining), 12, bold: true);
+        left.VerticalAlignment = VerticalAlignment.Center;
+        left.Foreground = new SolidColorBrush(mood switch
+        {
+            BuddyWidgetWindow.Mood.AllDone => Color.FromRgb(52, 211, 153),
+            BuddyWidgetWindow.Mood.AtRisk => Color.FromRgb(251, 191, 36),
+            _ => Colors.White
+        });
+        row.Children.Add(left);
         return row;
     }
 

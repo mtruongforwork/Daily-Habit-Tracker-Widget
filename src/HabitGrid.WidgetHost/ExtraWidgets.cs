@@ -97,7 +97,7 @@ public abstract class ExtraWidgetWindow : Window
         {
             _dragged = false;
 
-            if (!EditMode && !Keyboard.IsKeyDown(Key.LeftAlt) && !Keyboard.IsKeyDown(Key.RightAlt))
+            if (!CanDrag || (!EditMode && !Keyboard.IsKeyDown(Key.LeftAlt) && !Keyboard.IsKeyDown(Key.RightAlt)))
             {
                 return;
             }
@@ -177,6 +177,12 @@ public abstract class ExtraWidgetWindow : Window
     public event EventHandler? Moved;
 
     protected abstract Size CompactSize { get; }
+
+    /// <summary>True: thẻ nở/thu quanh tâm ngang và cố định cạnh trên (viên thuốc giữa mép trên); false: giữ mép gần cạnh màn hình hơn.</summary>
+    protected virtual bool CenterAnchored => false;
+
+    /// <summary>False: không kéo được (vị trí do chương trình tính, ví dụ giữa mép trên).</summary>
+    protected virtual bool CanDrag => true;
 
     protected abstract Size ExpandedSize { get; }
 
@@ -267,6 +273,14 @@ public abstract class ExtraWidgetWindow : Window
         var currentLeft = _morphing ? _l.Target : Left;
         var currentWidth = _morphing ? _w.Target : Width;
         var currentTop = _morphing ? _t.Target : Top;
+
+        if (CenterAnchored)
+        {
+            // Giữ nguyên tâm ngang và cạnh trên; chỉ không để tràn đáy màn hình.
+            var center = currentLeft + (currentWidth / 2);
+            return (center - (target.Width / 2), Math.Min(currentTop, Math.Max(0, work.Bottom - target.Height - 8)));
+        }
+
         var anchorRight = currentLeft + (currentWidth / 2) > work.Left + (work.Width / 2);
         var left = anchorRight ? currentLeft + currentWidth - target.Width : currentLeft;
         var top = Math.Min(currentTop, Math.Max(work.Top, work.Bottom - target.Height - 8));
@@ -425,6 +439,15 @@ public abstract class ExtraWidgetWindow : Window
         _peeking = false;
         Render(crossfade: true);
         MorphTo(baseSize, AnchorFor(baseSize), CardRadius(baseSize, IsExpanded), animate: true);
+    }
+
+    /// <summary>Đặt thẳng cửa sổ tại vị trí (DIP) không qua hoạt ảnh, kể cả khi đang biến hình (đích của lò xo cũng được dời).</summary>
+    public void PlaceAt(double left, double top)
+    {
+        Left = left;
+        Top = top;
+        _l.Snap(left);
+        _t.Snap(top);
     }
 
     public DesktopHostResult Pin(DesktopHostService host, DesktopPinningMode mode) =>
@@ -929,7 +952,7 @@ public sealed class MultiGridWidgetWindow : ExtraWidgetWindow
 }
 
 /// <summary>Phiên Focus đang chạy để hiện trên widget: <see cref="Display"/> là chữ trên viên thuốc, <see cref="Fraction"/> là tiến độ 0..1 của vòng.</summary>
-public sealed record FocusSnapshot(string Display, double Fraction, string? Habit, bool Paused, bool IsBreak);
+public sealed record FocusSnapshot(string Display, double Fraction, string? Habit, bool Paused, bool IsBreak, string Clock = "");
 
 /// <summary>Dữ liệu của widget gộp: Buddy, danh sách Hôm nay (check được), Mục tiêu và lưới thói quen (hai mục sau chỉ có khi Plus).</summary>
 public sealed record HubData(BuddyWidgetData Buddy, IReadOnlyList<QuickItem> Today, GoalsWidgetData? Goals, MultiGridData? Grid);

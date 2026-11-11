@@ -8,7 +8,7 @@ using IDayProvider = HabitGrid.Core.Services.IDayProvider;
 
 namespace HabitGrid.Presentation.Services;
 
-public sealed record BuddyWidgetData(string Name, int Level, BuddyStage Stage, IReadOnlyList<(AccessorySlot Slot, string Id, string Emoji)> Worn, int TodayDone, int TodayDue, int FreezeTokens, long XpInto = 0, long XpNeed = 0)
+public sealed record BuddyWidgetData(string Name, int Level, BuddyStage Stage, IReadOnlyList<(AccessorySlot Slot, string Id, string Emoji)> Worn, int TodayDone, int TodayDue, int FreezeTokens, long XpInto = 0, long XpNeed = 0, int Streak = 0)
 {
     public double TodayFraction => TodayDue == 0 ? 0 : TodayDone / (double)TodayDue;
 
@@ -78,7 +78,17 @@ public sealed class WidgetDataService
         var into = Math.Max(0, profile.Xp - floor);
         var need = Math.Max(1, ceiling - floor);
 
-        return new BuddyWidgetData(profile.BuddyName, profile.Level, BuddyViewModel.StageFor(profile.Level), worn, done, due, profile.FreezeTokens, into, need);
+        // Chuỗi tổng: cùng công thức với ô "ngày liên tiếp" của trang Hôm nay.
+        var allLogs = new List<DayLog>();
+
+        foreach (var habit in await _habits.GetAllActiveAsync(ct))
+        {
+            allLogs.AddRange(await _logs.GetAllForHabitAsync(habit.Id, ct));
+        }
+
+        var streak = HabitGrid.Core.Domain.Streaks.OverallStreak.Compute(allLogs, today);
+
+        return new BuddyWidgetData(profile.BuddyName, profile.Level, BuddyViewModel.StageFor(profile.Level), worn, done, due, profile.FreezeTokens, into, need, streak);
     }
 
     public async Task<GoalsWidgetData> GoalsAsync(CancellationToken ct = default)

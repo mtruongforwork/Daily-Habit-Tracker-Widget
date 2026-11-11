@@ -95,5 +95,11 @@ public static class HostText
 
     public static string HubLevelUp(int level) => IsVietnamese ? $"Lên cấp {level}!" : $"Level {level}!";
 
+    public static string IslandLeft(int n) => IsVietnamese ? $"{n} còn" : $"{n} left";
+
+    public static string IslandAllDone => IsVietnamese ? "Xong hết ✓" : "All done ✓";
+
+    public static string IslandNothing => IsVietnamese ? "Rảnh" : "Free";
+
     public static string HubFocusEnded => IsVietnamese ? "Xong phiên Focus!" : "Focus session done!";
 }

@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using HabitGrid.Core.Domain.Widgets;
 using HabitGrid.Platform.Desktop;
 
@@ -12,6 +12,9 @@ public sealed partial class WidgetController
 {
     private const string HubPositionKey = "widget.pos.hub";
     private HubWidgetWindow? _hub;
+    private WidgetPlacementMode _placement;
+    private bool _placementApplied;
+    private string? _islandSignature;
     private WidgetLayoutMode? _appliedLayout;
     private bool? _appliedGlass;
 
@@ -66,6 +69,85 @@ public sealed partial class WidgetController
         }
     }
 
+    /// <summary>Vị trí đang áp dụng của widget gộp (giữa mép trên = kiểu "Dynamic Island").</summary>
+    public WidgetPlacementMode Placement => _placement;
+
+    /// <summary>
+    /// Đọc vị trí từ cài đặt (<c>widgets.placement</c>); đổi thì áp cho widget gộp và đặt lại vị trí. Giữa mép trên luôn nằm trên cùng
+    /// (xem <see cref="ApplyPinChoiceAsync"/>), nên phải gọi trước khi áp kiểu ghim.
+    /// </summary>
+    private async Task ApplyPlacementAsync(bool initial)
+    {
+        var placement = WidgetPlacements.Parse(await _settings.GetAsync(WidgetPlacements.SettingKey));
+
+        if (_placementApplied && _placement == placement)
+        {
+            return;
+        }
+
+        _placementApplied = true;
+        _placement = placement;
+
+        if (_hub is not null)
+        {
+            _hub.Placement = placement;
+            await PositionHubAsync();
+        }
+    }
+
+    /// <summary>Chữ ký của màn hình chính (kích thước DIP + DPI): đổi độ phân giải, DPI hoặc cắm/rút màn hình làm chữ ký đổi.</summary>
+    private string PrimarySignature()
+    {
+        var dpi = _hub is null ? 1.0 : System.Windows.Media.VisualTreeHelper.GetDpi(_hub).DpiScaleX;
+        return string.Create(CultureInfo.InvariantCulture, $"{System.Windows.SystemParameters.PrimaryScreenWidth:0.#}x{System.Windows.SystemParameters.PrimaryScreenHeight:0.#}@{dpi:0.###}");
+    }
+
+    /// <summary>Đặt widget gộp: giữa mép trên màn hình chính (cách 6 px vật lý) ở chế độ Dynamic Island, ngược lại về vị trí đã lưu hoặc mặc định.</summary>
+    private async Task PositionHubAsync()
+    {
+        if (_hub is not { } hub)
+        {
+            return;
+        }
+
+        if (_placement == WidgetPlacementMode.TopCenter)
+        {
+            // Màn hình chính luôn có gốc (0,0) theo DIP của WPF; dùng DIP thẳng để khỏi lệch khi DPI hệ thống khác DPI màn hình.
+            var dpi = System.Windows.Media.VisualTreeHelper.GetDpi(hub).DpiScaleX;
+            var widthPx = (int)Math.Round(hub.NominalSize.Width * dpi);
+            var screenPx = (int)Math.Round(System.Windows.SystemParameters.PrimaryScreenWidth * dpi);
+            var slot = WidgetLayout.TopCenter(0, 0, screenPx, widthPx);
+            hub.PlaceAt(slot.Left / dpi, slot.Top / dpi);
+            _islandSignature = PrimarySignature();
+            return;
+        }
+        var saved = await LoadPositionAsync(HubPositionKey);
+
+        if (saved?.Split(',') is [var left, var top] && double.TryParse(left, CultureInfo.InvariantCulture, out var l) && double.TryParse(top, CultureInfo.InvariantCulture, out var t) && IsPointVisible((int)l, (int)t))
+        {
+            hub.PlaceAt(l, t);
+        }
+        else
+        {
+            var slot = await DefaultSlotAsync("hub");
+            hub.PlaceAt(slot.Left, slot.Top);
+        }
+    }
+
+    /// <summary>Mỗi nhịp: màn hình chính đổi (độ phân giải/DPI/cắm màn hình) thì tính lại vị trí giữa mép trên.</summary>
+    private async Task EnsureIslandPositionAsync()
+    {
+        if (_placement != WidgetPlacementMode.TopCenter || _hub is null)
+        {
+            return;
+        }
+
+        if (_islandSignature != PrimarySignature())
+        {
+            await PositionHubAsync();
+        }
+    }
+
     /// <summary>Tạo/cập nhật widget gộp (hoặc đóng nếu không ở chế độ Hub).</summary>
     private async Task SyncHubAsync()
     {
@@ -83,6 +165,7 @@ public sealed partial class WidgetController
             _hub = await CreateHubAsync();
         }
 
+        _hub.Placement = _placement;
         var buddy = await Data().BuddyAsync();
         var goals = sections.HasFlag(HubSection.Goals) ? await Data().GoalsAsync() : null;
         var grid = sections.HasFlag(HubSection.Grid) ? await Data().MultiGridAsync() : null;
@@ -91,7 +174,7 @@ public sealed partial class WidgetController
 
     private async Task<HubWidgetWindow> CreateHubAsync()
     {
-        var window = new HubWidgetWindow { EditMode = _editApplied, OnToggle = item => ActAsync(item, 0), OnAdjust = ActAsync, FocusProvider = FocusSnapshotNow };
+        var window = new HubWidgetWindow { Placement = _placement, EditMode = _editApplied, OnToggle = item => ActAsync(item, 0), OnAdjust = ActAsync, FocusProvider = FocusSnapshotNow };
         window.Show();
         window.StartLiveActivities();
         window.Moved += async (_, _) =>
@@ -100,19 +183,8 @@ public sealed partial class WidgetController
             await SavePositionAsync(HubPositionKey, string.Create(CultureInfo.InvariantCulture, $"{(int)window.Left},{(int)window.Top}"));
         };
 
-        var saved = await LoadPositionAsync(HubPositionKey);
-
-        if (saved?.Split(',') is [var left, var top] && double.TryParse(left, CultureInfo.InvariantCulture, out var l) && double.TryParse(top, CultureInfo.InvariantCulture, out var t) && IsPointVisible((int)l, (int)t))
-        {
-            window.Left = l;
-            window.Top = t;
-        }
-        else
-        {
-            var slot = await DefaultSlotAsync("hub");
-            window.Left = slot.Left;
-            window.Top = slot.Top;
-        }
+        _hub = window;
+        await PositionHubAsync();
 
         if (window.Pin(_desktop, DesktopPinningMode.DesktopLevel).UsedFallback)
         {
@@ -138,7 +210,7 @@ public sealed partial class WidgetController
         var fraction = timer.Remaining(now) is { } left && total > TimeSpan.Zero ? 1 - (left.TotalSeconds / total.TotalSeconds) : 0;
         var clock = $"{(int)shown.TotalMinutes:00}:{shown.Seconds:00}";
         var label = (isBreak ? "☕ " : "⏱ ") + clock + (habit is null ? string.Empty : "  " + habit) + (timer.IsPaused ? "  ⏸" : string.Empty);
-        return new FocusSnapshot(label, Math.Clamp(fraction, 0, 1), habit, timer.IsPaused, isBreak);
+        return new FocusSnapshot(label, Math.Clamp(fraction, 0, 1), habit, timer.IsPaused, isBreak, clock);
     }
 
     private void CloseHub()
@@ -150,6 +222,15 @@ public sealed partial class WidgetController
 
         TryClose(_hub);
         _hub = null;
+    }
+
+    /// <summary>Đổi vị trí widget gộp (chỉ dùng cho tự kiểm tra trên CI): ghi cài đặt rồi áp ngay như nhịp poll.</summary>
+    public async Task SetPlacementForTestAsync(WidgetPlacementMode placement)
+    {
+        await _settings.SetAsync(WidgetPlacements.SettingKey, WidgetPlacements.ToStored(placement));
+        await ApplyPlacementAsync(initial: false);
+        await ApplyPinChoiceAsync(initial: false);
+        await SyncHubAsync();
     }
 
     /// <summary>Đổi chế độ hiển thị (chỉ dùng cho tự kiểm tra trên CI).</summary>

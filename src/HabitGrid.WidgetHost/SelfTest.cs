@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using HabitGrid.Core.Domain;
 using HabitGrid.Data;
 using HabitGrid.Data.V3;
@@ -229,6 +229,34 @@ public static class SelfTest
 
             hub.SetExpanded(false, animate: false);
 
+            // 6e) "Dynamic Island": giữa mép trên màn hình chính cách 6 px, trạng thái nghỉ nhỏ hơn viên thuốc thường, không kéo được, luôn ở trên cùng.
+            await controller.SetPlacementForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetPlacementMode.TopCenter);
+            await Task.Delay(1200);
+
+            // Đổi vị trí kéo theo đổi kiểu ghim (luôn trên cùng) nên widget được dựng lại: lấy cửa sổ mới.
+            hub = controller.Hub ?? throw new InvalidOperationException("Mất widget gộp sau khi đổi vị trí.");
+            hub.UpdateLayout();
+            var primaryWidth = System.Windows.SystemParameters.PrimaryScreenWidth;
+            var dpiScale = System.Windows.Media.VisualTreeHelper.GetDpi(hub).DpiScaleX;
+            Require(hub.IsIsland && Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestWidth) < 1 && Math.Abs(hub.Height - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestHeight) < 1,
+                $"Island ở trạng thái nghỉ phải là {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestWidth}x{HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestHeight}, thực tế {hub.Width}x{hub.Height}.");
+            Require(Math.Abs((hub.Left + (hub.Width / 2)) - (primaryWidth / 2)) < 3, $"Island phải nằm giữa mép trên (tâm {hub.Left + (hub.Width / 2)} so với {primaryWidth / 2}).");
+            Require(Math.Abs(hub.Top - (HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandTopGap / dpiScale)) < 1.5, $"Island phải cách mép trên 6 px, thực tế Top={hub.Top} (DPI {dpiScale}).");
+            SaveShot(hub, Path.Combine(shots, "hub-island-rest.png"));
+
+            // Nở quanh tâm: mở rộng thì tâm ngang và cạnh trên giữ nguyên.
+            var centerBefore = hub.Left + (hub.Width / 2);
+            var topBefore = hub.Top;
+            hub.SetExpanded(true, animate: false);
+            await Task.Delay(300);
+            Require(Math.Abs((hub.Left + (hub.Width / 2)) - centerBefore) < 2 && Math.Abs(hub.Top - topBefore) < 1, "Island phải nở quanh tâm và giữ cạnh trên.");
+            hub.SetExpanded(false, animate: false);
+
+            await controller.SetPlacementForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetPlacementMode.KeepPosition);
+            await Task.Delay(1500);
+            hub = controller.Hub ?? throw new InvalidOperationException("Mất widget gộp sau khi về giữ vị trí.");
+            Require(!hub.IsIsland && Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.HubWidth) < 1, "Về 'giữ vị trí' phải trở lại viên thuốc 288x64.");
+
             await controller.Settings_SetPlusForTestAsync(false);
             await controller.SyncExtraWidgetsAsync();
             await Task.Delay(500);
@@ -238,7 +266,7 @@ public static class SelfTest
             await controller.SetLayoutForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Separate);
             await Task.Delay(1500);
             Require(controller.Hub is null && controller.Windows.Count > 0 && controller.TodayList is not null, "Chuyển về widget riêng phải dựng lại widget lưới và Today List.");
-            Note(dbPath, "hub widget ok (single window, Free/Plus sections, expand, back to separate)");
+            Note(dbPath, "hub widget ok (single window, Free/Plus sections, expand, island top-center, back to separate)");
 
             // 7) Focus: phiên đếm ngược 1 phút tự kết thúc và được ghi vào nhật ký.
             var before2 = (await controller.FocusService.HistoryAsync()).Count;

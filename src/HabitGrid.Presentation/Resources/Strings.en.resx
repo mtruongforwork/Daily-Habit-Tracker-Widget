@@ -792,4 +792,8 @@
   <data name="focus.none" xml:space="preserve"><value>No sessions yet. Start your first one on the left.</value></data>
   <data name="focus.min" xml:space="preserve"><value>{0} min</value></data>
   <data name="focus.hm" xml:space="preserve"><value>{0} h {1:00}</value></data>
+  <data name="settings.placement" xml:space="preserve"><value>Widget position</value></data>
+  <data name="settings.placement.hint" xml:space="preserve"><value>"Top centre" pins a small pill at the middle of the top edge of your main screen (Dynamic Island style), always above other windows. Hover to open the habits due today.</value></data>
+  <data name="settings.placement.KeepPosition" xml:space="preserve"><value>Keep current position</value></data>
+  <data name="settings.placement.TopCenter" xml:space="preserve"><value>Top centre</value></data>
 </root>

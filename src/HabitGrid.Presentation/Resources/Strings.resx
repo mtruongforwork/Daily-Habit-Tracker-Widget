@@ -792,4 +792,8 @@
   <data name="focus.none" xml:space="preserve"><value>Chưa có phiên nào. Bắt đầu phiên đầu tiên bên trái.</value></data>
   <data name="focus.min" xml:space="preserve"><value>{0} phút</value></data>
   <data name="focus.hm" xml:space="preserve"><value>{0} giờ {1:00}</value></data>
+  <data name="settings.placement" xml:space="preserve"><value>Vị trí widget</value></data>
+  <data name="settings.placement.hint" xml:space="preserve"><value>"Giữa mép trên" ghim một viên thuốc nhỏ ở chính giữa mép trên màn hình chính (kiểu Dynamic Island), luôn nằm trên các cửa sổ khác. Rê chuột để mở danh sách việc hôm nay.</value></data>
+  <data name="settings.placement.KeepPosition" xml:space="preserve"><value>Giữ vị trí hiện tại</value></data>
+  <data name="settings.placement.TopCenter" xml:space="preserve"><value>Giữa mép trên</value></data>
 </root>
