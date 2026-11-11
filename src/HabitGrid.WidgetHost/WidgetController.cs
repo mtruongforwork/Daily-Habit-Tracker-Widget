@@ -792,6 +792,7 @@ public sealed partial class WidgetController : IDisposable
             await ApplyPlacementAsync(initial: false);
             await ApplyPinChoiceAsync(initial: false);
             await EnsureIslandPositionAsync();
+            await ShowDueIslandRemindersAsync(DateTime.Now);
 
             await ProcessHostCommandAsync();
 

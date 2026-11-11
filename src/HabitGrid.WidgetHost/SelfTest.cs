@@ -262,6 +262,25 @@ public static class SelfTest
             Require(Math.Abs((hub.Left + (hub.Width / 2)) - centerBefore) < 2 && Math.Abs(hub.Top - topBefore) < 1, "Bảng đầy đủ phải nở xuống dưới viên thuốc, giữ tâm và cạnh trên.");
             SaveShot(hub, Path.Combine(shots, "hub-island-panel.png"));
             hub.SetExpanded(false, animate: false);
+            await Task.Delay(300);
+
+            // Nhắc nhở bung ra từ viên thuốc: thẻ 320x84 có hai nút, giữ tâm và cạnh trên; bấm "Xong" gọi đúng hành động và thu về nghỉ.
+            var reminderDone = 0;
+            var reminderLater = 0;
+            Require(hub.ShowReminder("Đến giờ: Đọc sách", () => { reminderDone++; return Task.CompletedTask; }, () => { reminderLater++; return Task.CompletedTask; }, holdMilliseconds: 600), "Island không nhô được thẻ nhắc nhở khi đang nghỉ.");
+            await Task.Delay(500);
+            hub.UpdateLayout();
+            Require(hub.IsPeeking && Math.Abs(hub.Width - 320) < 1 && Math.Abs(hub.Height - 84) < 1, $"Thẻ nhắc nhở phải là 320x84, thực tế {hub.Width}x{hub.Height}.");
+            Require(Math.Abs((hub.Left + (hub.Width / 2)) - centerBefore) < 2 && Math.Abs(hub.Top - topBefore) < 1, "Thẻ nhắc nhở phải bung ra từ tâm viên thuốc.");
+            SaveShot(hub, Path.Combine(shots, "hub-island-reminder.png"));
+            await hub.InvokeReminderForTestAsync(done: true);
+            Require(reminderDone == 1 && reminderLater == 0 && !hub.IsPeeking, "Nút 'Xong' trên thẻ nhắc nhở không gọi đúng hành động.");
+            Require(hub.ShowReminder("Đến giờ: Tập gym", () => Task.CompletedTask, () => { reminderLater++; return Task.CompletedTask; }, holdMilliseconds: 300), "Không nhô được thẻ nhắc nhở lần hai.");
+            await hub.InvokeReminderForTestAsync(done: false);
+            Require(reminderLater == 1, "Nút 'Để sau' không gọi đúng hành động.");
+            hub.SetExpanded(true, animate: false);
+            Require(!hub.ShowReminder("x", () => Task.CompletedTask, () => Task.CompletedTask), "Không được nhô thẻ nhắc nhở khi người dùng đang mở danh sách.");
+            hub.SetExpanded(false, animate: false);
 
             await controller.SetPlacementForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetPlacementMode.KeepPosition);
             await Task.Delay(1500);

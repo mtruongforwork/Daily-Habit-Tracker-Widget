@@ -134,6 +134,81 @@ public sealed partial class WidgetController
         }
     }
 
+    private readonly HashSet<string> _remindersShown = [];
+    private readonly List<(string Id, DateTime DueAt, HabitGrid.Core.Domain.Reminders.ToastKind Kind, IReadOnlyList<Guid> Ids, DateOnly Day)> _islandSnoozed = [];
+
+    /// <summary>
+    /// Nhắc nhở đến giờ thì bung ra từ viên thuốc Island với hai nút "Xong" / "Để sau". Toast Windows vẫn được lên lịch như cũ làm dự phòng
+    /// (khi widget không chạy hoặc đang bận); bấm nút trên viên thuốc thì toast cùng tag bị xoá khỏi Trung tâm thông báo.
+    /// </summary>
+    private async Task ShowDueIslandRemindersAsync(DateTime now)
+    {
+        if (_placement != WidgetPlacementMode.TopCenter || _hub is not { } hub || !hub.CanPeek)
+        {
+            return;
+        }
+
+        var due = Toasts.LastPlan
+            .Where(p => p.Kind != HabitGrid.Core.Domain.Reminders.ToastKind.MorningSummary && now >= p.At && now < p.At.AddMinutes(3) && !_remindersShown.Contains(p.Id))
+            .Select(p => (p.Id, p.Kind, Ids: p.HabitIds, Day: DateOnly.FromDateTime(p.At)))
+            .Concat(_islandSnoozed.Where(s => now >= s.DueAt && !_remindersShown.Contains(s.Id)).Select(s => (s.Id, s.Kind, s.Ids, s.Day)))
+            .FirstOrDefault();
+
+        if (due.Id is null)
+        {
+            return;
+        }
+
+        // Chỉ nhắc những việc còn chưa xong hôm nay.
+        var open = _quick.Items.Where(i => due.Ids.Contains(i.Id) && !i.IsDone && !i.IsSkipped).ToList();
+
+        if (open.Count == 0)
+        {
+            _remindersShown.Add(due.Id);
+            return;
+        }
+
+        var ids = open.Select(i => i.Id).ToList();
+        var title = ToastScheduler.TitleFor(due.Kind, open.Select(i => i.Name).ToList());
+        var csv = string.Join(',', ids);
+        var day = due.Day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        var id = due.Id;
+        var kind = due.Kind;
+
+        async Task ActAsync(string action)
+        {
+            var args = new CommunityToolkit.WinUI.Notifications.ToastArguments()
+                .Add("action", action).Add("ids", csv).Add("day", day).Add("kind", kind.ToString());
+            await Toasts.HandleAsync(args, OpenMainApp);
+
+            try
+            {
+                CommunityToolkit.WinUI.Notifications.ToastNotificationManagerCompat.History.Remove(id, ToastScheduler.Group);
+            }
+            catch (Exception)
+            {
+                // Toast chưa hiện/đã bị xoá: không sao.
+            }
+
+            if (action == "snooze")
+            {
+                _islandSnoozed.Add((id + ":later:" + now.Ticks, DateTime.Now.AddMinutes(30), kind, ids, due.Day));
+            }
+
+            await RefreshAsync();
+        }
+
+        if (hub.ShowReminder(title, () => ActAsync("done"), () => ActAsync("snooze")))
+        {
+            _remindersShown.Add(due.Id);
+
+            if (_remindersShown.Count > 300)
+            {
+                _remindersShown.Clear();
+            }
+        }
+    }
+
     /// <summary>Mỗi nhịp: màn hình chính đổi (độ phân giải/DPI/cắm màn hình) thì tính lại vị trí giữa mép trên.</summary>
     private async Task EnsureIslandPositionAsync()
     {

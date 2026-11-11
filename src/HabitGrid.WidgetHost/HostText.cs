@@ -97,6 +97,8 @@ public static class HostText
 
     public static string IslandLeft(int n) => IsVietnamese ? $"{n} còn" : $"{n} left";
 
+    public static string IslandLater => IsVietnamese ? "Để sau" : "Later";
+
     public static string IslandStreak(int days) => IsVietnamese ? $"{days} ngày" : $"{days} days";
 
     public static string IslandMore(int n) => IsVietnamese ? $"+{n} việc nữa · bấm để mở" : $"+{n} more · click to open";

@@ -88,6 +88,33 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
 
     protected override bool HasHoverLevel => IsIsland;
 
+    // Màu nền Island theo nội dung: xanh lục khi xong hết, hổ phách khi sắp mất chuỗi, xanh ngọc khi Focus, xanh dương khi nghỉ giải lao.
+    private static readonly Color TintDone = Color.FromArgb(0xF0, 0x0C, 0x22, 0x18);
+    private static readonly Color TintRisk = Color.FromArgb(0xF0, 0x26, 0x1D, 0x07);
+    private static readonly Color TintFocus = Color.FromArgb(0xF0, 0x08, 0x26, 0x2A);
+    private static readonly Color TintBreak = Color.FromArgb(0xF0, 0x0B, 0x17, 0x30);
+    private static readonly Color TintReminder = Color.FromArgb(0xF0, 0x1D, 0x15, 0x38);
+
+    protected override Color? TintFor(ViewLevel level)
+    {
+        if (!IsIsland || level != ViewLevel.Rest || _data is null)
+        {
+            return null;
+        }
+
+        if (FocusProvider?.Invoke() is { } focus)
+        {
+            return focus.IsBreak ? TintBreak : TintFocus;
+        }
+
+        return BuddyWidgetWindow.MoodFor(_data.Buddy, Now()) switch
+        {
+            BuddyWidgetWindow.Mood.AllDone => TintDone,
+            BuddyWidgetWindow.Mood.AtRisk => TintRisk,
+            _ => null
+        };
+    }
+
     /// <summary>Mức xem nhanh của Island: danh sách việc hôm nay, cao theo số việc (tối đa <see cref="MaxHoverRows"/> dòng).</summary>
     protected override Size HoverSize => new(WidgetLayout.IslandListWidth, EstimateHoverHeight(_data));
 
@@ -165,30 +192,30 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
 
         if (a.Level > b.Level)
         {
-            PeekMessage("⭐", HostText.HubLevelUp(a.Level), 260);
+            PeekMessage("⭐", HostText.HubLevelUp(a.Level), 260, TintReminder);
             return;
         }
 
         if (a.TodayDue > 0 && a.TodayDone >= a.TodayDue && b.TodayDone < b.TodayDue)
         {
-            PeekMessage("🎉", HostText.HubAllDonePeek, 240);
+            PeekMessage("🎉", HostText.HubAllDonePeek, 240, TintDone);
             return;
         }
 
         if (a.TodayDone > b.TodayDone)
         {
             var finished = after.Today.FirstOrDefault(i => i.IsDone && before.Today.Any(o => o.Id == i.Id && !o.IsDone));
-            PeekMessage("✔", $"{finished?.Name ?? HostText.Done}  {HostText.Progress(a.TodayDone, a.TodayDue)}", 250);
+            PeekMessage("✔", $"{finished?.Name ?? HostText.Done}  {HostText.Progress(a.TodayDone, a.TodayDue)}", 250, TintDone);
             return;
         }
 
         if (BuddyWidgetWindow.MoodFor(a, now) == BuddyWidgetWindow.Mood.AtRisk && BuddyWidgetWindow.MoodFor(b, now) != BuddyWidgetWindow.Mood.AtRisk)
         {
-            PeekMessage("⚠", HostText.HubAtRisk(after.Today.Count(i => !i.IsDone && !i.IsSkipped)), 290);
+            PeekMessage("⚠", HostText.HubAtRisk(after.Today.Count(i => !i.IsDone && !i.IsSkipped)), 290, TintRisk);
         }
     }
 
-    private void PeekMessage(string icon, string message, double width)
+    private void PeekMessage(string icon, string message, double width, Color? tint = null)
     {
         var row = new Grid { VerticalAlignment = VerticalAlignment.Center };
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -201,7 +228,84 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
         text.VerticalAlignment = VerticalAlignment.Center;
         Grid.SetColumn(text, 1);
         row.Children.Add(text);
-        Peek(row, new Size(Math.Max(width, WidgetLayout.HubWidth), 52));
+        Peek(row, new Size(IsIsland ? Math.Max(width, WidgetLayout.IslandRestWidth) : Math.Max(width, WidgetLayout.HubWidth), 52), tint: IsIsland ? tint : null);
+    }
+
+    private Func<Task>? _reminderDone;
+    private Func<Task>? _reminderLater;
+
+    /// <summary>
+    /// Nhắc nhở thói quen bung ra từ viên thuốc với hai nút "Xong" và "Để sau". Trả về false nếu lúc này không nhô lên được
+    /// (đang mở danh sách/bảng, chế độ sắp xếp…): bên gọi thử lại ở nhịp sau; toast Windows vẫn là dự phòng.
+    /// Thẻ ở lại khi chuột nằm trên nó (để kịp bấm) và tự thu sau <paramref name="holdMilliseconds"/> ms nếu không bấm.
+    /// </summary>
+    public bool ShowReminder(string title, Func<Task> onDone, Func<Task> onLater, int holdMilliseconds = 15000)
+    {
+        if (!IsIsland || !CanPeek)
+        {
+            return false;
+        }
+
+        _reminderDone = onDone;
+        _reminderLater = onLater;
+
+        var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+        var heading = Text(title, 13, bold: true);
+        heading.TextTrimming = TextTrimming.CharacterEllipsis;
+        stack.Children.Add(heading);
+
+        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
+        buttons.Children.Add(PillButton(HostText.Done, primary: true, async () =>
+        {
+            DismissPeek();
+            await onDone();
+        }));
+        var later = PillButton(HostText.IslandLater, primary: false, async () =>
+        {
+            DismissPeek();
+            await onLater();
+        });
+        later.Margin = new Thickness(8, 0, 0, 0);
+        buttons.Children.Add(later);
+        stack.Children.Add(buttons);
+
+        Peek(stack, new Size(320, 84), holdMilliseconds, sticky: true, tint: TintReminder);
+        return true;
+    }
+
+    /// <summary>Bấm nút của thẻ nhắc nhở (cho tự kiểm tra).</summary>
+    public async Task InvokeReminderForTestAsync(bool done)
+    {
+        DismissPeek();
+        var action = done ? _reminderDone : _reminderLater;
+
+        if (action is not null)
+        {
+            await action();
+        }
+    }
+
+    private static Border PillButton(string text, bool primary, Func<Task> click)
+    {
+        var label = Text(text, 12, bold: true);
+        label.TextTrimming = TextTrimming.None;
+        label.HorizontalAlignment = HorizontalAlignment.Center;
+        var button = new Border
+        {
+            CornerRadius = new CornerRadius(14),
+            Padding = new Thickness(16, 5, 16, 5),
+            Cursor = Cursors.Hand,
+            Background = new SolidColorBrush(primary ? Color.FromRgb(124, 92, 255) : Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
+            Child = label
+        };
+        System.Windows.Automation.AutomationProperties.SetName(button, text);
+        button.MouseLeftButtonDown += (_, e) => e.Handled = true;
+        button.MouseLeftButtonUp += async (_, e) =>
+        {
+            e.Handled = true;
+            await click();
+        };
+        return button;
     }
 
     /// <summary>Mỗi giây: cập nhật đồng hồ Focus trên viên thuốc và nhô lên khi phiên bắt đầu/kết thúc.</summary>
@@ -216,15 +320,19 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
 
             if (started)
             {
-                PeekMessage("⏱", HostText.HubFocusStarted(focus!.Habit), 280);
+                PeekMessage("⏱", HostText.HubFocusStarted(focus!.Habit), 280, TintFocus);
             }
             else if (ended)
             {
-                PeekMessage("🎉", HostText.HubFocusEnded, 260);
+                PeekMessage("🎉", HostText.HubFocusEnded, 260, TintDone);
             }
             else if (focus is not null && !IsExpanded && !_peeking)
             {
                 Render();
+            }
+            else if (!_peeking)
+            {
+                RefreshTint();
             }
         };
         _tick.Start();

@@ -80,6 +80,12 @@ public abstract class ExtraWidgetWindow : Window
     private DateTime _lastFrame;
     private int _peekVersion;
     protected bool _peeking;
+    private bool _stickyPeek;
+    private Color? _peekTint;
+    private SolidColorBrush? _tint;
+
+    /// <summary>Màu nền gốc của thẻ kiểu Island (gần đen).</summary>
+    protected static readonly Color IslandBase = Color.FromArgb(0xF0, 0x0E, 0x0E, 0x12);
 
     protected ExtraWidgetWindow(string title)
     {
@@ -155,7 +161,7 @@ public abstract class ExtraWidgetWindow : Window
         {
             _collapseTimer.Stop();
 
-            if (!IsExpanded)
+            if (!IsExpanded && !(_peeking && _stickyPeek))
             {
                 _expandTimer.Interval = HoverDelay;
                 _expandTimer.Start();
@@ -214,6 +220,37 @@ public abstract class ExtraWidgetWindow : Window
     protected virtual bool HasHoverLevel => false;
 
     protected virtual Size HoverSize => ExpandedSize;
+
+    /// <summary>Màu nền theo nội dung đang hiển thị (null = màu gốc). Chỉ áp cho kiểu Island đặc, không áp cho kính mờ.</summary>
+    protected virtual Color? TintFor(ViewLevel level) => null;
+
+    /// <summary>Đổi màu nền mượt (300 ms); tắt hoạt ảnh thì đổi tức thì.</summary>
+    private void ApplyTint(Color? tint)
+    {
+        if (_glass || _tint is null)
+        {
+            return;
+        }
+
+        var target = tint ?? IslandBase;
+
+        if (_tint.Color == target)
+        {
+            return;
+        }
+
+        if (!Animations)
+        {
+            _tint.BeginAnimation(SolidColorBrush.ColorProperty, null);
+            _tint.Color = target;
+            return;
+        }
+
+        _tint.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(target, TimeSpan.FromMilliseconds(300)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+    }
+
+    /// <summary>Gọi khi trạng thái nội dung đổi mà không dựng lại (ví dụ tới giờ "tối" làm thẻ chuyển màu cảnh báo).</summary>
+    protected void RefreshTint() => ApplyTint(_peeking ? _peekTint : TintFor(Level));
 
     protected virtual UIElement BuildHover() => BuildExpanded();
 
@@ -283,7 +320,7 @@ public abstract class ExtraWidgetWindow : Window
             _card = new Border
             {
                 CornerRadius = new CornerRadius(CardRadius(size, IsExpanded)),
-                Background = _glass ? GlassCardBrush : IslandBrush,
+                Background = _glass ? GlassCardBrush : (_tint = new SolidColorBrush(IslandBase)),
                 BorderBrush = RimBrush,
                 BorderThickness = new Thickness(1)
             };
@@ -306,6 +343,7 @@ public abstract class ExtraWidgetWindow : Window
 
         _card.ClipToBounds = true;
         _card.Child = child;
+        ApplyTint(peek ? _peekTint : TintFor(Level));
 
         if (crossfade && Animations)
         {
@@ -470,7 +508,7 @@ public abstract class ExtraWidgetWindow : Window
     /// "Nhô lên" một thông báo ngắn (kiểu Live Activity): thẻ phình ra, hiện nội dung, giữ <paramref name="holdMilliseconds"/> ms rồi thu về dạng cũ.
     /// Người dùng rê chuột/bấm trong lúc đó thì thông báo nhường chỗ.
     /// </summary>
-    protected async void Peek(UIElement content, Size size, int holdMilliseconds = 2600)
+    protected async void Peek(UIElement content, Size size, int holdMilliseconds = 2600, bool sticky = false, Color? tint = null)
     {
         if (EditMode || !_sized)
         {
@@ -487,18 +525,50 @@ public abstract class ExtraWidgetWindow : Window
         }
 
         _peeking = true;
+        _stickyPeek = sticky;
+        _peekTint = tint;
         SetCardContent(content, size, crossfade: true, peek: true);
         MorphTo(size, AnchorFor(size), CardRadius(size, expanded: false), animate: true);
         await Task.Delay(holdMilliseconds);
+
+        // Thẻ có nút bấm (nhắc nhở) không biến mất khi chuột đang nằm trên nó.
+        while (version == _peekVersion && sticky && IsMouseOver)
+        {
+            await Task.Delay(400);
+        }
 
         if (version != _peekVersion)
         {
             return;
         }
 
+        EndPeek(baseSize);
+    }
+
+    private void EndPeek(Size baseSize)
+    {
         _peeking = false;
+        _stickyPeek = false;
+        _peekTint = null;
         Render(crossfade: true);
         MorphTo(baseSize, AnchorFor(baseSize), CardRadius(baseSize, IsExpanded), animate: true);
+    }
+
+    /// <summary>Có thể nhô lên một thông báo ngay bây giờ không (đang nghỉ, không ở chế độ sắp xếp, đã có kích thước).</summary>
+    public bool CanPeek => !EditMode && _sized && !IsExpanded;
+
+    public bool IsPeeking => _peeking;
+
+    /// <summary>Kết thúc thông báo đang nhô lên (ví dụ sau khi bấm "Xong"/"Để sau") và thu về trạng thái nghỉ.</summary>
+    public void DismissPeek()
+    {
+        if (!_peeking)
+        {
+            return;
+        }
+
+        _peekVersion++;
+        EndPeek(SizeFor(Level));
     }
 
     /// <summary>Đặt thẳng cửa sổ tại vị trí (DIP) không qua hoạt ảnh, kể cả khi đang biến hình (đích của lò xo cũng được dời).</summary>

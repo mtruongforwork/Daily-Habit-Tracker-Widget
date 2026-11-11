@@ -260,6 +260,15 @@ public sealed class ToastScheduler
         }
     }
 
+    /// <summary>Tiêu đề nhắc nhở theo loại; dùng chung cho toast Windows và thẻ nhắc trên viên thuốc.</summary>
+    public static string TitleFor(ToastKind kind, IReadOnlyList<string> names) => kind switch
+    {
+        ToastKind.FollowUp => HostText.ReminderFollowUp,
+        ToastKind.StreakRescue => HostText.ReminderRescue,
+        ToastKind.MorningSummary => HostText.ReminderMorning,
+        _ => names.Count == 1 ? HostText.ReminderSingle(names[0]) : HostText.ReminderMany(names.Count)
+    };
+
     /// <summary>Nội dung toast: tiêu đề theo loại, tối đa 3 tên rồi "và N thói quen khác", nút hành động.</summary>
     public static ToastContentBuilder? Build(ToastKind kind, IReadOnlyList<Habit> habits, DateOnly day)
     {
@@ -270,13 +279,7 @@ public sealed class ToastScheduler
 
         var ids = string.Join(',', habits.Select(h => h.Id));
         var dayText = day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
-        var title = kind switch
-        {
-            ToastKind.FollowUp => HostText.ReminderFollowUp,
-            ToastKind.StreakRescue => HostText.ReminderRescue,
-            ToastKind.MorningSummary => HostText.ReminderMorning,
-            _ => habits.Count == 1 ? HostText.ReminderSingle(habits[0].Name) : HostText.ReminderMany(habits.Count)
-        };
+        var title = TitleFor(kind, habits.Select(h => h.Name).ToList());
 
         var lines = habits.Take(3).Select(h => "• " + h.Name).ToList();
 
