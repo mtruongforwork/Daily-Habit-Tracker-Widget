@@ -703,4 +703,15 @@
   <data name="settings.glass" xml:space="preserve"><value>Kính mờ</value></data>
   <data name="settings.glass.hint" xml:space="preserve"><value>Cửa sổ trong suốt, làm mờ hình nền Windows phía sau (hiệu ứng Acrylic). Kéo về 0 để dùng nền đặc.</value></data>
   <data name="settings.widgetGlass" xml:space="preserve"><value>Widget kính mờ thay cho kiểu Dynamic Island (Windows 11)</value></data>
+  <data name="nav.calendar" xml:space="preserve"><value>Lịch</value></data>
+  <data name="calendar.title" xml:space="preserve"><value>Lịch</value></data>
+  <data name="calendar.thisMonth" xml:space="preserve"><value>Tháng này</value></data>
+  <data name="calendar.perfect" xml:space="preserve"><value>{0} ngày trọn vẹn</value></data>
+  <data name="calendar.active" xml:space="preserve"><value>{0} ngày có việc</value></data>
+  <data name="calendar.average" xml:space="preserve"><value>Trung bình {0}%</value></data>
+  <data name="calendar.dayProgress" xml:space="preserve"><value>{0}/{1} xong</value></data>
+  <data name="calendar.empty" xml:space="preserve"><value>Không có việc nào đến hạn ngày này.</value></data>
+  <data name="calendar.hint" xml:space="preserve"><value>Chọn một ngày để xem lại hoặc sửa.</value></data>
+  <data name="calendar.prev" xml:space="preserve"><value>Tháng trước</value></data>
+  <data name="calendar.next" xml:space="preserve"><value>Tháng sau</value></data>
 </root>

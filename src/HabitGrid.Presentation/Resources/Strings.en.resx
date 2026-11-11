@@ -703,4 +703,15 @@
   <data name="settings.glass" xml:space="preserve"><value>Glass</value></data>
   <data name="settings.glass.hint" xml:space="preserve"><value>A see-through window that blurs your Windows wallpaper behind it (Acrylic). Drag to 0 for a solid background.</value></data>
   <data name="settings.widgetGlass" xml:space="preserve"><value>Glass widgets instead of the Dynamic Island style (Windows 11)</value></data>
+  <data name="nav.calendar" xml:space="preserve"><value>Calendar</value></data>
+  <data name="calendar.title" xml:space="preserve"><value>Calendar</value></data>
+  <data name="calendar.thisMonth" xml:space="preserve"><value>This month</value></data>
+  <data name="calendar.perfect" xml:space="preserve"><value>{0} perfect days</value></data>
+  <data name="calendar.active" xml:space="preserve"><value>{0} active days</value></data>
+  <data name="calendar.average" xml:space="preserve"><value>Average {0}%</value></data>
+  <data name="calendar.dayProgress" xml:space="preserve"><value>{0}/{1} done</value></data>
+  <data name="calendar.empty" xml:space="preserve"><value>Nothing was due on this day.</value></data>
+  <data name="calendar.hint" xml:space="preserve"><value>Pick a day to review or edit it.</value></data>
+  <data name="calendar.prev" xml:space="preserve"><value>Previous month</value></data>
+  <data name="calendar.next" xml:space="preserve"><value>Next month</value></data>
 </root>
