@@ -428,8 +428,11 @@ public abstract class ExtraWidgetWindow : Window
 
         // Cửa sổ giữ nguyên MỘT khung bao (hợp của cỡ hiện tại và cỡ đích) suốt lúc co giãn; chỉ thẻ bên trong đổi cỡ.
         // Đổi kích thước cửa sổ phân lớp ở từng khung hình buộc DWM cấp lại bề mặt liên tục: đó là nguyên nhân khựng.
-        _box = Rect.Union(_box, new Rect(_l.Target, _t.Target, _w.Target, _h.Target));
-        ApplyBox();
+        if (!_glass)
+        {
+            _box = Rect.Union(_box, new Rect(_l.Target, _t.Target, _w.Target, _h.Target));
+            ApplyBox();
+        }
     }
 
     private Rect _box;
@@ -454,6 +457,11 @@ public abstract class ExtraWidgetWindow : Window
     /// <summary>Hết co giãn: cửa sổ về đúng cỡ thẻ, thẻ lại phủ kín cửa sổ.</summary>
     private void SettleWindow()
     {
+        if (_glass)
+        {
+            return;
+        }
+
         if (_card is not null)
         {
             _card.Margin = new Thickness(0);
@@ -503,7 +511,8 @@ public abstract class ExtraWidgetWindow : Window
     {
         var handle = new WindowInteropHelper(this).Handle;
 
-        if (_morphing && _card is not null && handle != IntPtr.Zero && IsVisible)
+        // Kiểu kính mờ: chính cửa sổ là phần kính nên phải đổi cỡ cửa sổ theo từng khung (khung bao sẽ làm kính bung ra ngay).
+        if (!_glass && _morphing && _card is not null && handle != IntPtr.Zero && IsVisible)
         {
             // Đang co giãn: cửa sổ đứng yên, chỉ thẻ đổi cỡ/vị trí bên trong khung bao.
             _card.HorizontalAlignment = HorizontalAlignment.Left;
