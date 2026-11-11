@@ -93,5 +93,7 @@ public static class HostText
     public static string HubFocusStarted(string? habit) =>
         IsVietnamese ? (habit is null ? "Bắt đầu Focus" : $"Focus: {habit}") : (habit is null ? "Focus started" : $"Focus: {habit}");
 
+    public static string HubLevelUp(int level) => IsVietnamese ? $"Lên cấp {level}!" : $"Level {level}!";
+
     public static string HubFocusEnded => IsVietnamese ? "Xong phiên Focus!" : "Focus session done!";
 }

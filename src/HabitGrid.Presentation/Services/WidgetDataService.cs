@@ -8,9 +8,12 @@ using IDayProvider = HabitGrid.Core.Services.IDayProvider;
 
 namespace HabitGrid.Presentation.Services;
 
-public sealed record BuddyWidgetData(string Name, int Level, BuddyStage Stage, IReadOnlyList<(AccessorySlot Slot, string Id, string Emoji)> Worn, int TodayDone, int TodayDue, int FreezeTokens)
+public sealed record BuddyWidgetData(string Name, int Level, BuddyStage Stage, IReadOnlyList<(AccessorySlot Slot, string Id, string Emoji)> Worn, int TodayDone, int TodayDue, int FreezeTokens, long XpInto = 0, long XpNeed = 0)
 {
     public double TodayFraction => TodayDue == 0 ? 0 : TodayDone / (double)TodayDue;
+
+    /// <summary>Tiến độ trong cấp hiện tại (0..1) cho thanh XP.</summary>
+    public double XpFraction => XpNeed <= 0 ? 0 : Math.Clamp(XpInto / (double)XpNeed, 0, 1);
 }
 
 public sealed record GoalsWidgetData(IntentProgress? Intent, IReadOnlyList<ChallengeProgress> Challenges)
@@ -69,7 +72,13 @@ public sealed class WidgetDataService
             .Select(p => (p.Key, p.Value.Id, p.Value.Emoji))
             .ToList();
 
-        return new BuddyWidgetData(profile.BuddyName, profile.Level, BuddyViewModel.StageFor(profile.Level), worn, done, due, profile.FreezeTokens);
+        // Thanh XP dùng đúng đường cong cấp độ của app (không tự bịa số).
+        var floor = LevelCurve.XpToReach(profile.Level);
+        var ceiling = LevelCurve.XpToReach(profile.Level + 1);
+        var into = Math.Max(0, profile.Xp - floor);
+        var need = Math.Max(1, ceiling - floor);
+
+        return new BuddyWidgetData(profile.BuddyName, profile.Level, BuddyViewModel.StageFor(profile.Level), worn, done, due, profile.FreezeTokens, into, need);
     }
 
     public async Task<GoalsWidgetData> GoalsAsync(CancellationToken ct = default)

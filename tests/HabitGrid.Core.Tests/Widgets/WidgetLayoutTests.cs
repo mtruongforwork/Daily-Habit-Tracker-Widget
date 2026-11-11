@@ -108,7 +108,7 @@ public class WidgetLayoutModeTests
     [Fact]
     public void TheHubIsSmall_AndFitsInTheCornerColumn()
     {
-        WidgetLayout.HubWidth.Should().BeLessThan(260);
+        WidgetLayout.HubWidth.Should().BeLessThan(320);
         WidgetLayout.HubHeight.Should().BeLessThan(90);
         WidgetLayout.Plan(0, 0, 1920, 1040, [new("hub", WidgetLayout.HubWidth, WidgetLayout.HubHeight)])["hub"]
             .Left.Should().Be(1920 - WidgetLayout.Margin - WidgetLayout.HubWidth);

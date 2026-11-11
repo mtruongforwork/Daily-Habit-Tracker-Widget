@@ -91,7 +91,7 @@ public sealed partial class WidgetController
 
     private async Task<HubWidgetWindow> CreateHubAsync()
     {
-        var window = new HubWidgetWindow { EditMode = _editApplied, OnToggle = item => ActAsync(item, 0), FocusProvider = FocusSnapshotNow };
+        var window = new HubWidgetWindow { EditMode = _editApplied, OnToggle = item => ActAsync(item, 0), OnAdjust = ActAsync, FocusProvider = FocusSnapshotNow };
         window.Show();
         window.StartLiveActivities();
         window.Moved += async (_, _) =>

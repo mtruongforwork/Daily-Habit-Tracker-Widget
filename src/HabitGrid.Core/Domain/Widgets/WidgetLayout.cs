@@ -74,8 +74,8 @@ public static class PinChoices
 public static class WidgetLayout
 {
     public const int Margin = 24;
-    public const int HubWidth = 210;
-    public const int HubHeight = 60;
+    public const int HubWidth = 288;
+    public const int HubHeight = 64;
     public const int Gap = 12;
 
     public readonly record struct Item(string Key, int Width, int Height);
