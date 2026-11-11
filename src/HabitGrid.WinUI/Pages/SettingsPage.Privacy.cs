@@ -75,15 +75,7 @@ public sealed partial class SettingsPage
     /// <summary>Xóa dữ liệu trong CSDL, ảnh khoảnh khắc, bản sao lưu và nhật ký trên máy; rồi thông báo và đóng app.</summary>
     private async Task EraseEverythingAsync()
     {
-        await DataEraser.EraseAllAsync(App.Host.Get<HabitGridDatabase>());
-
-        var backups = App.Host.Get<BackupManager>().Directory;
-        var folders = new[] { Path.Combine(AppPaths.DataDir, "moments"), backups, AppPaths.LogDir };
-
-        foreach (var folder in folders)
-        {
-            DeleteFolderContents(folder);
-        }
+        await AppDataEraser.EraseAsync(App.Host.Get<HabitGridDatabase>(), AppPaths.DataDir, App.Host.Get<BackupManager>().Directory, AppPaths.LogDir);
 
         await new ContentDialog
         {
@@ -94,29 +86,5 @@ public sealed partial class SettingsPage
         }.ShowAsync();
 
         Application.Current.Exit();
-    }
-
-    /// <summary>Xóa từng file trong thư mục (file đang bị giữ như nhật ký của lần chạy này thì bỏ qua, không làm hỏng cả quá trình).</summary>
-    private static void DeleteFolderContents(string folder)
-    {
-        if (!Directory.Exists(folder))
-        {
-            return;
-        }
-
-        foreach (var file in Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories))
-        {
-            try
-            {
-                File.Delete(file);
-            }
-            catch (IOException)
-            {
-                // Đang được dùng: để lại, không chặn các file còn lại.
-            }
-            catch (UnauthorizedAccessException)
-            {
-            }
-        }
     }
 }

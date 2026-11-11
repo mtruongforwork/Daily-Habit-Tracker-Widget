@@ -108,6 +108,9 @@ public static class SmokeRunner
 
             await SettingsJourneyAsync(window, logger);
 
+            // Luôn chạy CUỐI: xóa sạch dữ liệu của thư mục smoke (chỉ chạy được trên HABITGRID_DATA_DIR riêng).
+            await EraseJourneyAsync(logger);
+
             logger.Info("SMOKE OK");
             Environment.Exit(0);
         }
@@ -587,6 +590,39 @@ public static class SmokeRunner
         return bytes;
     }
 
+    /// <summary>
+    /// "Xóa toàn bộ dữ liệu" chạy đúng luồng thật (AppDataEraser) trên thư mục dữ liệu smoke: CSDL rỗng, ảnh/sao lưu/nhật ký được xóa,
+    /// app ghi lại được ngay sau đó. Từ chối chạy nếu không phải thư mục dữ liệu riêng.
+    /// </summary>
+    private static async Task EraseJourneyAsync(IAppLogger logger)
+    {
+        Require(AppPaths.IsCustomDataDir, "Smoke xóa dữ liệu chỉ được chạy trên HABITGRID_DATA_DIR riêng.");
+
+        var db = App.Host.Get<HabitGrid.Data.HabitGridDatabase>();
+        var backups = App.Host.Get<HabitGrid.Data.V3.BackupManager>();
+        var moments = Path.Combine(AppPaths.DataDir, "moments");
+        Directory.CreateDirectory(moments);
+        await File.WriteAllBytesAsync(Path.Combine(moments, "erase-me.jpg"), [0xFF, 0xD8, 0xFF, 0x00]);
+        await backups.BackupNowAsync();
+        Require(backups.List().Count > 0, "Chưa có bản sao lưu để kiểm tra việc xóa.");
+
+        var habits = await App.Host.Get<IHabitRepository>().GetAllAsync();
+        Require(habits.Count > 0, "Smoke chưa có thói quen nào để kiểm tra việc xóa.");
+
+        await App.Host.Get<ISettingsStore>().SetAsync("smoke.before-erase", "1");
+        var deleted = await AppDataEraser.EraseAsync(db, AppPaths.DataDir, backups.Directory, AppPaths.LogDir);
+        Require(deleted >= 2, $"Chỉ xóa được {deleted} file (cần ít nhất ảnh và bản sao lưu).");
+        Require(!File.Exists(Path.Combine(moments, "erase-me.jpg")), "Ảnh khoảnh khắc vẫn còn sau khi xóa.");
+        Require(backups.List().Count == 0, "Bản sao lưu vẫn còn sau khi xóa.");
+        Require((await App.Host.Get<IHabitRepository>().GetAllAsync()).Count == 0, "Thói quen vẫn còn trong CSDL sau khi xóa.");
+        Require(await App.Host.Get<ISettingsStore>().GetAsync("smoke.before-erase") is null, "Cài đặt vẫn còn sau khi xóa.");
+
+        // Ghi lại được ngay (cấu trúc CSDL còn nguyên).
+        await App.Host.Get<ISettingsStore>().SetAsync("smoke.after-erase", "1");
+        Require(await App.Host.Get<ISettingsStore>().GetAsync("smoke.after-erase") == "1", "Không ghi lại được sau khi xóa.");
+        logger.Info($"SMOKE erase OK ({deleted} files removed, database empty)");
+    }
+
     /// <summary>Bảng điều khiển Hôm nay: ẩn một khối, đưa khối khác lên đầu, bố cục được lưu và áp đúng thứ tự trên giao diện; đặt lại trả về mặc định.</summary>
     private static async Task DashboardJourneyAsync(MainWindow window, IAppLogger logger)
     {
@@ -614,6 +650,12 @@ public static class SmokeRunner
         Require(order.SequenceEqual(["SecHero", "SecWeek", "SecMood", "SecRecap", "SecRoutines", "SecChallenges"]), "Thứ tự khối trên giao diện sai: " + string.Join(",", order) + " | cha " + parent.GetType().Name + " con " + string.Join(",", parent.Children.Select(c => (c as Microsoft.UI.Xaml.FrameworkElement)?.Name is { Length: > 0 } n ? n : c.GetType().Name)) + " | layout " + page.CurrentLayout.Serialize());
         Require(((Microsoft.UI.Xaml.FrameworkElement)page.FindName("SecMood")).Visibility == Microsoft.UI.Xaml.Visibility.Collapsed, "Khối bị ẩn vẫn hiện.");
         await SnapAsync(window, "today-customized");
+
+        // Bảng tùy chỉnh dựng được: ListView kéo-thả với đủ 6 hàng, mỗi hàng mang id khối.
+        var content = page.BuildCustomizeContentForTest();
+        var list = content.Children.OfType<Microsoft.UI.Xaml.Controls.ListView>().Single();
+        Require(list.CanReorderItems && list.CanDragItems && list.AllowDrop, "Bảng tùy chỉnh chưa bật kéo-thả.");
+        Require(list.Items.OfType<Microsoft.UI.Xaml.FrameworkElement>().Select(r => (string)r.Tag).SequenceEqual(custom.Items.Select(i => i.Id)), "Hàng trong bảng tùy chỉnh không khớp bố cục.");
 
         await store.RemoveAsync(HabitGrid.Core.Domain.Dashboard.DashboardLayout.SettingKey);
         await GoToAsync(window, PageKeys.Habits);
