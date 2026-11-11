@@ -321,7 +321,16 @@ public sealed class SnapshotBackupService
             return default;
         }
 
+        // File sao lưu do người dùng chọn có thể bị hỏng hoặc độc hại (zip bomb): từ chối mục quá lớn trước khi giải nén.
+        if (entry.Length > MaxEntryBytes)
+        {
+            throw new UnsupportedBackupException("File sao lưu quá lớn hoặc không hợp lệ.");
+        }
+
         await using var stream = entry.Open();
         return await JsonSerializer.DeserializeAsync<T>(stream, DomainJson.Options, ct);
     }
+
+    /// <summary>Giới hạn kích thước một mục sau giải nén (128 MB; dữ liệu thật chỉ vài MB).</summary>
+    public const long MaxEntryBytes = 128L * 1024 * 1024;
 }

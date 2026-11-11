@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HabitGrid.Presentation.Services;
 
@@ -12,6 +12,7 @@ public static class PageKeys
     public const string Today = "today";
     public const string Habits = "habits";
     public const string Insights = "insights";
+    public const string Calendar = "calendar";
     public const string Buddy = "buddy";
     public const string Settings = "settings";
 }
@@ -29,7 +30,8 @@ public sealed partial class ShellViewModel : ObservableObject
     /// <summary>Các trang chính (Segoe Fluent Icons).</summary>
     public IReadOnlyList<NavItem> MainItems { get; } =
     [
-        new(PageKeys.Today, "nav.today", ""),
+        new(PageKeys.Today, "nav.today", "\uE80F"),
+        new(PageKeys.Calendar, "nav.calendar", ""),
         new(PageKeys.Habits, "nav.habits", ""),
         new(PageKeys.Insights, "nav.insights", ""),
         new(PageKeys.Buddy, "nav.buddy", "")

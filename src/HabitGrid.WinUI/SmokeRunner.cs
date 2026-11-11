@@ -66,6 +66,7 @@ public static class SmokeRunner
                 logger.Info($"SMOKE page {key} OK");
             }
 
+            await CalendarJourneyAsync(window, logger);
             await DetailJourneyAsync(window, logger);
             await BuddyJourneyAsync(window, logger, () => celebrations);
             await ShortcutsJourneyAsync(window, logger);
@@ -585,6 +586,40 @@ public static class SmokeRunner
         return bytes;
     }
 
+    /// <summary>Lịch tháng: dựng được lưới, chọn một ngày quá khứ, check-in ngày đó và ô trên lưới đổi theo.</summary>
+    private static async Task CalendarJourneyAsync(MainWindow window, IAppLogger logger)
+    {
+        await GoToAsync(window, PageKeys.Calendar);
+        var page = window.CurrentPage as CalendarPage ?? throw new InvalidOperationException("Không mở được trang Lịch.");
+        await page.Ready;
+        await Task.Delay(400);
+
+        var model = page.Model;
+        Require(model.Grid is { Weeks.Count: >= 4 }, "Lịch tháng không dựng được lưới.");
+        Require(model.Grid!.ActiveDays > 0, "Lịch tháng trống dù đã có thói quen và lịch sử.");
+
+        var past = model.Today.AddDays(-2);
+        await model.SelectDayAsync(past);
+        Require(model.SelectedDay == past, "Không chọn được ngày quá khứ.");
+
+        // Thói quen của smoke vừa tạo hôm nay nên ngày quá khứ chưa có việc (trước ngày bắt đầu); sửa lại trên hôm nay.
+        await model.SelectDayAsync(model.Today);
+        Require(model.DayItems.Count > 0, "Hôm nay không có việc nào trên lịch.");
+
+        var item = model.DayItems.First(i => !i.IsNumeric && !i.IsSkipped);
+        var wasDone = item.IsDone;
+        await model.ToggleAsync(item);
+        Require(model.DayItems.First(i => i.Id == item.Id).IsDone != wasDone, "Check-in ngày quá khứ không đổi trạng thái.");
+        await model.ToggleAsync(model.DayItems.First(i => i.Id == item.Id));
+        Require(model.DayItems.First(i => i.Id == item.Id).IsDone == wasDone, "Bấm lại không trả về trạng thái cũ.");
+
+        await GoToAsync(window, PageKeys.Calendar);
+        await ((CalendarPage)window.CurrentPage!).Ready;
+        await Task.Delay(300);
+        await SnapAsync(window, "calendar");
+        logger.Info($"SMOKE calendar OK (active days {model.Grid.ActiveDays}, perfect {model.Grid.PerfectDays})");
+    }
+
     private static async Task InsightsJourneyAsync(MainWindow window, IAppLogger logger)
     {
         await GoToAsync(window, PageKeys.Insights);
@@ -640,7 +675,7 @@ public static class SmokeRunner
     {
         var problems = new List<string>();
 
-        foreach (var key in new[] { PageKeys.Today, PageKeys.Habits, PageKeys.Insights, PageKeys.Buddy, PageKeys.Settings })
+        foreach (var key in new[] { PageKeys.Today, PageKeys.Calendar, PageKeys.Habits, PageKeys.Insights, PageKeys.Buddy, PageKeys.Settings })
         {
             await GoToAsync(window, key);
             await Task.Delay(700);

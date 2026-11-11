@@ -131,6 +131,9 @@ public sealed partial class MainWindow : Window
             case PageKeys.Habits:
                 ContentFrame.Navigate(typeof(HabitsPage), null, transition);
                 break;
+            case PageKeys.Calendar:
+                ContentFrame.Navigate(typeof(CalendarPage), null, transition);
+                break;
             case PageKeys.Insights:
                 ContentFrame.Navigate(typeof(InsightsPage), null, transition);
                 break;

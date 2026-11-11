@@ -269,6 +269,11 @@ public sealed class AppHost : IDisposable
             sp.GetRequiredService<IEntitlements>(),
             sp.GetRequiredService<IDayProvider>(),
             sp.GetRequiredService<MomentStore>()));
+        services.AddTransient<CalendarModel>(sp => new CalendarModel(
+            sp.GetRequiredService<IHabitRepository>(),
+            sp.GetRequiredService<IDayLogRepository>(),
+            sp.GetRequiredService<IDayProvider>(),
+            sp.GetRequiredService<ISettingsStore>()));
         services.AddTransient<InsightsViewModel>(sp => new InsightsViewModel(
             sp.GetRequiredService<IHabitRepository>(),
             sp.GetRequiredService<IDayLogRepository>(),
