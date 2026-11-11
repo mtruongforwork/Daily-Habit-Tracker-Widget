@@ -108,8 +108,12 @@ public static class SmokeRunner
 
             await SettingsJourneyAsync(window, logger);
 
-            // Luôn chạy CUỐI: xóa sạch dữ liệu của thư mục smoke (chỉ chạy được trên HABITGRID_DATA_DIR riêng).
-            await EraseJourneyAsync(logger);
+            // Chỉ khi HABITGRID_SMOKE_ERASE=1 (một lượt smoke riêng ở CI): xóa sạch dữ liệu của thư mục smoke nên phải chạy CUỐI
+            // và không được dùng chung thư mục với bước WidgetHost self-test (cần dữ liệu smoke còn nguyên).
+            if (Environment.GetEnvironmentVariable("HABITGRID_SMOKE_ERASE") == "1")
+            {
+                await EraseJourneyAsync(logger);
+            }
 
             logger.Info("SMOKE OK");
             Environment.Exit(0);
