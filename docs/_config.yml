@@ -16,3 +16,5 @@ exclude:
   - store/HUONG-DAN-DIEN-HO-SO.md
   - store/privacy-policy-paste.txt
   - PRIVACY-POLICY.md
+  - store/screenshots
+  - store/store-listing.md
