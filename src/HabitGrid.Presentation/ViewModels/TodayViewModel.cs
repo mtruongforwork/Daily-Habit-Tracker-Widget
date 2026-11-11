@@ -453,32 +453,9 @@ public sealed partial class TodayViewModel : ObservableObject, IDisposable
         return bubbles;
     }
 
-    /// <summary>Chuỗi tổng: số ngày liên tiếp có ≥ 1 thói quen xong; ngày đóng băng nối chuỗi nhưng không được đếm.</summary>
-    private static int ComputeOverallStreak(Dictionary<Guid, IReadOnlyList<DayLog>> logsByHabit, DateOnly today)
-    {
-        var allLogs = logsByHabit.Values.SelectMany(l => l).ToList();
-        var done = allLogs.Where(l => l.Status == DayStatus.Done).Select(l => l.Day).ToHashSet();
-        var frozen = allLogs.Where(l => l.Status == DayStatus.Frozen).Select(l => l.Day).ToHashSet();
-
-        var day = done.Contains(today) ? today : today.AddDays(-1);
-        var count = 0;
-
-        for (var guard = 0; guard < 3700; guard++)
-        {
-            if (done.Contains(day))
-            {
-                count++;
-            }
-            else if (!frozen.Contains(day))
-            {
-                break;
-            }
-
-            day = day.AddDays(-1);
-        }
-
-        return count;
-    }
+    /// <summary>Chuỗi tổng (công thức dùng chung với widget, xem <see cref="HabitGrid.Core.Domain.Streaks.OverallStreak"/>).</summary>
+    private static int ComputeOverallStreak(Dictionary<Guid, IReadOnlyList<DayLog>> logsByHabit, DateOnly today) =>
+        HabitGrid.Core.Domain.Streaks.OverallStreak.Compute(logsByHabit.Values.SelectMany(l => l), today);
 
     // ------------------------------------------------------------------ check-in
 

@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using HabitGrid.Core.Domain;
 using HabitGrid.Core.Domain.Monetization;
 using HabitGrid.Core.Domain.Widgets;
@@ -33,6 +33,12 @@ public sealed partial class WidgetController
     {
         var stored = await _settings.GetAsync(PinChoices.SettingKey);
         var choice = stored is null ? DefaultPin : PinChoices.Parse(stored);
+
+        // Giữa mép trên (Dynamic Island) phải luôn nằm trên mọi cửa sổ khác, bất kể kiểu ghim đã chọn.
+        if (_placement == WidgetPlacementMode.TopCenter)
+        {
+            choice = PinChoice.Top;
+        }
 
         if (_appliedPin == choice)
         {
@@ -261,6 +267,8 @@ public sealed partial class WidgetController
     /// <summary>Đổi cấu hình màn hình (rút/cắm): đưa widget Plus về vị trí đã nhớ cho cấu hình đó, hoặc về màn hình chính nếu đang nằm ngoài.</summary>
     private async Task RepositionExtrasAsync()
     {
+        await PositionHubAsync();
+
         foreach (var (kind, window) in _extras)
         {
             var saved = await LoadPositionAsync(WidgetRules.PositionKey(kind));

@@ -1,4 +1,4 @@
-namespace HabitGrid.Core.Domain.Widgets;
+﻿namespace HabitGrid.Core.Domain.Widgets;
 
 /// <summary>Kiểu ghim widget lên màn hình (Cài đặt → Widget).</summary>
 public enum PinChoice
@@ -21,6 +21,26 @@ public enum WidgetLayoutMode
 
     /// <summary>Các widget riêng lẻ (lưới thói quen, Today List, Khoảnh khắc, Buddy, Mục tiêu, Multi Grid).</summary>
     Separate
+}
+
+/// <summary>Vị trí của widget gộp trên màn hình.</summary>
+public enum WidgetPlacementMode
+{
+    /// <summary>Giữ vị trí hiện tại (góc phải mặc định hoặc nơi người dùng đã kéo tới).</summary>
+    KeepPosition,
+
+    /// <summary>"Dynamic Island": viên thuốc ghim giữa mép trên màn hình chính, luôn nằm trên cùng.</summary>
+    TopCenter
+}
+
+public static class WidgetPlacements
+{
+    public const string SettingKey = "widgets.placement";
+
+    public static WidgetPlacementMode Parse(string? stored) =>
+        string.Equals(stored?.Trim(), "topcenter", StringComparison.OrdinalIgnoreCase) ? WidgetPlacementMode.TopCenter : WidgetPlacementMode.KeepPosition;
+
+    public static string ToStored(WidgetPlacementMode placement) => placement == WidgetPlacementMode.TopCenter ? "topcenter" : "keep";
 }
 
 /// <summary>Các mục trong widget gộp.</summary>
@@ -78,6 +98,19 @@ public static class WidgetLayout
     public const int HubHeight = 64;
     public const int Gap = 12;
 
+    // Chế độ "Dynamic Island" (giữa mép trên).
+    public const int IslandRestWidth = 156;
+    public const int IslandRestHeight = 36;
+
+    /// <summary>Nghỉ khi đang Focus: rộng cố định để đồng hồ đổi số mỗi giây không làm viên thuốc co giãn.</summary>
+    public const int IslandFocusWidth = 132;
+
+    public const int IslandListWidth = 340;
+    public const int IslandPanelWidth = 384;
+
+    /// <summary>Khoảng cách từ mép trên của màn hình tới viên thuốc, pixel vật lý.</summary>
+    public const int IslandTopGap = 6;
+
     public readonly record struct Item(string Key, int Width, int Height);
 
     public readonly record struct Slot(int Left, int Top);
@@ -117,4 +150,12 @@ public static class WidgetLayout
 
         return result;
     }
+
+    /// <summary>
+    /// Vị trí viên thuốc rộng <paramref name="width"/> pixel nằm giữa cạnh trên của màn hình có toạ độ (<paramref name="monitorLeft"/>, <paramref name="monitorTop"/>)
+    /// và bề rộng <paramref name="monitorWidth"/> (toàn màn hình, không trừ taskbar), cách mép trên <see cref="IslandTopGap"/> pixel.
+    /// Chạy đúng với toạ độ âm của màn hình phụ đặt bên trái/trên màn hình chính.
+    /// </summary>
+    public static Slot TopCenter(int monitorLeft, int monitorTop, int monitorWidth, int width) =>
+        new(monitorLeft + ((monitorWidth - width) / 2), monitorTop + IslandTopGap);
 }

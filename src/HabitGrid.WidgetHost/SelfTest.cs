@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using HabitGrid.Core.Domain;
 using HabitGrid.Data;
 using HabitGrid.Data.V3;
@@ -28,6 +28,11 @@ public static class SelfTest
         try
         {
             await Task.Delay(1500);
+            if (Environment.GetEnvironmentVariable("HABITGRID_FRAMELOG") == "1")
+            {
+                ExtraWidgetWindow.FrameLog = [];
+            }
+
             Require(controller.Windows.Count > 0, "Không dựng được widget nào từ CSDL.");
             Require(controller.Windows.All(w => w.IsVisible), "Có widget không hiển thị.");
 
@@ -198,6 +203,20 @@ public static class SelfTest
             Require(peak < 320 * 1.03, $"Lò xo kiểu êm không được vượt đích quá 3%, đỉnh = {peak:0.0}.");
             Require(steps < 60, $"Lò xo phải lắng trong dưới 1 giây, mất {steps} khung hình.");
 
+            // Cảm giác: tới 98% quãng đường trong 250-350 ms (kiểu Dynamic Island), đo ở nhịp 240 Hz.
+            var timing = new HabitGrid.WidgetHost.SpringValue();
+            timing.Snap(0);
+            timing.Target = 300;
+            var elapsed = 0.0;
+
+            while (Math.Abs(timing.Value - 300) > 6 && elapsed < 2)
+            {
+                timing.Step(1.0 / 240);
+                elapsed += 1.0 / 240;
+            }
+
+            Require(elapsed is >= 0.25 and <= 0.35, $"Lò xo phải tới 98% trong 250-350 ms, thực tế {elapsed * 1000:0} ms.");
+
             // Hình màu của Buddy: đủ 5 giai đoạn và mọi phụ kiện trong danh mục phải nạp được (thiếu thì widget rơi về emoji đơn sắc).
             var spriteIds = Enum.GetValues<HabitGrid.Presentation.ViewModels.BuddyStage>().Select(HabitGrid.WidgetHost.BuddySprites.StageId)
                 .Concat(HabitGrid.Core.Domain.Gamification.BuddyAccessories.All.Select(a => a.Id)).ToList();
@@ -229,6 +248,84 @@ public static class SelfTest
 
             hub.SetExpanded(false, animate: false);
 
+            // 6e) "Dynamic Island": giữa mép trên màn hình chính cách 6 px, trạng thái nghỉ nhỏ hơn viên thuốc thường, không kéo được, luôn ở trên cùng.
+            // Tự kiểm tra không phụ thuộc trạng thái thật của máy (runner CI có thể báo "bận"): dùng bộ phát hiện giả.
+            var fake = new FakeFullscreen();
+            controller.Fullscreen = fake;
+            await controller.SetPlacementForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetPlacementMode.TopCenter);
+            await Task.Delay(1200);
+
+            // Đổi vị trí kéo theo đổi kiểu ghim (luôn trên cùng) nên widget được dựng lại: lấy cửa sổ mới.
+            hub = controller.Hub ?? throw new InvalidOperationException("Mất widget gộp sau khi đổi vị trí.");
+            hub.UpdateLayout();
+            var primaryWidth = System.Windows.SystemParameters.PrimaryScreenWidth;
+            var dpiScale = System.Windows.Media.VisualTreeHelper.GetDpi(hub).DpiScaleX;
+            Require(hub.IsIsland && Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestWidth) < 1 && Math.Abs(hub.Height - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestHeight) < 1,
+                $"Island ở trạng thái nghỉ phải là {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestWidth}x{HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestHeight}, thực tế {hub.Width}x{hub.Height}.");
+            Require(Math.Abs((hub.Left + (hub.Width / 2)) - (primaryWidth / 2)) < 3, $"Island phải nằm giữa mép trên (tâm {hub.Left + (hub.Width / 2)} so với {primaryWidth / 2}).");
+            Require(Math.Abs(hub.Top - (HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandTopGap / dpiScale)) < 1.5, $"Island phải cách mép trên 6 px, thực tế Top={hub.Top} (DPI {dpiScale}).");
+            SaveShot(hub, Path.Combine(shots, "hub-island-rest.png"));
+
+            // Rê chuột: mức xem nhanh là danh sách rộng 340, nở quanh tâm và giữ cạnh trên; bấm: bảng 384 rộng nở xuống dưới.
+            var centerBefore = hub.Left + (hub.Width / 2);
+            var topBefore = hub.Top;
+            hub.SetExpanded(true, animate: false);
+            await Task.Delay(300);
+            hub.UpdateLayout();
+            Require(hub.Level == HabitGrid.WidgetHost.ViewLevel.Hover && Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandListWidth) < 1, $"Rê chuột trên Island phải mở danh sách {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandListWidth} rộng, thực tế {hub.Width} ({hub.Level}).");
+            Require(Math.Abs((hub.Left + (hub.Width / 2)) - centerBefore) < 2 && Math.Abs(hub.Top - topBefore) < 1, "Island phải nở quanh tâm và giữ cạnh trên.");
+            Require(hub.Height > HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestHeight * 2, $"Danh sách xem nhanh phải cao hơn viên thuốc nghỉ (cao {hub.Height}).");
+            SaveShot(hub, Path.Combine(shots, "hub-island-hover.png"));
+
+            hub.SetLevel(HabitGrid.WidgetHost.ViewLevel.Panel, animate: false);
+            await Task.Delay(300);
+            hub.UpdateLayout();
+            Require(hub.Level == HabitGrid.WidgetHost.ViewLevel.Panel && Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandPanelWidth) < 1 && hub.Height > 200, "Bấm Island phải mở bảng đầy đủ.");
+            Require(Math.Abs((hub.Left + (hub.Width / 2)) - centerBefore) < 2 && Math.Abs(hub.Top - topBefore) < 1, "Bảng đầy đủ phải nở xuống dưới viên thuốc, giữ tâm và cạnh trên.");
+            SaveShot(hub, Path.Combine(shots, "hub-island-panel.png"));
+            hub.SetExpanded(false, animate: false);
+            await Task.Delay(300);
+
+            // Nhắc nhở bung ra từ viên thuốc: thẻ 320x84 có hai nút, giữ tâm và cạnh trên; bấm "Xong" gọi đúng hành động và thu về nghỉ.
+            var reminderDone = 0;
+            var reminderLater = 0;
+            Require(hub.ShowReminder("Đến giờ: Đọc sách", () => { reminderDone++; return Task.CompletedTask; }, () => { reminderLater++; return Task.CompletedTask; }, holdMilliseconds: 600), "Island không nhô được thẻ nhắc nhở khi đang nghỉ.");
+            await Task.Delay(500);
+            hub.UpdateLayout();
+            Require(hub.IsPeeking && Math.Abs(hub.Width - 320) < 1 && Math.Abs(hub.Height - 84) < 1, $"Thẻ nhắc nhở phải là 320x84, thực tế {hub.Width}x{hub.Height}.");
+            Require(Math.Abs((hub.Left + (hub.Width / 2)) - centerBefore) < 2 && Math.Abs(hub.Top - topBefore) < 1, "Thẻ nhắc nhở phải bung ra từ tâm viên thuốc.");
+            SaveShot(hub, Path.Combine(shots, "hub-island-reminder.png"));
+            await hub.InvokeReminderForTestAsync(done: true);
+            Require(reminderDone == 1 && reminderLater == 0 && !hub.IsPeeking, "Nút 'Xong' trên thẻ nhắc nhở không gọi đúng hành động.");
+            Require(hub.ShowReminder("Đến giờ: Tập gym", () => Task.CompletedTask, () => { reminderLater++; return Task.CompletedTask; }, holdMilliseconds: 300), "Không nhô được thẻ nhắc nhở lần hai.");
+            await hub.InvokeReminderForTestAsync(done: false);
+            Require(reminderLater == 1, "Nút 'Để sau' không gọi đúng hành động.");
+            hub.SetExpanded(true, animate: false);
+            Require(!hub.ShowReminder("x", () => Task.CompletedTask, () => Task.CompletedTask), "Không được nhô thẻ nhắc nhở khi người dùng đang mở danh sách.");
+            hub.SetExpanded(false, animate: false);
+
+            // 6f) Đổi màn hình/độ phân giải/DPI: vị trí giữa mép trên được tính lại (giả lập bằng cách đẩy viên thuốc đi nơi khác rồi buộc kiểm tra lại).
+            var correctLeft = hub.Left;
+            var correctTop = hub.Top;
+            hub.PlaceAt(correctLeft + 200, correctTop + 120);
+            await controller.ForceIslandRecheckForTestAsync();
+            Require(Math.Abs(hub.Left - correctLeft) < 1 && Math.Abs(hub.Top - correctTop) < 1, "Đổi màn hình phải đặt lại viên thuốc về giữa mép trên.");
+
+            // 6g) App toàn màn hình: ẩn ngay; hiện lại chỉ sau hai lần đo liên tiếp không thấy (chống nhấp nháy khi Alt+Tab).
+            fake.Active = true;
+            controller.CheckFullscreen();
+            Require(controller.FullscreenSuppressed && !hub.IsVisible, "Có app toàn màn hình mà viên thuốc vẫn hiện.");
+            fake.Active = false;
+            controller.CheckFullscreen();
+            Require(controller.FullscreenSuppressed && !hub.IsVisible, "Viên thuốc hiện lại quá sớm (mới một lần đo không thấy toàn màn hình).");
+            controller.CheckFullscreen();
+            Require(!controller.FullscreenSuppressed && hub.IsVisible, "Hết toàn màn hình mà viên thuốc không hiện lại.");
+
+            await controller.SetPlacementForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetPlacementMode.KeepPosition);
+            await Task.Delay(1500);
+            hub = controller.Hub ?? throw new InvalidOperationException("Mất widget gộp sau khi về giữ vị trí.");
+            Require(!hub.IsIsland && Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.HubWidth) < 1, "Về 'giữ vị trí' phải trở lại viên thuốc 288x64.");
+
             await controller.Settings_SetPlusForTestAsync(false);
             await controller.SyncExtraWidgetsAsync();
             await Task.Delay(500);
@@ -238,7 +335,7 @@ public static class SelfTest
             await controller.SetLayoutForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Separate);
             await Task.Delay(1500);
             Require(controller.Hub is null && controller.Windows.Count > 0 && controller.TodayList is not null, "Chuyển về widget riêng phải dựng lại widget lưới và Today List.");
-            Note(dbPath, "hub widget ok (single window, Free/Plus sections, expand, back to separate)");
+            Note(dbPath, "hub widget ok (single window, Free/Plus sections, expand, island top-center, back to separate)");
 
             // 7) Focus: phiên đếm ngược 1 phút tự kết thúc và được ghi vào nhật ký.
             var before2 = (await controller.FocusService.HistoryAsync()).Count;
@@ -247,6 +344,11 @@ public static class SelfTest
             var after2 = (await controller.FocusService.HistoryAsync()).Count;
             Require(after2 == before2 + 1, "Phiên Focus hết giờ nhưng không được ghi.");
             Note(dbPath, $"focus sessions={after2} focusHotkey={controller.FocusHotKeyDescription ?? "none"}");
+
+            if (ExtraWidgetWindow.FrameLog is { } frames)
+            {
+                File.WriteAllLines(Path.Combine(Path.GetDirectoryName(dbPath)!, "framelog.txt"), frames);
+            }
 
             File.AppendAllText(Path.Combine(Path.GetDirectoryName(dbPath)!, "widgethost-selftest.log"),
                 $"hotkey={controller.HotKeyDescription ?? "none"}{Environment.NewLine}");
@@ -336,4 +438,11 @@ public static class SelfTest
             throw new InvalidOperationException(message);
         }
     }
+}
+
+internal sealed class FakeFullscreen : HabitGrid.Platform.Desktop.IFullscreenDetector
+{
+    public bool Active { get; set; }
+
+    public bool IsFullscreenAppActive() => Active;
 }

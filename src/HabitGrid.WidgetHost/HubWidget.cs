@@ -1,3 +1,4 @@
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -53,9 +54,87 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
                                   | (_data?.Goals is not null ? HubSection.Goals : HubSection.None)
                                   | (_data?.Grid is not null ? HubSection.Grid : HubSection.None);
 
-    protected override Size CompactSize => new(WidgetLayout.HubWidth, WidgetLayout.HubHeight);
+    private WidgetPlacementMode _placement;
 
-    protected override Size ExpandedSize => new(ExpandedWidth, EstimateHeight(_data));
+    /// <summary>Vị trí/kiểu hiển thị. Giữa mép trên = "Dynamic Island": trạng thái nghỉ rất nhỏ, nở quanh tâm, không kéo được.</summary>
+    public WidgetPlacementMode Placement
+    {
+        get => _placement;
+        set
+        {
+            if (_placement == value)
+            {
+                return;
+            }
+
+            _placement = value;
+
+            if (_data is not null)
+            {
+                Render();
+                RefreshLayout();
+            }
+        }
+    }
+
+    public bool IsIsland => _placement == WidgetPlacementMode.TopCenter;
+
+    protected override bool CenterAnchored => IsIsland;
+
+    // Island: rê chuột vào là mở nhanh (hơi trễ để lướt qua mép trên không bật nhầm), rời đi thì thu lại sau nửa giây.
+    protected override TimeSpan HoverDelay => IsIsland ? TimeSpan.FromMilliseconds(140) : base.HoverDelay;
+
+    protected override TimeSpan CollapseDelay => IsIsland ? TimeSpan.FromMilliseconds(500) : base.CollapseDelay;
+
+    protected override bool HasHoverLevel => IsIsland;
+
+    // Màu nền Island theo nội dung: xanh lục khi xong hết, hổ phách khi sắp mất chuỗi, xanh ngọc khi Focus, xanh dương khi nghỉ giải lao.
+    private static readonly Color TintDone = Color.FromArgb(0xF0, 0x0C, 0x22, 0x18);
+    private static readonly Color TintRisk = Color.FromArgb(0xF0, 0x26, 0x1D, 0x07);
+    private static readonly Color TintFocus = Color.FromArgb(0xF0, 0x08, 0x26, 0x2A);
+    private static readonly Color TintBreak = Color.FromArgb(0xF0, 0x0B, 0x17, 0x30);
+    private static readonly Color TintReminder = Color.FromArgb(0xF0, 0x1D, 0x15, 0x38);
+
+    protected override Color? TintFor(ViewLevel level)
+    {
+        if (!IsIsland || level != ViewLevel.Rest || _data is null)
+        {
+            return null;
+        }
+
+        if (FocusProvider?.Invoke() is { } focus)
+        {
+            return focus.IsBreak ? TintBreak : TintFocus;
+        }
+
+        return BuddyWidgetWindow.MoodFor(_data.Buddy, Now()) switch
+        {
+            BuddyWidgetWindow.Mood.AllDone => TintDone,
+            BuddyWidgetWindow.Mood.AtRisk => TintRisk,
+            _ => null
+        };
+    }
+
+    /// <summary>Mức xem nhanh của Island: danh sách việc hôm nay, cao theo số việc (tối đa <see cref="MaxHoverRows"/> dòng).</summary>
+    protected override Size HoverSize => new(WidgetLayout.IslandListWidth, EstimateHoverHeight(_data));
+
+    public const int MaxHoverRows = 7;
+
+    public static double EstimateHoverHeight(HubData? data)
+    {
+        var rows = data is null ? 1 : Math.Max(1, Math.Min(data.Today.Count, MaxHoverRows));
+        var extra = data is not null && data.Today.Count > MaxHoverRows ? 22 : 0;
+        return 26 + 30 + (rows * 33) + extra + 8;
+    }
+
+    protected override bool CanDrag => !IsIsland;
+
+    protected override Size CompactSize =>
+        IsIsland
+            ? new Size(FocusProvider?.Invoke() is not null ? WidgetLayout.IslandFocusWidth : WidgetLayout.IslandRestWidth, WidgetLayout.IslandRestHeight)
+            : new Size(WidgetLayout.HubWidth, WidgetLayout.HubHeight);
+
+    protected override Size ExpandedSize => new(IsIsland ? WidgetLayout.IslandPanelWidth : ExpandedWidth, EstimateHeight(_data));
 
     /// <summary>Chiều cao dạng mở rộng theo nội dung (ước lượng để hoạt ảnh biết đích đến).</summary>
     public static double EstimateHeight(HubData? data)
@@ -113,30 +192,30 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
 
         if (a.Level > b.Level)
         {
-            PeekMessage("⭐", HostText.HubLevelUp(a.Level), 260);
+            PeekMessage("⭐", HostText.HubLevelUp(a.Level), 260, TintReminder);
             return;
         }
 
         if (a.TodayDue > 0 && a.TodayDone >= a.TodayDue && b.TodayDone < b.TodayDue)
         {
-            PeekMessage("🎉", HostText.HubAllDonePeek, 240);
+            PeekMessage("🎉", HostText.HubAllDonePeek, 240, TintDone);
             return;
         }
 
         if (a.TodayDone > b.TodayDone)
         {
             var finished = after.Today.FirstOrDefault(i => i.IsDone && before.Today.Any(o => o.Id == i.Id && !o.IsDone));
-            PeekMessage("✔", $"{finished?.Name ?? HostText.Done}  {HostText.Progress(a.TodayDone, a.TodayDue)}", 250);
+            PeekMessage("✔", $"{finished?.Name ?? HostText.Done}  {HostText.Progress(a.TodayDone, a.TodayDue)}", 250, TintDone);
             return;
         }
 
         if (BuddyWidgetWindow.MoodFor(a, now) == BuddyWidgetWindow.Mood.AtRisk && BuddyWidgetWindow.MoodFor(b, now) != BuddyWidgetWindow.Mood.AtRisk)
         {
-            PeekMessage("⚠", HostText.HubAtRisk(after.Today.Count(i => !i.IsDone && !i.IsSkipped)), 290);
+            PeekMessage("⚠", HostText.HubAtRisk(after.Today.Count(i => !i.IsDone && !i.IsSkipped)), 290, TintRisk);
         }
     }
 
-    private void PeekMessage(string icon, string message, double width)
+    private void PeekMessage(string icon, string message, double width, Color? tint = null)
     {
         var row = new Grid { VerticalAlignment = VerticalAlignment.Center };
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
@@ -149,7 +228,84 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
         text.VerticalAlignment = VerticalAlignment.Center;
         Grid.SetColumn(text, 1);
         row.Children.Add(text);
-        Peek(row, new Size(Math.Max(width, WidgetLayout.HubWidth), 52));
+        Peek(row, new Size(IsIsland ? Math.Max(width, WidgetLayout.IslandRestWidth) : Math.Max(width, WidgetLayout.HubWidth), 52), tint: IsIsland ? tint : null);
+    }
+
+    private Func<Task>? _reminderDone;
+    private Func<Task>? _reminderLater;
+
+    /// <summary>
+    /// Nhắc nhở thói quen bung ra từ viên thuốc với hai nút "Xong" và "Để sau". Trả về false nếu lúc này không nhô lên được
+    /// (đang mở danh sách/bảng, chế độ sắp xếp…): bên gọi thử lại ở nhịp sau; toast Windows vẫn là dự phòng.
+    /// Thẻ ở lại khi chuột nằm trên nó (để kịp bấm) và tự thu sau <paramref name="holdMilliseconds"/> ms nếu không bấm.
+    /// </summary>
+    public bool ShowReminder(string title, Func<Task> onDone, Func<Task> onLater, int holdMilliseconds = 15000)
+    {
+        if (!IsIsland || !CanPeek)
+        {
+            return false;
+        }
+
+        _reminderDone = onDone;
+        _reminderLater = onLater;
+
+        var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+        var heading = Text(title, 13, bold: true);
+        heading.TextTrimming = TextTrimming.CharacterEllipsis;
+        stack.Children.Add(heading);
+
+        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 6, 0, 0) };
+        buttons.Children.Add(PillButton(HostText.Done, primary: true, async () =>
+        {
+            DismissPeek();
+            await onDone();
+        }));
+        var later = PillButton(HostText.IslandLater, primary: false, async () =>
+        {
+            DismissPeek();
+            await onLater();
+        });
+        later.Margin = new Thickness(8, 0, 0, 0);
+        buttons.Children.Add(later);
+        stack.Children.Add(buttons);
+
+        Peek(stack, new Size(320, 84), holdMilliseconds, sticky: true, tint: TintReminder);
+        return true;
+    }
+
+    /// <summary>Bấm nút của thẻ nhắc nhở (cho tự kiểm tra).</summary>
+    public async Task InvokeReminderForTestAsync(bool done)
+    {
+        DismissPeek();
+        var action = done ? _reminderDone : _reminderLater;
+
+        if (action is not null)
+        {
+            await action();
+        }
+    }
+
+    private static Border PillButton(string text, bool primary, Func<Task> click)
+    {
+        var label = Text(text, 12, bold: true);
+        label.TextTrimming = TextTrimming.None;
+        label.HorizontalAlignment = HorizontalAlignment.Center;
+        var button = new Border
+        {
+            CornerRadius = new CornerRadius(14),
+            Padding = new Thickness(16, 5, 16, 5),
+            Cursor = Cursors.Hand,
+            Background = new SolidColorBrush(primary ? Color.FromRgb(124, 92, 255) : Color.FromArgb(0x30, 0xFF, 0xFF, 0xFF)),
+            Child = label
+        };
+        System.Windows.Automation.AutomationProperties.SetName(button, text);
+        button.MouseLeftButtonDown += (_, e) => e.Handled = true;
+        button.MouseLeftButtonUp += async (_, e) =>
+        {
+            e.Handled = true;
+            await click();
+        };
+        return button;
     }
 
     /// <summary>Mỗi giây: cập nhật đồng hồ Focus trên viên thuốc và nhô lên khi phiên bắt đầu/kết thúc.</summary>
@@ -164,15 +320,19 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
 
             if (started)
             {
-                PeekMessage("⏱", HostText.HubFocusStarted(focus!.Habit), 280);
+                PeekMessage("⏱", HostText.HubFocusStarted(focus!.Habit), 280, TintFocus);
             }
             else if (ended)
             {
-                PeekMessage("🎉", HostText.HubFocusEnded, 260);
+                PeekMessage("🎉", HostText.HubFocusEnded, 260, TintDone);
             }
             else if (focus is not null && !IsExpanded && !_peeking)
             {
                 Render();
+            }
+            else if (!_peeking)
+            {
+                RefreshTint();
             }
         };
         _tick.Start();
@@ -266,6 +426,11 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
 
     protected override UIElement BuildCompact()
     {
+        if (IsIsland)
+        {
+            return BuildIslandRest();
+        }
+
         var data = _data!;
         var now = Now();
         var mood = BuddyWidgetWindow.MoodFor(data.Buddy, now);
@@ -314,6 +479,102 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
         }
 
         return row;
+    }
+
+    /// <summary>
+    /// Trạng thái nghỉ của "Dynamic Island": một dòng rất ngắn. Đang Focus thì chỉ hiện đồng hồ; không thì hiện chuỗi ngày và số việc còn lại hôm nay
+    /// (vàng khi tối mà còn việc, xanh khi xong hết).
+    /// </summary>
+    private UIElement BuildIslandRest()
+    {
+        var data = _data!;
+        var focus = FocusProvider?.Invoke();
+        var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+
+        if (focus is not null)
+        {
+            var clock = Text(focus.Clock + (focus.Paused ? " ⏸" : string.Empty), 13, bold: true);
+            clock.Foreground = new SolidColorBrush(focus.IsBreak ? Color.FromRgb(96, 165, 250) : Color.FromRgb(45, 212, 191));
+            clock.VerticalAlignment = VerticalAlignment.Center;
+            row.Children.Add(Emoji(focus.IsBreak ? "☕" : "⏱", 13));
+            clock.Margin = new Thickness(6, 0, 0, 0);
+            row.Children.Add(clock);
+            return row;
+        }
+
+        var buddy = data.Buddy;
+        var mood = BuddyWidgetWindow.MoodFor(buddy, Now());
+        var remaining = Math.Max(0, buddy.TodayDue - buddy.TodayDone);
+
+        if (buddy.Streak > 0)
+        {
+            var dot = new Ellipse { Width = 8, Height = 8, Fill = new SolidColorBrush(Color.FromRgb(251, 146, 60)), VerticalAlignment = VerticalAlignment.Center };
+            row.Children.Add(dot);
+            var streak = Text(buddy.Streak.ToString(CultureInfo.InvariantCulture), 13, bold: true);
+            streak.Margin = new Thickness(5, 0, 8, 0);
+            streak.VerticalAlignment = VerticalAlignment.Center;
+            row.Children.Add(streak);
+        }
+
+        var left = Text(buddy.TodayDue == 0 ? HostText.IslandNothing : remaining == 0 ? HostText.IslandAllDone : HostText.IslandLeft(remaining), 12, bold: true);
+        left.VerticalAlignment = VerticalAlignment.Center;
+        left.Foreground = new SolidColorBrush(mood switch
+        {
+            BuddyWidgetWindow.Mood.AllDone => Color.FromRgb(52, 211, 153),
+            BuddyWidgetWindow.Mood.AtRisk => Color.FromRgb(251, 191, 36),
+            _ => Colors.White
+        });
+        row.Children.Add(left);
+        return row;
+    }
+
+    /// <summary>
+    /// Mức xem nhanh của Island (rê chuột): tiêu đề "Hôm nay n/m" kèm chuỗi ngày, rồi danh sách việc hôm nay để check tại chỗ
+    /// (thói quen đếm có −/+). Bấm vào vùng trống của thẻ để mở bảng đầy đủ bên dưới.
+    /// </summary>
+    protected override UIElement BuildHover()
+    {
+        var data = _data!;
+        var buddy = data.Buddy;
+        var stack = new StackPanel();
+
+        var header = new Grid { Height = 24 };
+        header.ColumnDefinitions.Add(new ColumnDefinition());
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var title = Text($"{HostText.Today.ToUpperInvariant()}  {buddy.TodayDone}/{buddy.TodayDue}", 11, bold: true, opacity: 0.7);
+        title.VerticalAlignment = VerticalAlignment.Center;
+        header.Children.Add(title);
+
+        if (buddy.Streak > 0)
+        {
+            var streak = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            streak.Children.Add(new Ellipse { Width = 8, Height = 8, Fill = new SolidColorBrush(Color.FromRgb(251, 146, 60)), VerticalAlignment = VerticalAlignment.Center });
+            var days = Text(HostText.IslandStreak(buddy.Streak), 11, bold: true);
+            days.Margin = new Thickness(5, 0, 0, 0);
+            streak.Children.Add(days);
+            Grid.SetColumn(streak, 1);
+            header.Children.Add(streak);
+        }
+
+        stack.Children.Add(header);
+
+        if (data.Today.Count == 0)
+        {
+            stack.Put(Text(HostText.NothingDue, 12, opacity: 0.8), 8);
+            return stack;
+        }
+
+        foreach (var item in data.Today.Take(MaxHoverRows))
+        {
+            stack.Put(TodayRow(item), 3);
+        }
+
+        if (data.Today.Count > MaxHoverRows)
+        {
+            stack.Put(Text(HostText.IslandMore(data.Today.Count - MaxHoverRows), 11, opacity: 0.6), 2);
+        }
+
+        return stack;
     }
 
     /// <summary>Thanh XP: phần lấp đầy chạy từ giá trị đã hiện lần trước tới giá trị mới (không chạy khi tắt hoạt ảnh).</summary>

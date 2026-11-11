@@ -270,6 +270,31 @@ public sealed partial class SettingsPage : Page
         };
         widgetsCard.Children.Add(layoutChips);
 
+        // Vị trí widget gộp: giữ vị trí hiện tại hoặc "Dynamic Island" giữa mép trên màn hình chính.
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.placement"), Style = Res("SectionHeader"), Margin = new Thickness(0, 10, 0, 0) });
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.placement.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
+        var placementChips = new ChipGroup { MinChipWidth = 230, MaxWidth = 640, HorizontalAlignment = HorizontalAlignment.Left };
+        var placements = Enum.GetValues<HabitGrid.Core.Domain.Widgets.WidgetPlacementMode>();
+
+        foreach (var placement in placements)
+        {
+            placementChips.Add(Ui.T("settings.placement." + placement));
+        }
+
+        var currentPlacement = HabitGrid.Core.Domain.Widgets.WidgetPlacements.Parse(settingsStore.GetAsync(HabitGrid.Core.Domain.Widgets.WidgetPlacements.SettingKey).GetAwaiter().GetResult());
+        placementChips.SelectedIndex = Array.IndexOf(placements, currentPlacement);
+        placementChips.SelectionChanged += async (_, _) =>
+        {
+            if (_building || placementChips.SelectedIndex < 0)
+            {
+                return;
+            }
+
+            await settingsStore.SetAsync(HabitGrid.Core.Domain.Widgets.WidgetPlacements.SettingKey, HabitGrid.Core.Domain.Widgets.WidgetPlacements.ToStored(placements[placementChips.SelectedIndex]));
+            HostLink.EnsureRunning();
+        };
+        widgetsCard.Children.Add(placementChips);
+
         // Kiểu ghim widget (đổi có hiệu lực sau vài giây, WidgetHost tự dựng lại).
         widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.pin"), Style = Res("SectionHeader"), Margin = new Thickness(0, 10, 0, 0) });
         widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.pin.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });

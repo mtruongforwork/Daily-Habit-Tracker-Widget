@@ -108,6 +108,7 @@ public sealed partial class WidgetController : IDisposable
 
     public async Task StartAsync()
     {
+        await ApplyPlacementAsync(initial: true);
         await ApplyPinChoiceAsync(initial: true);
         await ApplyLayoutModeAsync(initial: true);
         await ApplyGlassAsync(initial: true);
@@ -143,6 +144,7 @@ public sealed partial class WidgetController : IDisposable
 
         _dataVersion = ReadDataVersion();
         _timer.Start();
+        StartFullscreenWatch();
     }
 
     /// <summary>Giả lập Explorer khởi động lại (tự kiểm tra trên CI): coi như nhận được TaskbarCreated.</summary>
@@ -151,35 +153,7 @@ public sealed partial class WidgetController : IDisposable
     public void ToggleVisibility()
     {
         _visible = !_visible;
-
-        foreach (var window in new System.Windows.Window?[] { _todayList, _momentWidget })
-        {
-            if (window is null)
-            {
-                continue;
-            }
-
-            if (_visible)
-            {
-                window.Show();
-            }
-            else
-            {
-                window.Hide();
-            }
-        }
-
-        foreach (var (window, _) in _widgets.Values)
-        {
-            if (_visible)
-            {
-                window.Show();
-            }
-            else
-            {
-                window.Hide();
-            }
-        }
+        ApplyVisibility();
     }
 
     /// <summary>Ghim lại mọi widget; trả về true nếu tất cả ghim đúng lớp desktop (không phải dự phòng).</summary>
@@ -379,6 +353,7 @@ public sealed partial class WidgetController : IDisposable
     public void Dispose()
     {
         _timer.Stop();
+        _fullscreenTimer.Stop();
         _shell?.Dispose();
         _hotKey?.Dispose();
         _focusHotKey?.Dispose();
@@ -786,6 +761,12 @@ public sealed partial class WidgetController : IDisposable
                 await SyncMomentWidgetAsync();
                 await SyncExtraWidgetsAsync();
             }
+
+            // Đổi vị trí (giữa mép trên) trong Cài đặt phải có hiệu lực trong vài giây, không đợi nhịp 30 giây.
+            await ApplyPlacementAsync(initial: false);
+            await ApplyPinChoiceAsync(initial: false);
+            await EnsureIslandPositionAsync();
+            await ShowDueIslandRemindersAsync(DateTime.Now);
 
             await ProcessHostCommandAsync();
 

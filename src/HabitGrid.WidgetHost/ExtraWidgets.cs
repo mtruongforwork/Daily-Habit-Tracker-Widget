@@ -30,6 +30,14 @@ internal static class StackExtensions
     }
 }
 
+/// <summary>Mức hiển thị của một widget: nghỉ (nhỏ gọn), rê chuột (xem nhanh, chỉ widget có mức này) và bảng đầy đủ.</summary>
+public enum ViewLevel
+{
+    Rest,
+    Hover,
+    Panel
+}
+
 /// <summary>
 /// Nền chung của các widget Plus: cửa sổ không viền, nền tối bo góc (chữ trắng đọc được trên mọi hình nền), kéo được ở chế độ sắp xếp
 /// (hoặc giữ Alt), nhớ vị trí qua <see cref="Moved"/>, ghim theo kiểu người dùng chọn.
@@ -65,13 +73,19 @@ public abstract class ExtraWidgetWindow : Window
     private Border? _card;
     private readonly SpringValue _w = new();
     private readonly SpringValue _h = new();
-    private readonly SpringValue _l = new() { Stiffness = 280, Damping = 32 };
-    private readonly SpringValue _t = new() { Stiffness = 280, Damping = 32 };
-    private readonly SpringValue _r = new() { Stiffness = 280, Damping = 32 };
+    private readonly SpringValue _l = new();
+    private readonly SpringValue _t = new();
+    private readonly SpringValue _r = new();
     private bool _morphing;
     private DateTime _lastFrame;
     private int _peekVersion;
     protected bool _peeking;
+    private bool _stickyPeek;
+    private Color? _peekTint;
+    private SolidColorBrush? _tint;
+
+    /// <summary>Màu nền gốc của thẻ kiểu Island (gần đen).</summary>
+    protected static readonly Color IslandBase = Color.FromArgb(0xF0, 0x0E, 0x0E, 0x12);
 
     protected ExtraWidgetWindow(string title)
     {
@@ -97,7 +111,7 @@ public abstract class ExtraWidgetWindow : Window
         {
             _dragged = false;
 
-            if (!EditMode && !Keyboard.IsKeyDown(Key.LeftAlt) && !Keyboard.IsKeyDown(Key.RightAlt))
+            if (!CanDrag || (!EditMode && !Keyboard.IsKeyDown(Key.LeftAlt) && !Keyboard.IsKeyDown(Key.RightAlt)))
             {
                 return;
             }
@@ -122,6 +136,23 @@ public abstract class ExtraWidgetWindow : Window
                 return;
             }
 
+            if (HasHoverLevel)
+            {
+                // Có mức xem nhanh: bấm viên thuốc = mở/đóng bảng đầy đủ (giữ mở); đang ở bảng đã giữ thì bấm để thu về nghỉ.
+                if (Level == ViewLevel.Panel && _pinnedOpen)
+                {
+                    _pinnedOpen = false;
+                    SetLevel(ViewLevel.Rest);
+                }
+                else
+                {
+                    _pinnedOpen = true;
+                    SetLevel(ViewLevel.Panel);
+                }
+
+                return;
+            }
+
             _pinnedOpen = !_pinnedOpen;
             SetExpanded(_pinnedOpen);
         };
@@ -130,8 +161,9 @@ public abstract class ExtraWidgetWindow : Window
         {
             _collapseTimer.Stop();
 
-            if (!IsExpanded)
+            if (!IsExpanded && !(_peeking && _stickyPeek))
             {
+                _expandTimer.Interval = HoverDelay;
                 _expandTimer.Start();
             }
         };
@@ -141,6 +173,7 @@ public abstract class ExtraWidgetWindow : Window
 
             if (IsExpanded && !_pinnedOpen)
             {
+                _collapseTimer.Interval = CollapseDelay;
                 _collapseTimer.Start();
             }
         };
@@ -172,11 +205,78 @@ public abstract class ExtraWidgetWindow : Window
     /// <summary>Cửa sổ này đang dùng kính mờ thật hay thẻ đặc.</summary>
     public bool IsGlass => _glass;
 
-    public bool IsExpanded { get; private set; }
+    /// <summary>Mức hiển thị hiện tại.</summary>
+    public ViewLevel Level { get; private set; }
+
+    public bool IsExpanded => Level != ViewLevel.Rest;
+
+    /// <summary>Độ trễ từ lúc rê chuột vào tới lúc mở.</summary>
+    protected virtual TimeSpan HoverDelay => TimeSpan.FromMilliseconds(220);
+
+    /// <summary>Độ trễ từ lúc chuột rời đi tới lúc thu lại.</summary>
+    protected virtual TimeSpan CollapseDelay => TimeSpan.FromMilliseconds(900);
+
+    /// <summary>True: rê chuột mở mức xem nhanh (<see cref="BuildHover"/>), bấm mới mở bảng đầy đủ.</summary>
+    protected virtual bool HasHoverLevel => false;
+
+    protected virtual Size HoverSize => ExpandedSize;
+
+    /// <summary>Màu nền theo nội dung đang hiển thị (null = màu gốc). Chỉ áp cho kiểu Island đặc, không áp cho kính mờ.</summary>
+    protected virtual Color? TintFor(ViewLevel level) => null;
+
+    /// <summary>Đổi màu nền mượt (300 ms); tắt hoạt ảnh thì đổi tức thì.</summary>
+    private void ApplyTint(Color? tint)
+    {
+        if (_glass || _tint is null)
+        {
+            return;
+        }
+
+        var target = tint ?? IslandBase;
+
+        if (_tint.Color == target)
+        {
+            return;
+        }
+
+        if (!Animations)
+        {
+            _tint.BeginAnimation(SolidColorBrush.ColorProperty, null);
+            _tint.Color = target;
+            return;
+        }
+
+        _tint.BeginAnimation(SolidColorBrush.ColorProperty, new ColorAnimation(target, TimeSpan.FromMilliseconds(300)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } });
+    }
+
+    /// <summary>Gọi khi trạng thái nội dung đổi mà không dựng lại (ví dụ tới giờ "tối" làm thẻ chuyển màu cảnh báo).</summary>
+    protected void RefreshTint() => ApplyTint(_peeking ? _peekTint : TintFor(Level));
+
+    protected virtual UIElement BuildHover() => BuildExpanded();
+
+    private Size SizeFor(ViewLevel level) => level switch
+    {
+        ViewLevel.Rest => CompactSize,
+        ViewLevel.Hover => HoverSize,
+        _ => ExpandedSize
+    };
+
+    private UIElement BuildFor(ViewLevel level) => level switch
+    {
+        ViewLevel.Rest => BuildCompact(),
+        ViewLevel.Hover => BuildHover(),
+        _ => BuildExpanded()
+    };
 
     public event EventHandler? Moved;
 
     protected abstract Size CompactSize { get; }
+
+    /// <summary>True: thẻ nở/thu quanh tâm ngang và cố định cạnh trên (viên thuốc giữa mép trên); false: giữ mép gần cạnh màn hình hơn.</summary>
+    protected virtual bool CenterAnchored => false;
+
+    /// <summary>False: không kéo được (vị trí do chương trình tính, ví dụ giữa mép trên).</summary>
+    protected virtual bool CanDrag => true;
 
     protected abstract Size ExpandedSize { get; }
 
@@ -199,8 +299,11 @@ public abstract class ExtraWidgetWindow : Window
             return;
         }
 
-        var size = IsExpanded ? ExpandedSize : CompactSize;
-        SetCardContent(IsExpanded ? BuildExpanded() : BuildCompact(), size, crossfade, peek: false);
+        var started = System.Diagnostics.Stopwatch.GetTimestamp();
+        var content = BuildFor(Level);
+        var builtMs = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+        SetCardContent(content, SizeFor(Level), crossfade, peek: false);
+        FrameLog?.Add($"BUILD level={Level} build={builtMs:0.0}ms total={System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds:0.0}ms");
     }
 
     private void SetCardContent(UIElement child, Size size, bool crossfade, bool peek)
@@ -221,7 +324,7 @@ public abstract class ExtraWidgetWindow : Window
             _card = new Border
             {
                 CornerRadius = new CornerRadius(CardRadius(size, IsExpanded)),
-                Background = _glass ? GlassCardBrush : IslandBrush,
+                Background = _glass ? GlassCardBrush : (_tint = new SolidColorBrush(IslandBase)),
                 BorderBrush = RimBrush,
                 BorderThickness = new Thickness(1)
             };
@@ -244,6 +347,7 @@ public abstract class ExtraWidgetWindow : Window
 
         _card.ClipToBounds = true;
         _card.Child = child;
+        ApplyTint(peek ? _peekTint : TintFor(Level));
 
         if (crossfade && Animations)
         {
@@ -267,6 +371,14 @@ public abstract class ExtraWidgetWindow : Window
         var currentLeft = _morphing ? _l.Target : Left;
         var currentWidth = _morphing ? _w.Target : Width;
         var currentTop = _morphing ? _t.Target : Top;
+
+        if (CenterAnchored)
+        {
+            // Giữ nguyên tâm ngang và cạnh trên; chỉ không để tràn đáy màn hình.
+            var center = currentLeft + (currentWidth / 2);
+            return (center - (target.Width / 2), Math.Min(currentTop, Math.Max(0, work.Bottom - target.Height - 8)));
+        }
+
         var anchorRight = currentLeft + (currentWidth / 2) > work.Left + (work.Width / 2);
         var left = anchorRight ? currentLeft + currentWidth - target.Width : currentLeft;
         var top = Math.Min(currentTop, Math.Max(work.Top, work.Bottom - target.Height - 8));
@@ -289,7 +401,14 @@ public abstract class ExtraWidgetWindow : Window
                 spring.Snap(spring.Target);
             }
 
+            if (_morphing)
+            {
+                System.Windows.Media.CompositionTarget.Rendering -= OnFrame;
+                _morphing = false;
+            }
+
             Apply();
+            SettleWindow();
             return;
         }
 
@@ -301,10 +420,59 @@ public abstract class ExtraWidgetWindow : Window
             _t.Value = Top;
             _r.Value = _card?.CornerRadius.TopLeft ?? radius;
             _w.Velocity = _h.Velocity = _l.Velocity = _t.Velocity = _r.Velocity = 0;
+            _box = new Rect(Left, Top, Width, Height);
             _morphing = true;
             _lastFrame = DateTime.UtcNow;
             System.Windows.Media.CompositionTarget.Rendering += OnFrame;
         }
+
+        // Cửa sổ giữ nguyên MỘT khung bao (hợp của cỡ hiện tại và cỡ đích) suốt lúc co giãn; chỉ thẻ bên trong đổi cỡ.
+        // Đổi kích thước cửa sổ phân lớp ở từng khung hình buộc DWM cấp lại bề mặt liên tục: đó là nguyên nhân khựng.
+        if (!_glass)
+        {
+            _box = Rect.Union(_box, new Rect(_l.Target, _t.Target, _w.Target, _h.Target));
+            ApplyBox();
+        }
+    }
+
+    private Rect _box;
+
+    /// <summary>Chẩn đoán: khi khác null, mỗi khung hình co giãn ghi một dòng (dt giữa hai khung, thời gian Apply).</summary>
+    public static List<string>? FrameLog { get; set; }
+
+    private void ApplyBox()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+
+        if (handle == IntPtr.Zero || !IsVisible)
+        {
+            return;
+        }
+
+        var dpi = VisualTreeHelper.GetDpi(this).DpiScaleX;
+        const uint noZOrder = 0x0004, noActivate = 0x0010, noCopyBits = 0x0100;
+        SetWindowPos(handle, IntPtr.Zero, (int)Math.Round(_box.Left * dpi), (int)Math.Round(_box.Top * dpi), (int)Math.Round(_box.Width * dpi), (int)Math.Round(_box.Height * dpi), noZOrder | noActivate | noCopyBits);
+    }
+
+    /// <summary>Hết co giãn: cửa sổ về đúng cỡ thẻ, thẻ lại phủ kín cửa sổ.</summary>
+    private void SettleWindow()
+    {
+        if (_glass)
+        {
+            return;
+        }
+
+        if (_card is not null)
+        {
+            _card.Margin = new Thickness(0);
+            _card.Width = double.NaN;
+            _card.Height = double.NaN;
+            _card.HorizontalAlignment = HorizontalAlignment.Stretch;
+            _card.VerticalAlignment = VerticalAlignment.Stretch;
+        }
+
+        _box = new Rect(_l.Value, _t.Value, Math.Max(8, _w.Value), Math.Max(8, _h.Value));
+        ApplyBox();
     }
 
     private void OnFrame(object? sender, EventArgs e)
@@ -319,12 +487,20 @@ public abstract class ExtraWidgetWindow : Window
             moving |= spring.Step(dt);
         }
 
+        var applyStart = System.Diagnostics.Stopwatch.GetTimestamp();
         Apply();
+
+        if (FrameLog is not null)
+        {
+            var applyMs = System.Diagnostics.Stopwatch.GetElapsedTime(applyStart).TotalMilliseconds;
+            FrameLog.Add($"dt={dt * 1000:0.0}ms apply={applyMs:0.0}ms");
+        }
 
         if (!moving)
         {
             System.Windows.Media.CompositionTarget.Rendering -= OnFrame;
             _morphing = false;
+            SettleWindow();
         }
     }
 
@@ -335,7 +511,17 @@ public abstract class ExtraWidgetWindow : Window
     {
         var handle = new WindowInteropHelper(this).Handle;
 
-        if (handle != IntPtr.Zero && IsVisible)
+        // Kiểu kính mờ: chính cửa sổ là phần kính nên phải đổi cỡ cửa sổ theo từng khung (khung bao sẽ làm kính bung ra ngay).
+        if (!_glass && _morphing && _card is not null && handle != IntPtr.Zero && IsVisible)
+        {
+            // Đang co giãn: cửa sổ đứng yên, chỉ thẻ đổi cỡ/vị trí bên trong khung bao.
+            _card.HorizontalAlignment = HorizontalAlignment.Left;
+            _card.VerticalAlignment = VerticalAlignment.Top;
+            _card.Width = Math.Max(8, _w.Value);
+            _card.Height = Math.Max(8, _h.Value);
+            _card.Margin = new Thickness(_l.Value - _box.Left, _t.Value - _box.Top, 0, 0);
+        }
+        else if (handle != IntPtr.Zero && IsVisible)
         {
             // Một lần SetWindowPos cho cả vị trí lẫn kích thước (đặt từng thuộc Left/Top/Width/Height làm 4 lần đổi cửa sổ + đo bố cục mỗi khung hình).
             var dpi = VisualTreeHelper.GetDpi(this).DpiScaleX;
@@ -359,21 +545,25 @@ public abstract class ExtraWidgetWindow : Window
     /// <summary>
     /// Mở rộng/thu gọn kiểu Dynamic Island: thẻ biến hình bằng lò xo (nảy nhẹ), nội dung đổi kèm hiệu ứng mờ-phóng.
     /// </summary>
-    public void SetExpanded(bool expanded, bool animate = true)
+    public void SetExpanded(bool expanded, bool animate = true) =>
+        SetLevel(expanded ? (HasHoverLevel ? ViewLevel.Hover : ViewLevel.Panel) : ViewLevel.Rest, animate);
+
+    /// <summary>Đổi mức hiển thị (nghỉ / xem nhanh / bảng đầy đủ) bằng một lần biến hình.</summary>
+    public void SetLevel(ViewLevel level, bool animate = true)
     {
         _peekVersion++;
         _peeking = false;
 
-        if (IsExpanded == expanded && _sized)
+        if (Level == level && _sized)
         {
             return;
         }
 
-        IsExpanded = expanded;
-        var target = expanded ? ExpandedSize : CompactSize;
+        Level = level;
+        var target = SizeFor(level);
         var at = AnchorFor(target);
         Render(crossfade: animate);
-        MorphTo(target, at, CardRadius(target, expanded), animate);
+        MorphTo(target, at, CardRadius(target, level != ViewLevel.Rest), animate);
     }
 
     /// <summary>Chiều cao/rộng của dạng hiện tại đổi vì dữ liệu (ví dụ thêm một việc): biến hình theo kích thước mới.</summary>
@@ -384,7 +574,7 @@ public abstract class ExtraWidgetWindow : Window
             return;
         }
 
-        var target = IsExpanded ? ExpandedSize : CompactSize;
+        var target = SizeFor(Level);
 
         if (Math.Abs(_w.Target - target.Width) > 0.5 || Math.Abs(_h.Target - target.Height) > 0.5)
         {
@@ -396,7 +586,7 @@ public abstract class ExtraWidgetWindow : Window
     /// "Nhô lên" một thông báo ngắn (kiểu Live Activity): thẻ phình ra, hiện nội dung, giữ <paramref name="holdMilliseconds"/> ms rồi thu về dạng cũ.
     /// Người dùng rê chuột/bấm trong lúc đó thì thông báo nhường chỗ.
     /// </summary>
-    protected async void Peek(UIElement content, Size size, int holdMilliseconds = 2600)
+    protected async void Peek(UIElement content, Size size, int holdMilliseconds = 2600, bool sticky = false, Color? tint = null)
     {
         if (EditMode || !_sized)
         {
@@ -404,7 +594,7 @@ public abstract class ExtraWidgetWindow : Window
         }
 
         var version = ++_peekVersion;
-        var baseSize = IsExpanded ? ExpandedSize : CompactSize;
+        var baseSize = SizeFor(Level);
 
         // Đang mở rộng thì không cần nhô lên thêm.
         if (IsExpanded)
@@ -413,18 +603,59 @@ public abstract class ExtraWidgetWindow : Window
         }
 
         _peeking = true;
+        _stickyPeek = sticky;
+        _peekTint = tint;
         SetCardContent(content, size, crossfade: true, peek: true);
         MorphTo(size, AnchorFor(size), CardRadius(size, expanded: false), animate: true);
         await Task.Delay(holdMilliseconds);
+
+        // Thẻ có nút bấm (nhắc nhở) không biến mất khi chuột đang nằm trên nó.
+        while (version == _peekVersion && sticky && IsMouseOver)
+        {
+            await Task.Delay(400);
+        }
 
         if (version != _peekVersion)
         {
             return;
         }
 
+        EndPeek(baseSize);
+    }
+
+    private void EndPeek(Size baseSize)
+    {
         _peeking = false;
+        _stickyPeek = false;
+        _peekTint = null;
         Render(crossfade: true);
         MorphTo(baseSize, AnchorFor(baseSize), CardRadius(baseSize, IsExpanded), animate: true);
+    }
+
+    /// <summary>Có thể nhô lên một thông báo ngay bây giờ không (đang nghỉ, không ở chế độ sắp xếp, đã có kích thước).</summary>
+    public bool CanPeek => !EditMode && _sized && !IsExpanded;
+
+    public bool IsPeeking => _peeking;
+
+    /// <summary>Kết thúc thông báo đang nhô lên (ví dụ sau khi bấm "Xong"/"Để sau") và thu về trạng thái nghỉ.</summary>
+    public void DismissPeek()
+    {
+        if (!_peeking)
+        {
+            return;
+        }
+
+        _peekVersion++;
+        EndPeek(SizeFor(Level));
+    }
+
+    /// <summary>Đặt thẳng cửa sổ tại vị trí (DIP) không qua hoạt ảnh, kể cả khi đang biến hình (đích của lò xo cũng được dời).</summary>
+    public void PlaceAt(double left, double top)
+    {
+        Left = left;
+        Top = top;
+        _l.Snap(left);
+        _t.Snap(top);
     }
 
     public DesktopHostResult Pin(DesktopHostService host, DesktopPinningMode mode) =>
@@ -929,7 +1160,7 @@ public sealed class MultiGridWidgetWindow : ExtraWidgetWindow
 }
 
 /// <summary>Phiên Focus đang chạy để hiện trên widget: <see cref="Display"/> là chữ trên viên thuốc, <see cref="Fraction"/> là tiến độ 0..1 của vòng.</summary>
-public sealed record FocusSnapshot(string Display, double Fraction, string? Habit, bool Paused, bool IsBreak);
+public sealed record FocusSnapshot(string Display, double Fraction, string? Habit, bool Paused, bool IsBreak, string Clock = "");
 
 /// <summary>Dữ liệu của widget gộp: Buddy, danh sách Hôm nay (check được), Mục tiêu và lưới thói quen (hai mục sau chỉ có khi Plus).</summary>
 public sealed record HubData(BuddyWidgetData Buddy, IReadOnlyList<QuickItem> Today, GoalsWidgetData? Goals, MultiGridData? Grid);

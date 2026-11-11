@@ -30,7 +30,8 @@ public sealed class WindowsScreenProvider : IScreenProvider
                     devicePath,
                     workArea,
                     GetDpiScale(hMonitor),
-                    string.Equals(devicePath, primaryDevice, StringComparison.OrdinalIgnoreCase)));
+                    string.Equals(devicePath, primaryDevice, StringComparison.OrdinalIgnoreCase),
+                    new ScreenRect(info.Monitor.Left, info.Monitor.Top, info.Monitor.Width, info.Monitor.Height)));
             }
 
             return true;

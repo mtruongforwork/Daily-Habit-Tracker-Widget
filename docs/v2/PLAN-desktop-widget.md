@@ -75,3 +75,12 @@
 - Self-test CI (cả bản thường lẫn trong gói MSIX đã cài) kiểm: Free không thấy widget Plus, Plus bật thì cả ba hiện, hết Plus thì ẩn lại; lưu ảnh từng widget.
 - **Hạn chế đã biết:** WPF chỉ vẽ emoji đơn sắc (không hỗ trợ phông màu) nên Buddy và phụ kiện hiện dạng nét trắng, kém sinh động hơn trong app. Hướng khắc phục ở M2: xuất sẵn hình PNG của Buddy theo giai đoạn và phụ kiện từ app, đóng kèm WidgetHost.
 - Chưa kiểm chứng: hiển thị trên màn hình nền thật, nhiều màn hình/DPI khác nhau, RAM/CPU với 6 widget (M4).
+
+## Chế độ "Dynamic Island" (giữa mép trên) — 11/2026
+Cài đặt → Widget → Vị trí widget (`widgets.placement` = `keep` | `topcenter`).
+- **Vị trí:** giữa mép trên màn hình chính, cách 6 px, luôn nằm trên cùng (ép kiểu ghim Top), không kéo được; tự tính lại khi đổi độ phân giải/DPI/cắm màn hình (kiểm tra mỗi ~2 giây).
+- **Ba mức:** nghỉ 156×36 (chuỗi ngày + số việc còn lại, hoặc đồng hồ Focus 132×36) → rê chuột: danh sách việc hôm nay 340 rộng, check tại chỗ → bấm: bảng đầy đủ 384 rộng ngay bên dưới. Nở quanh tâm, cố định cạnh trên.
+- **Thông báo:** check-in, xong hết, lên cấp, sắp mất chuỗi, Focus bắt đầu/kết thúc bung ra từ viên thuốc. Nhắc nhở thói quen hiện thẻ 320×84 với "Xong" / "Để sau" (toast Windows vẫn là dự phòng và bị xoá khi bấm nút). Màu nền đổi theo nội dung.
+- **Không cướp focus** (`WS_EX_NOACTIVATE`), cửa sổ luôn đúng bằng viên thuốc nên vùng ngoài nhận chuột bình thường; **tự ẩn khi có app toàn màn hình** (cửa sổ phủ kín màn hình không có thanh tiêu đề, hoặc Windows báo bận/D3D toàn màn hình/trình chiếu), hiện lại sau 2 lần đo liên tiếp không thấy.
+- **Lò xo:** 380/38, tới 98% quãng đường trong ~300 ms (kiểm bằng self-test).
+- Chưa kiểm chứng bằng mắt trên nhiều cấu hình màn hình/DPI; luồng toast thật cần thử tay.
