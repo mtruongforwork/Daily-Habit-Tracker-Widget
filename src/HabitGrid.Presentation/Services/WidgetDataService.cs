@@ -26,6 +26,9 @@ public sealed record MultiGridRow(Guid HabitId, string Name, string Icon, string
 
 public sealed record MultiGridData(int Weeks, IReadOnlyList<MultiGridRow> Rows);
 
+/// <summary>Số liệu cho bảng đầy đủ của widget: chuỗi tổng dài nhất, tỷ lệ hoàn thành 7 ngày qua (%) và chuỗi hiện tại của từng thói quen.</summary>
+public sealed record WidgetStatsData(int BestStreak, int Last7Percent, IReadOnlyDictionary<Guid, int> HabitStreaks);
+
 /// <summary>
 /// Dữ liệu cho các widget Plus của WidgetHost (M1). Gom ở tầng Presentation để kiểm thử được mà không cần cửa sổ WPF:
 /// WidgetHost chỉ vẽ. Dùng lại đúng các dịch vụ của app (phụ kiện, thử thách, ý định tuần) nên widget và app luôn khớp nhau.
@@ -89,6 +92,51 @@ public sealed class WidgetDataService
         var streak = HabitGrid.Core.Domain.Streaks.OverallStreak.Compute(allLogs, today);
 
         return new BuddyWidgetData(profile.BuddyName, profile.Level, BuddyViewModel.StageFor(profile.Level), worn, done, due, profile.FreezeTokens, into, need, streak);
+    }
+
+    public async Task<WidgetStatsData> StatsAsync(CancellationToken ct = default)
+    {
+        var today = _days.GetToday();
+        var habits = (await _habits.GetAllActiveAsync(ct)).Where(h => h.Kind != HabitKind.Quit).ToList();
+        var streaks = new StreakCalculator(DayOfWeek.Monday, _schedule);
+        var all = new List<DayLog>();
+        var perHabit = new Dictionary<Guid, int>();
+        int due = 0, done = 0;
+
+        foreach (var habit in habits)
+        {
+            var logs = await _logs.GetAllForHabitAsync(habit.Id, ct);
+            all.AddRange(logs);
+            perHabit[habit.Id] = streaks.Calculate(habit, logs, today).Current;
+            var latest = InsightsCalculator.Latest(logs);
+
+            for (var i = 0; i < 7; i++)
+            {
+                var day = today.AddDays(-i);
+
+                if (day < habit.StartDate || !_schedule.IsScheduled(habit, day))
+                {
+                    continue;
+                }
+
+                var status = latest.TryGetValue((habit.Id, day), out var log) ? log.Status : DayStatus.None;
+
+                if (status is DayStatus.Frozen or DayStatus.Skipped)
+                {
+                    continue;
+                }
+
+                due++;
+
+                if (status == DayStatus.Done)
+                {
+                    done++;
+                }
+            }
+        }
+
+        var percent = due == 0 ? 0 : (int)Math.Round(100.0 * done / due);
+        return new WidgetStatsData(HabitGrid.Core.Domain.Streaks.OverallStreak.Longest(all), percent, perHabit);
     }
 
     public async Task<GoalsWidgetData> GoalsAsync(CancellationToken ct = default)

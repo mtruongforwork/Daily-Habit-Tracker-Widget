@@ -99,14 +99,22 @@ public static class WidgetLayout
     public const int Gap = 12;
 
     // Chế độ "Dynamic Island" (giữa mép trên).
-    public const int IslandRestWidth = 156;
-    public const int IslandRestHeight = 36;
+    // Trạng thái nghỉ: vòng Buddy + tên việc + dòng phụ + các chip (+1, ✓ n/m, 🔥 chuỗi).
+    public const int IslandRestWidth = 380;
+    public const int IslandRestHeight = 56;
+
+    /// <summary>Xong hết / không có việc: bỏ nút +1 nên ngắn hơn.</summary>
+    public const int IslandDoneWidth = 330;
 
     /// <summary>Nghỉ khi đang Focus: rộng cố định để đồng hồ đổi số mỗi giây không làm viên thuốc co giãn.</summary>
-    public const int IslandFocusWidth = 132;
+    public const int IslandFocusWidth = 380;
 
-    public const int IslandListWidth = 340;
-    public const int IslandPanelWidth = 384;
+    /// <summary>Kiểu "siêu gọn": chỉ Buddy và các chip.</summary>
+    public const int IslandMiniWidth = 170;
+    public const int IslandMiniHeight = 46;
+
+    public const int IslandListWidth = 380;
+    public const int IslandPanelWidth = 420;
 
     /// <summary>Khoảng cách từ mép trên của màn hình tới viên thuốc, pixel vật lý.</summary>
     public const int IslandTopGap = 6;

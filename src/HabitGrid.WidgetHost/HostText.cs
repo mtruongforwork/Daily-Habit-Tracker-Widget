@@ -97,7 +97,76 @@ public static class HostText
 
     public static string IslandLeft(int n) => IsVietnamese ? $"{n} còn" : $"{n} left";
 
-    public static string IslandLater => IsVietnamese ? "Để sau" : "Later";
+    /// <summary>"còn 6g30 hôm nay": thời gian còn lại tới hết ngày (làm tròn xuống phút; dưới 1 giờ thì chỉ phút).</summary>
+    public static string IslandTimeLeft(TimeSpan left)
+    {
+        var minutes = Math.Max(0, (int)left.TotalMinutes);
+        var h = minutes / 60;
+        var m = minutes % 60;
+        var vi = h > 0 ? $"{h}g{m:00}" : $"{m} phút";
+        var en = h > 0 ? $"{h}h{m:00}" : $"{m} min";
+        return IsVietnamese ? $"còn {vi} hôm nay" : $"{en} left today";
+    }
+
+    public static string IslandFocusing => IsVietnamese ? "Đang focus" : "Focusing";
+
+    public static string IslandBreak => IsVietnamese ? "Nghỉ giải lao" : "Break";
+
+    public static string IslandDoneTitle => IsVietnamese ? "Xong hết hôm nay" : "All done today";
+
+    public static string IslandDoneSub(bool streak) => IsVietnamese ? (streak ? "Chuỗi được giữ · hẹn mai nhé" : "Hẹn mai nhé") : (streak ? "Streak kept · see you tomorrow" : "See you tomorrow");
+
+    public static string IslandFreeTitle => IsVietnamese ? "Hôm nay rảnh" : "Free today";
+
+    public static string IslandFreeSub => IsVietnamese ? "Không có việc nào đến hạn" : "Nothing is due";
+
+    public static string PanelRisk(int n) => IsVietnamese ? $"Còn {n} thói quen nữa là giữ được chuỗi" : $"{n} more habit(s) to keep your streak";
+
+    public static string PanelXpToNext(long xp, int level) => IsVietnamese ? $"còn {xp} XP lên Lv {level}" : $"{xp} XP to Lv {level}";
+
+    public static string PanelStatToday => IsVietnamese ? "Hôm nay" : "Today";
+
+    public static string PanelStatBest => IsVietnamese ? "Chuỗi dài nhất" : "Longest streak";
+
+    public static string PanelStatLast7 => IsVietnamese ? "7 ngày qua" : "Last 7 days";
+
+    public static string PanelDays(int n) => IsVietnamese ? $"{n} ngày" : (n == 1 ? "1 day" : $"{n} days");
+
+    public static string PanelTabWeek => IsVietnamese ? "Tuần này" : "This week";
+
+    public static string PanelTabGoals => IsVietnamese ? "Nhiệm vụ" : "Missions";
+
+    public static string PanelTimeLeft(TimeSpan left)
+    {
+        var minutes = Math.Max(0, (int)left.TotalMinutes);
+        var h = minutes / 60;
+        var m = minutes % 60;
+        return IsVietnamese ? $"Còn {h}g{m:00} đến hết ngày" : $"{h}h{m:00} left today";
+    }
+
+    public static string PanelAddPlaceholder => IsVietnamese ? "Thêm thói quen mới…" : "Add a new habit…";
+
+    public static string PanelPerDay(int n) => IsVietnamese ? $"{n} lần/ngày" : $"{n}×/day";
+
+    public static string PanelAdd => IsVietnamese ? "Thêm" : "Add";
+
+    public static string PanelAddLimit => IsVietnamese ? "Gói Free đã đủ số thói quen. Nâng cấp Plus để thêm." : "Free plan habit limit reached. Upgrade to Plus.";
+
+    public static string PanelAddFailed => IsVietnamese ? "Không thêm được thói quen." : "Couldn't add the habit.";
+
+    public static string PanelFocusSession => IsVietnamese ? "Phiên focus" : "Focus session";
+
+    public static string PanelFocusStart => IsVietnamese ? "Bắt đầu" : "Start";
+
+    public static string PanelFocusStop => IsVietnamese ? "Dừng" : "Stop";
+
+    public static string PanelFocusing => IsVietnamese ? "Đang focus" : "Focusing";
+
+    public static string PanelHotkey(string keys) => IsVietnamese ? $"{keys} để mở nhanh widget" : $"{keys} to toggle the widget";
+
+    public static string PanelOpenApp => IsVietnamese ? "Mở app đầy đủ" : "Open full app";
+
+    public static string IslandLater =>IsVietnamese ? "Để sau" : "Later";
 
     public static string IslandStreak(int days) => IsVietnamese ? $"{days} ngày" : $"{days} days";
 

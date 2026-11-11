@@ -796,4 +796,7 @@
   <data name="settings.placement.hint" xml:space="preserve"><value>"Top centre" pins a small pill at the middle of the top edge of your main screen (Dynamic Island style), always above other windows. Hover to open the habits due today.</value></data>
   <data name="settings.placement.KeepPosition" xml:space="preserve"><value>Keep current position</value></data>
   <data name="settings.placement.TopCenter" xml:space="preserve"><value>Top centre</value></data>
+  <data name="settings.restmini" xml:space="preserve"><value>Compact style</value></data>
+  <data name="settings.restmini.full" xml:space="preserve"><value>Full</value></data>
+  <data name="settings.restmini.mini" xml:space="preserve"><value>Ultra compact</value></data>
 </root>

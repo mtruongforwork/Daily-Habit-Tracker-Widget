@@ -16,9 +16,9 @@ namespace HabitGrid.WidgetHost;
 /// dòng phụ luân phiên và một nút tròn làm ngay việc kế tiếp (check, hoặc +1 với thói quen đếm). Mở rộng: Buddy lớn, cấp độ, thanh XP, danh sách Hôm nay
 /// (check, và −/+ cho thói quen đếm), Mục tiêu và lưới chuỗi (Plus).
 /// </summary>
-public sealed class HubWidgetWindow : ExtraWidgetWindow
+public sealed partial class HubWidgetWindow : ExtraWidgetWindow
 {
-    private const double ExpandedWidth = 384;
+    private const double ExpandedWidth = 420;
 
     private readonly DispatcherTimer _rotate = new() { Interval = TimeSpan.FromSeconds(4) };
     private HubData? _data;
@@ -131,40 +131,34 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
 
     protected override Size CompactSize =>
         IsIsland
-            ? new Size(FocusProvider?.Invoke() is not null ? WidgetLayout.IslandFocusWidth : WidgetLayout.IslandRestWidth, WidgetLayout.IslandRestHeight)
+            ? IslandRestSize()
             : new Size(WidgetLayout.HubWidth, WidgetLayout.HubHeight);
 
-    protected override Size ExpandedSize => new(IsIsland ? WidgetLayout.IslandPanelWidth : ExpandedWidth, EstimateHeight(_data));
-
-    /// <summary>Chiều cao dạng mở rộng theo nội dung (ước lượng để hoạt ảnh biết đích đến).</summary>
-    public static double EstimateHeight(HubData? data)
+    private Size IslandRestSize()
     {
-        if (data is null)
+        if (_miniRest)
         {
-            return 240;
+            return new Size(WidgetLayout.IslandMiniWidth, WidgetLayout.IslandMiniHeight);
         }
 
-        var height = 30 + 96;
-        height += 30 + Math.Max(1, Math.Min(data.Today.Count, 6)) * 34;
-
-        if (data.Goals is { IsEmpty: false } goals)
-        {
-            height += 28 + ((goals.Intent is null ? 0 : 1) + goals.Challenges.Count) * 30;
-        }
-
-        if (data.Grid is { Rows.Count: > 0 } grid)
-        {
-            height += 28 + grid.Rows.Count * 24;
-        }
-
-        return height;
+        return CurrentRestState() is RestState.Done or RestState.Free
+            ? new Size(WidgetLayout.IslandDoneWidth, WidgetLayout.IslandRestHeight)
+            : new Size(WidgetLayout.IslandRestWidth, WidgetLayout.IslandRestHeight);
     }
+
+    protected override Size ExpandedSize => new(IsIsland ? WidgetLayout.IslandPanelWidth : ExpandedWidth, EstimatePanelHeight());
 
     public void Update(HubData data)
     {
         var previous = _data;
         _data = data;
         _hopNext = previous is not null && data.Buddy.TodayDone > previous.Buddy.TodayDone;
+
+        if (previous is not null && IsIsland)
+        {
+            NoteLogged(previous, data);
+        }
+
         Render();
         RefreshLayout();
         _shownXp = data.Buddy.XpFraction;
@@ -202,7 +196,7 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
             return;
         }
 
-        if (a.TodayDone > b.TodayDone)
+        if (a.TodayDone > b.TodayDone && !IsIsland)
         {
             var finished = after.Today.FirstOrDefault(i => i.IsDone && before.Today.Any(o => o.Id == i.Id && !o.IsDone));
             PeekMessage("✔", $"{finished?.Name ?? HostText.Done}  {HostText.Progress(a.TodayDone, a.TodayDue)}", 250, TintDone);
@@ -269,7 +263,7 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
         buttons.Children.Add(later);
         stack.Children.Add(buttons);
 
-        Peek(stack, new Size(320, 84), holdMilliseconds, sticky: true, tint: TintReminder);
+        Peek(stack, new Size(Math.Max(320, WidgetLayout.IslandRestWidth), 84), holdMilliseconds, sticky: true, tint: TintReminder);
         return true;
     }
 
@@ -318,7 +312,11 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
             var ended = focus is null && _lastFocus is not null;
             _lastFocus = focus;
 
-            if (started)
+            if (IsExpanded && (started || ended))
+            {
+                Render();
+            }
+            else if (started)
             {
                 PeekMessage("⏱", HostText.HubFocusStarted(focus!.Habit), 280, TintFocus);
             }
@@ -481,50 +479,302 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
         return row;
     }
 
+    /// <summary>Các trạng thái của viên thuốc nghỉ (kiểu Island), từ ưu tiên cao xuống thấp: Focus, vừa ghi nhận, xong/rảnh, sắp hết ngày, mặc định.</summary>
+    public enum RestState
+    {
+        Normal,
+        Risk,
+        Logged,
+        Focus,
+        Done,
+        Free
+    }
+
+    /// <summary>Kiểu "siêu gọn": chỉ Buddy và các chip (cài đặt <c>widgets.restmini</c>).</summary>
+    public bool MiniRest
+    {
+        get => _miniRest;
+        set
+        {
+            if (_miniRest == value)
+            {
+                return;
+            }
+
+            _miniRest = value;
+
+            if (_data is not null && IsIsland)
+            {
+                Render();
+                RefreshLayout();
+            }
+        }
+    }
+
+    private bool _miniRest;
+    private string? _loggedName;
+    private string? _loggedText;
+    private DateTime _loggedUntil;
+    private readonly DispatcherTimer _loggedTimer = new() { Interval = TimeSpan.FromSeconds(5) };
+
+    /// <summary>Trạng thái hiện tại của viên thuốc nghỉ.</summary>
+    public RestState CurrentRestState()
+    {
+        if (_data is null)
+        {
+            return RestState.Normal;
+        }
+
+        var now = Now();
+
+        if (FocusProvider?.Invoke() is not null)
+        {
+            return RestState.Focus;
+        }
+
+        if (_loggedText is not null && now < _loggedUntil)
+        {
+            return RestState.Logged;
+        }
+
+        var buddy = _data.Buddy;
+
+        if (buddy.TodayDue == 0)
+        {
+            return RestState.Free;
+        }
+
+        return BuddyWidgetWindow.MoodFor(buddy, now) switch
+        {
+            BuddyWidgetWindow.Mood.AllDone => RestState.Done,
+            BuddyWidgetWindow.Mood.AtRisk => RestState.Risk,
+            _ => RestState.Normal
+        };
+    }
+
+    /// <summary>Ghi nhận việc vừa làm (thêm 1 lần đếm hoặc check xong) để viên thuốc hiện "+1 · 5/8" trong vài giây.</summary>
+    private void NoteLogged(HubData before, HubData after)
+    {
+        foreach (var item in after.Today)
+        {
+            var old = before.Today.FirstOrDefault(o => o.Id == item.Id);
+
+            if (old is null)
+            {
+                continue;
+            }
+
+            var increased = item.IsNumeric && item.Value > old.Value;
+            var completed = !old.IsDone && item.IsDone;
+
+            if (!increased && !completed)
+            {
+                continue;
+            }
+
+            _loggedName = item.Name;
+            _loggedText = item.IsNumeric
+                ? $"+{Math.Max(1, item.Value - old.Value)} · {item.Value}/{item.Target}"
+                : $"✓ · {HostText.Progress(after.Buddy.TodayDone, after.Buddy.TodayDue)}";
+            _loggedUntil = Now().AddSeconds(5);
+            _loggedTimer.Stop();
+            _loggedTimer.Start();
+            return;
+        }
+    }
+
+    private void EnsureLoggedTimer()
+    {
+        if (_loggedTimerHooked)
+        {
+            return;
+        }
+
+        _loggedTimerHooked = true;
+        _loggedTimer.Tick += (_, _) =>
+        {
+            _loggedTimer.Stop();
+            _loggedText = null;
+            _loggedName = null;
+
+            if (_data is not null && !_peeking && !IsExpanded)
+            {
+                Render();
+                RefreshLayout();
+            }
+        };
+        Closed += (_, _) => _loggedTimer.Stop();
+    }
+
+    private bool _loggedTimerHooked;
+
+    private static readonly Color Violet = Color.FromRgb(124, 92, 255);
+    private static readonly Color Green = Color.FromRgb(52, 211, 153);
+    private static readonly Color Amber = Color.FromRgb(251, 191, 36);
+    private static readonly Color Teal = Color.FromRgb(45, 212, 191);
+    private static readonly Color Blue = Color.FromRgb(96, 165, 250);
+
+    private static Border Chip(UIElement content, Color fill, Func<Task>? click = null)
+    {
+        var chip = new Border
+        {
+            Height = 26,
+            MinWidth = 34,
+            CornerRadius = new CornerRadius(13),
+            Padding = new Thickness(10, 0, 10, 0),
+            Margin = new Thickness(6, 0, 0, 0),
+            Background = new SolidColorBrush(fill),
+            VerticalAlignment = VerticalAlignment.Center,
+            Child = content
+        };
+
+        if (click is not null)
+        {
+            chip.Cursor = Cursors.Hand;
+            chip.MouseLeftButtonDown += (_, e) => e.Handled = true;
+            chip.MouseLeftButtonUp += async (_, e) =>
+            {
+                e.Handled = true;
+                await click();
+            };
+        }
+
+        return chip;
+    }
+
+    private static TextBlock ChipText(string text, Color? color = null)
+    {
+        var label = Text(text, 12, bold: true);
+        label.TextTrimming = TextTrimming.None;
+        label.HorizontalAlignment = HorizontalAlignment.Center;
+        label.VerticalAlignment = VerticalAlignment.Center;
+
+        if (color is { } c)
+        {
+            label.Foreground = new SolidColorBrush(c);
+        }
+
+        return label;
+    }
+
     /// <summary>
-    /// Trạng thái nghỉ của "Dynamic Island": một dòng rất ngắn. Đang Focus thì chỉ hiện đồng hồ; không thì hiện chuỗi ngày và số việc còn lại hôm nay
-    /// (vàng khi tối mà còn việc, xanh khi xong hết).
+    /// Viên thuốc nghỉ của "Dynamic Island" (6 trạng thái): vòng Buddy + tên việc + dòng phụ + chip "+1", "✓ n/m", "🔥 chuỗi".
+    /// Mặc định "4/8 · còn 6g30 hôm nay"; sắp hết ngày (vòng vàng nhấp nháy); vừa ghi nhận "+1 · 5/8"; Focus "Đang focus · 24:59";
+    /// xong hết (vòng xanh, bỏ +1); và siêu gọn (chỉ Buddy và chip).
     /// </summary>
     private UIElement BuildIslandRest()
     {
+        EnsureLoggedTimer();
         var data = _data!;
+        var now = Now();
+        var buddy = data.Buddy;
         var focus = FocusProvider?.Invoke();
-        var row = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
+        var state = CurrentRestState();
+        var next = data.Today.FirstOrDefault(i => !i.IsDone && !i.IsSkipped);
+        var mini = _miniRest;
+        var ringSize = mini ? 32 : 40;
+
+        Grid ring;
 
         if (focus is not null)
         {
-            var clock = Text(focus.Clock + (focus.Paused ? " ⏸" : string.Empty), 13, bold: true);
-            clock.Foreground = new SolidColorBrush(focus.IsBreak ? Color.FromRgb(96, 165, 250) : Color.FromRgb(45, 212, 191));
-            clock.VerticalAlignment = VerticalAlignment.Center;
-            row.Children.Add(Emoji(focus.IsBreak ? "☕" : "⏱", 13));
-            clock.Margin = new Thickness(6, 0, 0, 0);
-            row.Children.Add(clock);
-            return row;
+            ring = Ring(focus.Fraction, ringSize, 3.5, focus.IsBreak ? Blue : Teal, Emoji(focus.IsBreak ? "☕" : "⏱", mini ? 13 : 16));
+        }
+        else
+        {
+            var done = state is RestState.Done;
+            var color = done ? Green : state == RestState.Risk ? Amber : Violet;
+            var fraction = done ? 1 : buddy.TodayDue == 0 ? 0 : buddy.TodayFraction;
+            ring = Ring(fraction, ringSize, 3.5, color, BuddyWidgetWindow.BuildAvatar(buddy, mini ? 0.28 : 0.35));
+
+            if (state == RestState.Risk && Animations)
+            {
+                ring.BeginAnimation(OpacityProperty, new DoubleAnimation(1, 0.55, new Duration(TimeSpan.FromMilliseconds(900))) { AutoReverse = true, RepeatBehavior = RepeatBehavior.Forever });
+            }
         }
 
-        var buddy = data.Buddy;
-        var mood = BuddyWidgetWindow.MoodFor(buddy, Now());
-        var remaining = Math.Max(0, buddy.TodayDue - buddy.TodayDone);
+        ring.VerticalAlignment = VerticalAlignment.Center;
+
+        var chips = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Right };
+
+        if (!mini && focus is null && state is not (RestState.Done or RestState.Free) && next is not null && OnToggle is { } act)
+        {
+            chips.Children.Add(Chip(ChipText(next.IsNumeric ? "+1" : "✓"), Violet, () => act(next)));
+        }
+
+        chips.Children.Add(Chip(ChipText($"✓ {HostText.Progress(buddy.TodayDone, buddy.TodayDue)}"), Color.FromArgb(0x26, 0xFF, 0xFF, 0xFF)));
 
         if (buddy.Streak > 0)
         {
-            var dot = new Ellipse { Width = 8, Height = 8, Fill = new SolidColorBrush(Color.FromRgb(251, 146, 60)), VerticalAlignment = VerticalAlignment.Center };
-            row.Children.Add(dot);
-            var streak = Text(buddy.Streak.ToString(CultureInfo.InvariantCulture), 13, bold: true);
-            streak.Margin = new Thickness(5, 0, 8, 0);
-            streak.VerticalAlignment = VerticalAlignment.Center;
-            row.Children.Add(streak);
+            var flame = new StackPanel { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
+            flame.Children.Add(Emoji("🔥", 12));
+            var days = ChipText(buddy.Streak.ToString(CultureInfo.InvariantCulture), Amber);
+            days.Margin = new Thickness(4, 0, 0, 0);
+            flame.Children.Add(days);
+            chips.Children.Add(Chip(flame, Color.FromArgb(0x2E, 0xFB, 0xBF, 0x24)));
         }
 
-        var left = Text(buddy.TodayDue == 0 ? HostText.IslandNothing : remaining == 0 ? HostText.IslandAllDone : HostText.IslandLeft(remaining), 12, bold: true);
-        left.VerticalAlignment = VerticalAlignment.Center;
-        left.Foreground = new SolidColorBrush(mood switch
+        var row = new Grid { VerticalAlignment = VerticalAlignment.Center };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = mini ? GridLength.Auto : new GridLength(1, GridUnitType.Star) });
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.Children.Add(ring);
+
+        if (mini)
         {
-            BuddyWidgetWindow.Mood.AllDone => Color.FromRgb(52, 211, 153),
-            BuddyWidgetWindow.Mood.AtRisk => Color.FromRgb(251, 191, 36),
-            _ => Colors.White
-        });
-        row.Children.Add(left);
+            Grid.SetColumn(chips, 2);
+            chips.Margin = new Thickness(4, 0, 0, 0);
+            row.Children.Add(chips);
+            return row;
+        }
+
+        string title;
+        string subtitle;
+        Color? subtitleColor = null;
+
+        switch (state)
+        {
+            case RestState.Focus:
+                title = focus!.Habit ?? next?.Name ?? "Focus";
+                subtitle = $"{(focus.IsBreak ? HostText.IslandBreak : HostText.IslandFocusing)} · {focus.Clock}{(focus.Paused ? " ⏸" : string.Empty)}";
+                subtitleColor = focus.IsBreak ? Blue : Teal;
+                break;
+            case RestState.Logged:
+                title = _loggedName ?? next?.Name ?? string.Empty;
+                subtitle = _loggedText ?? string.Empty;
+                subtitleColor = Green;
+                break;
+            case RestState.Done:
+                title = HostText.IslandDoneTitle;
+                subtitle = HostText.IslandDoneSub(buddy.Streak > 0);
+                subtitleColor = Green;
+                break;
+            case RestState.Free:
+                title = HostText.IslandFreeTitle;
+                subtitle = HostText.IslandFreeSub;
+                break;
+            default:
+                var left = HostText.IslandTimeLeft(now.Date.AddDays(1) - now);
+                title = next?.Name ?? HostText.IslandFreeTitle;
+                subtitle = next is { IsNumeric: true } ? $"{next.Value}/{next.Target} · {left}" : left;
+                subtitleColor = state == RestState.Risk ? Amber : null;
+                break;
+        }
+
+        var texts = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(10, 0, 6, 0) };
+        texts.Children.Add(Text(title, 13, bold: true));
+        var sub = Text(subtitle, 10.5, opacity: subtitleColor is null ? 0.7 : 0.95);
+
+        if (subtitleColor is { } sc)
+        {
+            sub.Foreground = new SolidColorBrush(sc);
+        }
+
+        texts.Children.Add(sub);
+        Grid.SetColumn(texts, 1);
+        row.Children.Add(texts);
+        Grid.SetColumn(chips, 2);
+        row.Children.Add(chips);
         return row;
     }
 
@@ -598,133 +848,8 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
         return track;
     }
 
-    protected override UIElement BuildExpanded()
-    {
-        var data = _data!;
-        var now = Now();
-        var buddy = data.Buddy;
-        var mood = BuddyWidgetWindow.MoodFor(buddy, now);
-        var stack = new StackPanel();
-
-        // Đầu thẻ: Buddy trong vòng tiến độ, tên + cấp, thanh XP, nút thu gọn.
-        var header = new Grid();
-        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        header.ColumnDefinitions.Add(new ColumnDefinition());
-        var hop = new TranslateTransform();
-        var avatar = Ring(mood == BuddyWidgetWindow.Mood.AllDone ? 1 : buddy.TodayDue == 0 ? 0 : buddy.TodayFraction, 76, 5, MoodColor(mood), BuddyWidgetWindow.BuildAvatar(buddy, 0.62));
-        avatar.RenderTransform = hop;
-        avatar.Cursor = Cursors.Hand;
-        avatar.MouseLeftButtonUp += (_, e) =>
-        {
-            e.Handled = true;
-            Hop(hop);
-        };
-        header.Children.Add(avatar);
-
-        var info = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 0, 0) };
-        var nameRow = new Grid();
-        nameRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        nameRow.ColumnDefinitions.Add(new ColumnDefinition());
-        nameRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        nameRow.Children.Add(Text(buddy.Name, 18, bold: true));
-        var pill = new Border
-        {
-            CornerRadius = new CornerRadius(9),
-            Background = new SolidColorBrush(Color.FromArgb(0x40, 0xA7, 0x8B, 0xFA)),
-            Padding = new Thickness(8, 1, 8, 1),
-            Margin = new Thickness(8, 0, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            Child = Text(HostText.BuddyLevel(buddy.Level) + (buddy.FreezeTokens > 0 ? $"  ❄ {buddy.FreezeTokens}" : string.Empty), 11, bold: true)
-        };
-        Grid.SetColumn(pill, 1);
-        nameRow.Children.Add(pill);
-        var collapse = RoundButton("–", 24, () =>
-        {
-            Collapse();
-            return Task.CompletedTask;
-        }, fontSize: 13);
-        Grid.SetColumn(collapse, 2);
-        nameRow.Children.Add(collapse);
-        info.Children.Add(nameRow);
-
-        var say = mood == BuddyWidgetWindow.Mood.AtRisk
-            ? HostText.HubAtRisk(data.Today.Count(i => !i.IsDone && !i.IsSkipped))
-            : buddy.TodayDue == 0 ? HostText.NothingDue : mood == BuddyWidgetWindow.Mood.AllDone ? HostText.AllDone : $"{HostText.Today}  {HostText.Progress(buddy.TodayDone, buddy.TodayDue)}";
-        info.Children.Add(Text(say, 11, opacity: 0.8));
-        info.Children.Add(new Border { Height = 6 });
-        info.Children.Add(XpBar(buddy.XpFraction, 236));
-        info.Children.Add(Text($"{buddy.XpInto}/{buddy.XpNeed} XP", 10, opacity: 0.65));
-        Grid.SetColumn(info, 1);
-        header.Children.Add(info);
-        stack.Put(header);
-
-        if (_hopNext && Animations)
-        {
-            _hopNext = false;
-            Dispatcher.BeginInvoke(() => Hop(hop), DispatcherPriority.Loaded);
-        }
-
-        // Hôm nay: bấm một dòng để check / bỏ check; thói quen đếm có −/+.
-        stack.Put(Text($"{HostText.Today.ToUpperInvariant()}  {buddy.TodayDone}/{buddy.TodayDue}", 10, bold: true, opacity: 0.6), 12);
-
-        if (data.Today.Count == 0)
-        {
-            stack.Put(Text(HostText.NothingDue, 12, opacity: 0.8), 4);
-        }
-
-        foreach (var item in data.Today.Take(6))
-        {
-            stack.Put(TodayRow(item), 3);
-        }
-
-        if (data.Today.Count > 6)
-        {
-            stack.Put(Text("+" + (data.Today.Count - 6), 11, opacity: 0.6), 2);
-        }
-
-        // Mục tiêu (Plus).
-        if (data.Goals is { IsEmpty: false } goals)
-        {
-            stack.Put(Text(HostText.GoalsTitle.ToUpperInvariant(), 10, bold: true, opacity: 0.6), 12);
-
-            foreach (var (label, fraction, detail) in GoalsWidgetWindow.Rotation(goals))
-            {
-                var line = new Grid();
-                line.ColumnDefinitions.Add(new ColumnDefinition());
-                line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                line.Children.Add(Text(label, 11));
-                var d = Text(detail, 10, opacity: 0.8);
-                Grid.SetColumn(d, 1);
-                line.Children.Add(d);
-                stack.Put(line, 4);
-                stack.Put(Bar(fraction, ExpandedWidth - 32, Color.FromRgb(139, 92, 246), Color.FromRgb(236, 72, 153), 4), 2);
-            }
-        }
-
-        // Chuỗi (Plus).
-        if (data.Grid is { Rows.Count: > 0 } grid)
-        {
-            stack.Put(Text("🔥", 10, bold: true, opacity: 0.6), 12);
-
-            foreach (var row in grid.Rows)
-            {
-                var line = new Grid();
-                line.ColumnDefinitions.Add(new ColumnDefinition());
-                line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                line.Children.Add(Text($"{IconText(row.Icon)} {row.Name}  🔥{row.Streak}", 11));
-                var strip = MultiGridWidgetWindow.Strip(row);
-                Grid.SetColumn(strip, 1);
-                line.Children.Add(strip);
-                stack.Put(line, 4);
-            }
-        }
-
-        return stack;
-    }
-
     /// <summary>Buddy nảy lên rồi rơi xuống (bấm vào, hoặc sau khi check xong một việc).</summary>
-    private static void Hop(TranslateTransform transform)
+    internal static void Hop(TranslateTransform transform)
     {
         if (!Animations)
         {
