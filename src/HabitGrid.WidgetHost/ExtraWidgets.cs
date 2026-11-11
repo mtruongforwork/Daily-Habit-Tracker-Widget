@@ -397,7 +397,14 @@ public abstract class ExtraWidgetWindow : Window
                 spring.Snap(spring.Target);
             }
 
+            if (_morphing)
+            {
+                System.Windows.Media.CompositionTarget.Rendering -= OnFrame;
+                _morphing = false;
+            }
+
             Apply();
+            SettleWindow();
             return;
         }
 
@@ -409,10 +416,48 @@ public abstract class ExtraWidgetWindow : Window
             _t.Value = Top;
             _r.Value = _card?.CornerRadius.TopLeft ?? radius;
             _w.Velocity = _h.Velocity = _l.Velocity = _t.Velocity = _r.Velocity = 0;
+            _box = new Rect(Left, Top, Width, Height);
             _morphing = true;
             _lastFrame = DateTime.UtcNow;
             System.Windows.Media.CompositionTarget.Rendering += OnFrame;
         }
+
+        // Cửa sổ giữ nguyên MỘT khung bao (hợp của cỡ hiện tại và cỡ đích) suốt lúc co giãn; chỉ thẻ bên trong đổi cỡ.
+        // Đổi kích thước cửa sổ phân lớp ở từng khung hình buộc DWM cấp lại bề mặt liên tục: đó là nguyên nhân khựng.
+        _box = Rect.Union(_box, new Rect(_l.Target, _t.Target, _w.Target, _h.Target));
+        ApplyBox();
+    }
+
+    private Rect _box;
+
+    private void ApplyBox()
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+
+        if (handle == IntPtr.Zero || !IsVisible)
+        {
+            return;
+        }
+
+        var dpi = VisualTreeHelper.GetDpi(this).DpiScaleX;
+        const uint noZOrder = 0x0004, noActivate = 0x0010, noCopyBits = 0x0100;
+        SetWindowPos(handle, IntPtr.Zero, (int)Math.Round(_box.Left * dpi), (int)Math.Round(_box.Top * dpi), (int)Math.Round(_box.Width * dpi), (int)Math.Round(_box.Height * dpi), noZOrder | noActivate | noCopyBits);
+    }
+
+    /// <summary>Hết co giãn: cửa sổ về đúng cỡ thẻ, thẻ lại phủ kín cửa sổ.</summary>
+    private void SettleWindow()
+    {
+        if (_card is not null)
+        {
+            _card.Margin = new Thickness(0);
+            _card.Width = double.NaN;
+            _card.Height = double.NaN;
+            _card.HorizontalAlignment = HorizontalAlignment.Stretch;
+            _card.VerticalAlignment = VerticalAlignment.Stretch;
+        }
+
+        _box = new Rect(_l.Value, _t.Value, Math.Max(8, _w.Value), Math.Max(8, _h.Value));
+        ApplyBox();
     }
 
     private void OnFrame(object? sender, EventArgs e)
@@ -433,6 +478,7 @@ public abstract class ExtraWidgetWindow : Window
         {
             System.Windows.Media.CompositionTarget.Rendering -= OnFrame;
             _morphing = false;
+            SettleWindow();
         }
     }
 
@@ -443,7 +489,16 @@ public abstract class ExtraWidgetWindow : Window
     {
         var handle = new WindowInteropHelper(this).Handle;
 
-        if (handle != IntPtr.Zero && IsVisible)
+        if (_morphing && _card is not null && handle != IntPtr.Zero && IsVisible)
+        {
+            // Đang co giãn: cửa sổ đứng yên, chỉ thẻ đổi cỡ/vị trí bên trong khung bao.
+            _card.HorizontalAlignment = HorizontalAlignment.Left;
+            _card.VerticalAlignment = VerticalAlignment.Top;
+            _card.Width = Math.Max(8, _w.Value);
+            _card.Height = Math.Max(8, _h.Value);
+            _card.Margin = new Thickness(_l.Value - _box.Left, _t.Value - _box.Top, 0, 0);
+        }
+        else if (handle != IntPtr.Zero && IsVisible)
         {
             // Một lần SetWindowPos cho cả vị trí lẫn kích thước (đặt từng thuộc Left/Top/Width/Height làm 4 lần đổi cửa sổ + đo bố cục mỗi khung hình).
             var dpi = VisualTreeHelper.GetDpi(this).DpiScaleX;
