@@ -46,6 +46,7 @@ public abstract class ExtraWidgetWindow : Window
     private readonly DispatcherTimer _collapseTimer = new() { Interval = TimeSpan.FromMilliseconds(900) };
     private bool _pinnedOpen;
     private bool _dragged;
+    private bool _sized;
 
     protected ExtraWidgetWindow(string title)
     {
@@ -56,6 +57,10 @@ public abstract class ExtraWidgetWindow : Window
         ShowActivated = false;
         ResizeMode = ResizeMode.NoResize;
         Title = title;
+
+        // Kích thước thật đặt ở lần dựng nội dung đầu tiên; trước đó giữ cửa sổ cực nhỏ để không lóe lên 1152x592 (cỡ mặc định của Window).
+        Width = 8;
+        Height = 8;
 
         MouseLeftButtonDown += (_, _) =>
         {
@@ -144,10 +149,12 @@ public abstract class ExtraWidgetWindow : Window
     /// <summary>Gọi sau khi dữ liệu đổi: dựng lại nội dung theo dạng hiện tại.</summary>
     protected void Render()
     {
-        if (double.IsNaN(Width) || Width == 0)
+        if (!_sized)
         {
-            Width = CompactSize.Width;
-            Height = CompactSize.Height;
+            var initial = IsExpanded ? ExpandedSize : CompactSize;
+            Width = initial.Width;
+            Height = initial.Height;
+            _sized = true;
         }
 
         Content = new Border

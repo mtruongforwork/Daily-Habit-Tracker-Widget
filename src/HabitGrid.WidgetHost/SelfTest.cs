@@ -158,7 +158,7 @@ public static class SelfTest
                 window.SetExpanded(true, animate: false);
                 await Task.Delay(300);
                 window.UpdateLayout();
-                Require(window.IsExpanded && window.Width > compact.Width && window.Height >= compact.Height, $"Widget {name} không mở rộng được.");
+                Require(window.IsExpanded && window.Width > compact.Width && window.Height >= compact.Height, $"Widget {name} không mở rộng được (expanded={window.IsExpanded}, {window.Width}x{window.Height} so với nhỏ gọn {compact.Width}x{compact.Height}).");
                 SaveShot(window, Path.Combine(shots, $"widget-{name}-expanded.png"));
 
                 window.SetExpanded(false, animate: false);
