@@ -90,16 +90,22 @@ public sealed partial class SettingsPage : Page
         // Kính mờ Acrylic: kéo để đổi độ trong suốt của cửa sổ (0 = nền đặc).
         var glassCard = Card(Ui.T("settings.glass"));
         glassCard.Children.Add(new TextBlock { Text = Ui.T("settings.glass.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
-        var glass = new Slider { Minimum = 0, Maximum = 100, StepFrequency = 5, Value = _theme.GlassStrength, MaxWidth = 460, HorizontalAlignment = HorizontalAlignment.Left };
+        var glassValue = new TextBlock { Text = $"{_theme.GlassStrength}%", Style = Res("BodySecondaryTextStyle"), VerticalAlignment = VerticalAlignment.Center, MinWidth = 44 };
+        var glass = new Slider { Minimum = 0, Maximum = 100, StepFrequency = 5, Value = _theme.GlassStrength, Width = 380, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
         AutomationProperties.SetName(glass, Ui.T("settings.glass"));
         glass.ValueChanged += async (_, e) =>
         {
+            glassValue.Text = $"{(int)e.NewValue}%";
+
             if (!_building)
             {
                 await _theme.SetGlassAsync((int)e.NewValue, XamlRoot.Content as FrameworkElement);
             }
         };
-        glassCard.Children.Add(glass);
+        var glassRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 14 };
+        glassRow.Children.Add(glass);
+        glassRow.Children.Add(glassValue);
+        glassCard.Children.Add(glassRow);
         Wrap(glassCard);
 
         // Giảm chuyển động
