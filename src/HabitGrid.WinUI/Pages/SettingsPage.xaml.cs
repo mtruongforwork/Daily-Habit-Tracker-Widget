@@ -87,6 +87,27 @@ public sealed partial class SettingsPage : Page
         modeCard.Children.Add(_modeChips);
         Wrap(modeCard);
 
+        // Kính mờ Acrylic: kéo để đổi độ trong suốt của cửa sổ (0 = nền đặc).
+        var glassCard = Card(Ui.T("settings.glass"));
+        glassCard.Children.Add(new TextBlock { Text = Ui.T("settings.glass.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
+        var glassValue = new TextBlock { Text = $"{_theme.GlassStrength}%", Style = Res("BodySecondaryTextStyle"), VerticalAlignment = VerticalAlignment.Center, MinWidth = 44 };
+        var glass = new Slider { Minimum = 0, Maximum = 100, StepFrequency = 5, Value = _theme.GlassStrength, Width = 380, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+        AutomationProperties.SetName(glass, Ui.T("settings.glass"));
+        glass.ValueChanged += async (_, e) =>
+        {
+            glassValue.Text = $"{(int)e.NewValue}%";
+
+            if (!_building)
+            {
+                await _theme.SetGlassAsync((int)e.NewValue, XamlRoot.Content as FrameworkElement);
+            }
+        };
+        var glassRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 14 };
+        glassRow.Children.Add(glass);
+        glassRow.Children.Add(glassValue);
+        glassCard.Children.Add(glassRow);
+        Wrap(glassCard);
+
         // Giảm chuyển động
         var motionCard = Card(Ui.T("settings.motion"));
         var motion = new ToggleSwitch { IsOn = _theme.ReduceMotionSetting, OnContent = string.Empty, OffContent = string.Empty };
@@ -207,6 +228,71 @@ public sealed partial class SettingsPage : Page
             widgetsCard.Children.Add(toggle);
         }
 
+
+        // Kính mờ cho widget (Windows 11): làm mờ hình nền phía sau widget.
+        var widgetGlass = new ToggleSwitch { OnContent = Ui.T("settings.widgetGlass"), OffContent = Ui.T("settings.widgetGlass"), Margin = new Thickness(0, 10, 0, 0) };
+        AutomationProperties.SetName(widgetGlass, Ui.T("settings.widgetGlass"));
+        _ = LoadWidgetGlassAsync();
+        async Task LoadWidgetGlassAsync() => widgetGlass.IsOn = await settingsStore.GetAsync("widgets.glass") == "1";
+        widgetGlass.Toggled += async (_, _) =>
+        {
+            if (!_building)
+            {
+                await settingsStore.SetAsync("widgets.glass", widgetGlass.IsOn ? "1" : "0");
+                HostLink.EnsureRunning();
+            }
+        };
+        widgetsCard.Children.Add(widgetGlass);
+
+        // Cách hiển thị: một widget gộp (mặc định) hay nhiều widget riêng.
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.layout"), Style = Res("SectionHeader"), Margin = new Thickness(0, 10, 0, 0) });
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.layout.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
+        var layoutChips = new ChipGroup { MinChipWidth = 230, MaxWidth = 640, HorizontalAlignment = HorizontalAlignment.Left };
+        var layoutModes = Enum.GetValues<HabitGrid.Core.Domain.Widgets.WidgetLayoutMode>();
+
+        foreach (var mode in layoutModes)
+        {
+            layoutChips.Add(Ui.T("settings.layout." + mode));
+        }
+
+        var currentLayout = HabitGrid.Core.Domain.Widgets.WidgetLayoutModes.Parse(settingsStore.GetAsync(HabitGrid.Core.Domain.Widgets.WidgetLayoutModes.SettingKey).GetAwaiter().GetResult());
+        layoutChips.SelectedIndex = Array.IndexOf(layoutModes, currentLayout);
+        layoutChips.SelectionChanged += async (_, _) =>
+        {
+            if (_building || layoutChips.SelectedIndex < 0)
+            {
+                return;
+            }
+
+            await settingsStore.SetAsync(HabitGrid.Core.Domain.Widgets.WidgetLayoutModes.SettingKey, HabitGrid.Core.Domain.Widgets.WidgetLayoutModes.ToStored(layoutModes[layoutChips.SelectedIndex]));
+            HostLink.EnsureRunning();
+        };
+        widgetsCard.Children.Add(layoutChips);
+
+        // Kiểu ghim widget (đổi có hiệu lực sau vài giây, WidgetHost tự dựng lại).
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.pin"), Style = Res("SectionHeader"), Margin = new Thickness(0, 10, 0, 0) });
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.pin.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
+        var pinChips = new ChipGroup { MinChipWidth = 190, MaxWidth = 640, HorizontalAlignment = HorizontalAlignment.Left };
+        var pinChoices = Enum.GetValues<HabitGrid.Core.Domain.Widgets.PinChoice>();
+
+        foreach (var choice in pinChoices)
+        {
+            pinChips.Add(Ui.T("settings.pin." + choice));
+        }
+
+        var currentPin = HabitGrid.Core.Domain.Widgets.PinChoices.Parse(settingsStore.GetAsync(HabitGrid.Core.Domain.Widgets.PinChoices.SettingKey).GetAwaiter().GetResult());
+        pinChips.SelectedIndex = Array.IndexOf(pinChoices, currentPin);
+        pinChips.SelectionChanged += async (_, _) =>
+        {
+            if (_building || pinChips.SelectedIndex < 0)
+            {
+                return;
+            }
+
+            await settingsStore.SetAsync(HabitGrid.Core.Domain.Widgets.PinChoices.SettingKey, HabitGrid.Core.Domain.Widgets.PinChoices.ToStored(pinChoices[pinChips.SelectedIndex]));
+            HostLink.EnsureRunning();
+        };
+        widgetsCard.Children.Add(pinChips);
         Wrap(widgetsCard);
 
         // Hỗ trợ: phiên bản, thư mục log và báo lỗi (người dùng tự gửi, app không tải gì lên).

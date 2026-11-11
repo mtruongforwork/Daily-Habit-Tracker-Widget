@@ -12,5 +12,11 @@ public enum DesktopPinningMode
     BottomMost = 1,
 
     /// <summary>Chế độ 3: luôn nằm trên cùng.</summary>
-    AlwaysOnTop = 2
+    AlwaysOnTop = 2,
+
+    /// <summary>
+    /// Chế độ 4: cửa sổ cấp cao đặt NGAY TRÊN lớp desktop (Progman) trong z-order, không đổi cha. Dùng khi ghim làm con của Progman
+    /// không hiện hình (gặp trên một số bản Windows 11 mới); vẫn nằm dưới mọi cửa sổ ứng dụng.
+    /// </summary>
+    AboveDesktop = 3
 }

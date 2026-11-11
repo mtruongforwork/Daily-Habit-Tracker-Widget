@@ -23,6 +23,12 @@ public sealed partial class TodayPage : Page
             await ViewModel.SelectDayAsync(day);
             await LoadMoodAsync();
             await LoadRoutinesAsync();
+
+            // Các khối của trang xuất hiện lần lượt (mờ dần + nổi lên).
+            if (Scroll.Content is Microsoft.UI.Xaml.Controls.StackPanel content)
+            {
+                HabitGrid.WinUI.Controls.Motion.EnterChildren(content);
+            }
         });
     }
 

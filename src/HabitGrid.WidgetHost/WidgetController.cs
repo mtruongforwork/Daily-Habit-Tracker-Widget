@@ -108,6 +108,9 @@ public sealed partial class WidgetController : IDisposable
 
     public async Task StartAsync()
     {
+        await ApplyPinChoiceAsync(initial: true);
+        await ApplyLayoutModeAsync(initial: true);
+        await ApplyGlassAsync(initial: true);
         _today = CurrentDay();
         await _quick.LoadAsync(_today);
         await CreateAuxiliaryWindowsAsync();
@@ -269,7 +272,7 @@ public sealed partial class WidgetController : IDisposable
 
         foreach (var (habitId, entry) in _widgets.ToList())
         {
-            var saved = await _settings.GetAsync(PositionKey(habitId));
+            var saved = await LoadPositionAsync(PositionKey(habitId));
             var window = entry.Window;
             var handle = new WindowInteropHelper(window).Handle;
 
@@ -283,6 +286,8 @@ public sealed partial class WidgetController : IDisposable
             }
         }
 
+        await RepositionExtrasAsync();
+
         if (_todayList is { } list)
         {
             var saved = await _settings.GetAsync(TodayListKey);
@@ -294,8 +299,9 @@ public sealed partial class WidgetController : IDisposable
             }
             else if (!IsOnAnyScreen(new WindowInteropHelper(list).Handle))
             {
-                list.Left = System.Windows.SystemParameters.WorkArea.Right - list.Width - 40;
-                list.Top = 80;
+                var slot = await DefaultSlotAsync("today");
+                list.Left = slot.Left;
+                list.Top = slot.Top;
             }
         }
     }
@@ -409,7 +415,8 @@ public sealed partial class WidgetController : IDisposable
             _today = today;
 
             // Free: một widget lưới; Plus: tối đa ba (WidgetRules).
-            var maxGrids = HabitGrid.Core.Domain.Widgets.WidgetRules.MaxGrids(await IsPlusAsync());
+            // Chế độ Hub không có widget lưới riêng.
+            var maxGrids = LayoutMode == HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Hub ? 0 : HabitGrid.Core.Domain.Widgets.WidgetRules.MaxGrids(await IsPlusAsync());
             var habits = (await _habits.GetAllActiveAsync())
                 .Where(h => h.Kind != HabitKind.Quit)
                 .OrderBy(h => h.SortKey, StringComparer.Ordinal)
@@ -477,6 +484,11 @@ public sealed partial class WidgetController : IDisposable
 
     private async Task CreateTodayListAsync()
     {
+        if (LayoutMode == HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Hub)
+        {
+            return;
+        }
+
         var list = new TodayListWindow(_quick, ActAsync);
         _todayList = list;
         list.ApplyTheme(IsSystemDark());
@@ -493,8 +505,9 @@ public sealed partial class WidgetController : IDisposable
         }
         else
         {
-            list.Left = System.Windows.SystemParameters.WorkArea.Right - list.Width - 40;
-            list.Top = 80;
+            var slot = await DefaultSlotAsync("today");
+            list.Left = slot.Left;
+            list.Top = slot.Top;
         }
 
         if (list.Pin(_desktop, DesktopPinningMode.DesktopLevel).UsedFallback)
@@ -665,7 +678,7 @@ public sealed partial class WidgetController : IDisposable
     private async Task CreateAsync(Habit habit, Dictionary<DateOnly, int> values, bool dark, int index)
     {
         var shades = _palette.GenerateFromHex(habit.ColorHue, dark);
-        var model = new WidgetViewModel(WidgetMapper.ToWidgetHabit(habit), values, shades, _today, V1.WidgetSize.Large, dark);
+        var model = new WidgetViewModel(WidgetMapper.ToWidgetHabit(habit), values, shades, _today, V1.WidgetSize.Small, dark);
         var window = new WidgetWindow(_screen);
 
         window.Bind(model);
@@ -676,9 +689,9 @@ public sealed partial class WidgetController : IDisposable
         model.MarkRequested += async (_, day) => await CheckInAsync(habit.Id, day);
         model.CloseRequested += (_, _) => window.Hide();
         window.PositionChanged += async (_, args) =>
-            await _settings.SetAsync(PositionKey(habit.Id), string.Create(CultureInfo.InvariantCulture, $"{args.Left},{args.Top}"));
+            await SavePositionAsync(PositionKey(habit.Id), string.Create(CultureInfo.InvariantCulture, $"{args.Left},{args.Top}"));
 
-        var saved = await _settings.GetAsync(PositionKey(habit.Id));
+        var saved = await LoadPositionAsync(PositionKey(habit.Id));
 
         if (saved?.Split(',') is [var left, var top] && int.TryParse(left, out var l) && int.TryParse(top, out var t))
         {
@@ -686,7 +699,9 @@ public sealed partial class WidgetController : IDisposable
         }
         else
         {
-            window.SetScreenPosition(60 + index * 36, 80 + index * 160);
+            var slot = await DefaultSlotAsync("grid" + index);
+            var scale = System.Windows.Media.VisualTreeHelper.GetDpi(window).DpiScaleX;
+            window.SetScreenPosition((int)Math.Round(slot.Left * scale), (int)Math.Round(slot.Top * scale));
         }
 
         if (window.ApplyPinning(DesktopPinningMode.DesktopLevel).UsedFallback)
@@ -726,6 +741,11 @@ public sealed partial class WidgetController : IDisposable
                 {
                     extra.EditMode = edit;
                 }
+
+                if (_hub is not null)
+                {
+                    _hub.EditMode = edit;
+                }
             }
 
             _pollCount++;
@@ -757,6 +777,9 @@ public sealed partial class WidgetController : IDisposable
             {
                 await ApplyAutoStartAsync();
                 await ApplyHotKeysAsync();
+                await ApplyPinChoiceAsync(initial: false);
+                await ApplyLayoutModeAsync(initial: false);
+                await ApplyGlassAsync(initial: false);
                 await SyncMomentWidgetAsync();
                 await SyncExtraWidgetsAsync();
             }

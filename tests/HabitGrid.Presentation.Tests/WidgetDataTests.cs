@@ -26,7 +26,7 @@ public class WidgetDataTests
     public async Task Buddy_ShowsProfile_WornAccessories_AndTodaysProgress()
     {
         using var f = new AppFixture();
-        await f.Profile.SaveAsync((await f.Profile.GetAsync()) with { BuddyName = "Mochi", Level = 16, FreezeTokens = 2 });
+        await f.Profile.SaveAsync((await f.Profile.GetAsync()) with { BuddyName = "Mochi", Level = 16, FreezeTokens = 2, Xp = HabitGrid.Core.Domain.Gamification.LevelCurve.XpToReach(16) + 100 });
         var done = await f.AddAsync("Đọc sách", startDaysAgo: 10);
         await f.AddAsync("Tập gym", startDaysAgo: 10);
         await f.LogAsync(done, Today, 1);
@@ -40,10 +40,14 @@ public class WidgetDataTests
         buddy.Level.Should().Be(16);
         buddy.Stage.Should().Be(BuddyStage.Teen);
         buddy.FreezeTokens.Should().Be(2);
+        buddy.XpInto.Should().Be(100);
+        buddy.XpNeed.Should().Be(HabitGrid.Core.Domain.Gamification.LevelCurve.XpToReach(17) - HabitGrid.Core.Domain.Gamification.LevelCurve.XpToReach(16));
+        buddy.XpFraction.Should().BeInRange(0.01, 0.99);
         buddy.TodayDone.Should().Be(1);
         buddy.TodayDue.Should().Be(2);
         buddy.TodayFraction.Should().Be(0.5);
         buddy.Worn.Select(w => w.Slot).Should().Equal(AccessorySlot.Head, AccessorySlot.Face);
+        buddy.Worn.Select(w => w.Id).Should().Equal("cap", "shades");
     }
 
     [Fact]

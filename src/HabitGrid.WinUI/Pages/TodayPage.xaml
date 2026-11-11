@@ -26,7 +26,7 @@
     </Page.Resources>
 
     <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ScrollViewer x:Name="Scroll" VerticalScrollBarVisibility="Auto">
             <StackPanel Padding="30,8,34,40" Spacing="0">
 
                 <!-- Đầu trang -->

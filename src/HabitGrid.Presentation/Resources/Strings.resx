@@ -691,4 +691,16 @@
   <data name="settings.widget.Goals" xml:space="preserve"><value>Widget Mục tiêu (Plus)</value></data>
   <data name="settings.widget.MultiGrid" xml:space="preserve"><value>Widget Multi Grid (Plus)</value></data>
   <data name="plus.benefit.widgets" xml:space="preserve"><value>Thêm widget desktop: Buddy, Mục tiêu, Multi Grid và tới 3 widget lưới (Free: 1)</value></data>
+  <data name="settings.pin" xml:space="preserve"><value>Kiểu ghim widget</value></data>
+  <data name="settings.pin.hint" xml:space="preserve"><value>Widget nhỏ gọn, rê chuột vào hoặc bấm để mở rộng. Nếu widget không hiện ở kiểu "Dưới cửa sổ" hay "Trên hình nền" thì giữ "Luôn trên cùng".</value></data>
+  <data name="settings.pin.Top" xml:space="preserve"><value>Luôn trên cùng (khuyên dùng)</value></data>
+  <data name="settings.pin.AboveDesktop" xml:space="preserve"><value>Dưới cửa sổ (ngay trên hình nền)</value></data>
+  <data name="settings.pin.Desktop" xml:space="preserve"><value>Trên hình nền (cách cũ)</value></data>
+  <data name="settings.layout" xml:space="preserve"><value>Cách hiển thị widget</value></data>
+  <data name="settings.layout.hint" xml:space="preserve"><value>Một widget nhỏ gọn duy nhất: rê chuột hoặc bấm để mở ra đủ Buddy, việc hôm nay (bấm để check), mục tiêu và lưới thói quen. Hoặc chọn nhiều widget riêng.</value></data>
+  <data name="settings.layout.Hub" xml:space="preserve"><value>Một widget gọn (khuyên dùng)</value></data>
+  <data name="settings.layout.Separate" xml:space="preserve"><value>Nhiều widget riêng</value></data>
+  <data name="settings.glass" xml:space="preserve"><value>Kính mờ</value></data>
+  <data name="settings.glass.hint" xml:space="preserve"><value>Cửa sổ trong suốt, làm mờ hình nền Windows phía sau (hiệu ứng Acrylic). Kéo về 0 để dùng nền đặc.</value></data>
+  <data name="settings.widgetGlass" xml:space="preserve"><value>Widget kính mờ thay cho kiểu Dynamic Island (Windows 11)</value></data>
 </root>

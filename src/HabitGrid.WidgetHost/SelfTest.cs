@@ -149,13 +149,96 @@ public static class SelfTest
 
             foreach (var (kind, window) in controller.Extras)
             {
-                SaveShot(window, Path.Combine(shots, $"widget-{kind.ToString().ToLowerInvariant()}.png"));
+                var name = kind.ToString().ToLowerInvariant();
+                Require(!window.IsExpanded, $"Widget {name} phải khởi đầu ở dạng nhỏ gọn.");
+                window.UpdateLayout();
+                SaveShot(window, Path.Combine(shots, $"widget-{name}-compact.png"));
+                var compact = (window.Width, window.Height);
+
+                window.SetExpanded(true, animate: false);
+                await Task.Delay(300);
+                window.UpdateLayout();
+                Require(window.IsExpanded && window.Width > compact.Width && window.Height >= compact.Height, $"Widget {name} không mở rộng được (expanded={window.IsExpanded}, {window.Width}x{window.Height} so với nhỏ gọn {compact.Width}x{compact.Height}).");
+                SaveShot(window, Path.Combine(shots, $"widget-{name}-expanded.png"));
+
+                window.SetExpanded(false, animate: false);
+                await Task.Delay(200);
+                Require(!window.IsExpanded && Math.Abs(window.Width - compact.Width) < 1, $"Widget {name} không thu gọn lại được.");
             }
+
+            // Ngữ cảnh động: Buddy đổi trạng thái theo giờ và tiến độ; Mục tiêu luân phiên; Multi Grid thu gọn còn tối đa 13 ngày.
+            var sample = new HabitGrid.Presentation.Services.BuddyWidgetData("B", 5, HabitGrid.Presentation.ViewModels.BuddyStage.Baby, [], 1, 3, 0);
+            var morning = new DateTime(2026, 11, 11, 9, 0, 0);
+            var evening = new DateTime(2026, 11, 11, 20, 0, 0);
+            Require(HabitGrid.WidgetHost.BuddyWidgetWindow.MoodFor(sample, morning) == HabitGrid.WidgetHost.BuddyWidgetWindow.Mood.Normal, "Sáng còn việc phải là Normal.");
+            Require(HabitGrid.WidgetHost.BuddyWidgetWindow.MoodFor(sample, evening) == HabitGrid.WidgetHost.BuddyWidgetWindow.Mood.AtRisk, "Tối còn việc phải là AtRisk (sắp mất chuỗi).");
+            Require(HabitGrid.WidgetHost.BuddyWidgetWindow.MoodFor(sample with { TodayDone = 3 }, evening) == HabitGrid.WidgetHost.BuddyWidgetWindow.Mood.AllDone, "Xong hết phải là AllDone.");
+            Require(HabitGrid.WidgetHost.BuddyWidgetWindow.MoodFor(sample with { TodayDue = 0, TodayDone = 0 }, evening) == HabitGrid.WidgetHost.BuddyWidgetWindow.Mood.Normal, "Không có việc đến hạn thì không báo nguy cơ.");
+
+            var rotation = HabitGrid.WidgetHost.GoalsWidgetWindow.Rotation(new HabitGrid.Presentation.Services.GoalsWidgetData(new HabitGrid.Presentation.Services.IntentProgress(Guid.NewGuid(), "A", "emoji:🏃", "#10B981", 1, 3), []));
+            Require(rotation.Count == 1 && rotation[0].Fraction > 0.3, "Luân phiên Mục tiêu sai.");
+
+            var longRow = new HabitGrid.Presentation.Services.MultiGridRow(Guid.NewGuid(), "H", "emoji:🏃", "#10B981", 3, HabitGrid.Core.Domain.StreakUnit.Day, Enumerable.Range(0, 91).Select(i => i < 85 ? 1 : -1).ToList());
+            var last = HabitGrid.WidgetHost.MultiGridWidgetWindow.LastDays(longRow);
+            Require(last.Count == 13 && last.All(v => v == 1), "Dạng nhỏ gọn của Multi Grid phải lấy 13 ngày gần nhất đến hôm nay.");
+
+            // Lò xo biến hình (Dynamic Island, kiểu êm): phải tới đích và lắng lại, gần như không vượt đích (dưới 3%), không dao động vô hạn.
+            var spring = new HabitGrid.WidgetHost.SpringValue();
+            spring.Snap(92);
+            spring.Target = 320;
+            double peak = 0;
+            var steps = 0;
+
+            while (spring.Step(1.0 / 60) && steps++ < 600)
+            {
+                peak = Math.Max(peak, spring.Value);
+            }
+
+            Require(steps < 600 && Math.Abs(spring.Value - 320) < 0.1, "Lò xo biến hình không lắng lại ở đích.");
+            Require(peak < 320 * 1.03, $"Lò xo kiểu êm không được vượt đích quá 3%, đỉnh = {peak:0.0}.");
+            Require(steps < 60, $"Lò xo phải lắng trong dưới 1 giây, mất {steps} khung hình.");
+
+            // Hình màu của Buddy: đủ 5 giai đoạn và mọi phụ kiện trong danh mục phải nạp được (thiếu thì widget rơi về emoji đơn sắc).
+            var spriteIds = Enum.GetValues<HabitGrid.Presentation.ViewModels.BuddyStage>().Select(HabitGrid.WidgetHost.BuddySprites.StageId)
+                .Concat(HabitGrid.Core.Domain.Gamification.BuddyAccessories.All.Select(a => a.Id)).ToList();
+            var missing = spriteIds.Where(id => HabitGrid.WidgetHost.BuddySprites.TryLoad(id) is null).ToList();
+            Require(missing.Count == 0, "Thiếu hình Buddy: " + string.Join(", ", missing));
 
             await controller.Settings_SetPlusForTestAsync(false);
             await controller.SyncExtraWidgetsAsync();
             Require(controller.Extras.Count == 0, "Hết Plus mà widget Plus vẫn hiện.");
             Note(dbPath, "extra widgets ok (hidden for Free, 3 shown for Plus, hidden again)");
+
+            // 6d) Một widget gộp (chế độ Hub): chỉ có đúng một cửa sổ; Free thấy Buddy + Hôm nay, Plus thêm Mục tiêu + lưới; bấm một việc thì check.
+            await controller.Settings_SetPlusForTestAsync(true);
+            await controller.SetLayoutForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Hub);
+            await Task.Delay(1500);
+            var hub = controller.Hub ?? throw new InvalidOperationException("Chế độ Hub không dựng widget gộp.");
+            Require(hub.IsVisible && controller.Windows.Count == 0 && controller.Extras.Count == 0 && controller.TodayList is null && controller.MomentWidget is null,
+                "Chế độ Hub phải chỉ còn một widget gộp (không còn widget lưới/Today/Khoảnh khắc/Plus riêng).");
+            Require(hub.Sections.HasFlag(HabitGrid.Core.Domain.Widgets.HubSection.Goals) && hub.Sections.HasFlag(HabitGrid.Core.Domain.Widgets.HubSection.Grid), "Plus phải thấy Mục tiêu và lưới trong widget gộp.");
+            Require(!hub.IsExpanded && Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.HubWidth) < 1, "Widget gộp phải khởi đầu ở dạng nhỏ gọn.");
+
+            hub.UpdateLayout();
+            SaveShot(hub, Path.Combine(shots, "hub-compact.png"));
+            hub.SetExpanded(true, animate: false);
+            await Task.Delay(400);
+            hub.UpdateLayout();
+            Require(hub.IsExpanded && hub.Height > 200, "Widget gộp không mở rộng được.");
+            SaveShot(hub, Path.Combine(shots, "hub-expanded.png"));
+
+            hub.SetExpanded(false, animate: false);
+
+            await controller.Settings_SetPlusForTestAsync(false);
+            await controller.SyncExtraWidgetsAsync();
+            await Task.Delay(500);
+            Require(controller.Hub is { } freeHub && !freeHub.Sections.HasFlag(HabitGrid.Core.Domain.Widgets.HubSection.Goals) && !freeHub.Sections.HasFlag(HabitGrid.Core.Domain.Widgets.HubSection.Grid), "Free không được thấy Mục tiêu/lưới trong widget gộp.");
+
+            // Quay lại các widget riêng cho phần còn lại của bài kiểm tra.
+            await controller.SetLayoutForTestAsync(HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Separate);
+            await Task.Delay(1500);
+            Require(controller.Hub is null && controller.Windows.Count > 0 && controller.TodayList is not null, "Chuyển về widget riêng phải dựng lại widget lưới và Today List.");
+            Note(dbPath, "hub widget ok (single window, Free/Plus sections, expand, back to separate)");
 
             // 7) Focus: phiên đếm ngược 1 phút tự kết thúc và được ghi vào nhật ký.
             var before2 = (await controller.FocusService.HistoryAsync()).Count;

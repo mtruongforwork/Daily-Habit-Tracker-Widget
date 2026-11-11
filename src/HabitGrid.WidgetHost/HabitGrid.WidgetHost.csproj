@@ -29,6 +29,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Hình Buddy/phụ kiện (Microsoft Fluent Emoji, MIT; xem docs/third-party): WPF không vẽ được emoji màu. -->
+    <Resource Include="Assets\Buddy\*.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CommunityToolkit.WinUI.Notifications" Version="7.1.2" />
   </ItemGroup>
 

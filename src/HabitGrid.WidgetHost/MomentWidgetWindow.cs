@@ -33,8 +33,8 @@ public sealed class MomentWidgetWindow : Window
         ShowInTaskbar = false;
         ShowActivated = false;
         ResizeMode = ResizeMode.NoResize;
-        Width = 220;
-        Height = 260;
+        Width = 160;
+        Height = 190;
         Title = "HabitGrid Moments";
 
         var photo = new Grid { ClipToBounds = true };
