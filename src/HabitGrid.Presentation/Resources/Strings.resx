@@ -796,4 +796,7 @@
   <data name="settings.placement.hint" xml:space="preserve"><value>"Giữa mép trên" ghim một viên thuốc nhỏ ở chính giữa mép trên màn hình chính (kiểu Dynamic Island), luôn nằm trên các cửa sổ khác. Rê chuột để mở danh sách việc hôm nay.</value></data>
   <data name="settings.placement.KeepPosition" xml:space="preserve"><value>Giữ vị trí hiện tại</value></data>
   <data name="settings.placement.TopCenter" xml:space="preserve"><value>Giữa mép trên</value></data>
+  <data name="settings.restmini" xml:space="preserve"><value>Kiểu thu gọn</value></data>
+  <data name="settings.restmini.full" xml:space="preserve"><value>Đầy đủ</value></data>
+  <data name="settings.restmini.mini" xml:space="preserve"><value>Siêu gọn</value></data>
 </root>

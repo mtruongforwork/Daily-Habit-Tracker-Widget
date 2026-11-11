@@ -62,10 +62,11 @@ public class IslandPlacementTests
     }
 
     [Fact]
-    public void IslandRest_IsSmallerThanTheNormalPill()
+    public void IslandRest_SizesAreOrdered()
     {
-        WidgetLayout.IslandRestWidth.Should().BeLessThan(WidgetLayout.HubWidth);
-        WidgetLayout.IslandRestHeight.Should().BeLessThan(WidgetLayout.HubHeight);
+        WidgetLayout.IslandMiniWidth.Should().BeLessThan(WidgetLayout.IslandDoneWidth);
+        WidgetLayout.IslandDoneWidth.Should().BeLessThan(WidgetLayout.IslandRestWidth);
+        WidgetLayout.IslandMiniHeight.Should().BeLessThan(WidgetLayout.IslandRestHeight);
         WidgetLayout.IslandFocusWidth.Should().BeLessThanOrEqualTo(WidgetLayout.IslandRestWidth);
         WidgetLayout.IslandListWidth.Should().BeLessThanOrEqualTo(WidgetLayout.IslandPanelWidth);
     }

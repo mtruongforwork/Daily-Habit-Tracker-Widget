@@ -295,6 +295,24 @@ public sealed partial class SettingsPage : Page
         };
         widgetsCard.Children.Add(placementChips);
 
+        // Kiểu thu gọn của Island: đầy đủ (tên việc + chip) hoặc siêu gọn (chỉ Buddy và chip).
+        widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.restmini"), Style = Res("SectionHeader"), Margin = new Thickness(0, 10, 0, 0) });
+        var miniChips = new ChipGroup { MinChipWidth = 150, MaxWidth = 640, HorizontalAlignment = HorizontalAlignment.Left };
+        miniChips.Add(Ui.T("settings.restmini.full"));
+        miniChips.Add(Ui.T("settings.restmini.mini"));
+        miniChips.SelectedIndex = settingsStore.GetAsync("widgets.restmini").GetAwaiter().GetResult() == "1" ? 1 : 0;
+        miniChips.SelectionChanged += async (_, _) =>
+        {
+            if (_building || miniChips.SelectedIndex < 0)
+            {
+                return;
+            }
+
+            await settingsStore.SetAsync("widgets.restmini", miniChips.SelectedIndex == 1 ? "1" : "0");
+            HostLink.EnsureRunning();
+        };
+        widgetsCard.Children.Add(miniChips);
+
         // Kiểu ghim widget (đổi có hiệu lực sau vài giây, WidgetHost tự dựng lại).
         widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.pin"), Style = Res("SectionHeader"), Margin = new Thickness(0, 10, 0, 0) });
         widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.pin.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });

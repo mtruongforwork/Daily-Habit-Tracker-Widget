@@ -21,6 +21,9 @@ public sealed partial class WidgetController
     /// <summary>Khóa cài đặt kính mờ của widget ("1" = kính mờ Acrylic; mặc định là kiểu Dynamic Island).</summary>
     public const string GlassKey = "widgets.glass";
 
+    /// <summary>Khóa cài đặt kiểu nghỉ "siêu gọn" của Island ("1" = chỉ Buddy và chip).</summary>
+    public const string MiniRestKey = "widgets.restmini";
+
     /// <summary>Đọc cài đặt kính mờ; đổi thì dựng lại cửa sổ để cửa sổ mới dùng đúng kiểu (kiểu cửa sổ không đổi lúc đang chạy được).</summary>
     private async Task ApplyGlassAsync(bool initial)
     {
@@ -79,6 +82,11 @@ public sealed partial class WidgetController
     private async Task ApplyPlacementAsync(bool initial)
     {
         var placement = WidgetPlacements.Parse(await _settings.GetAsync(WidgetPlacements.SettingKey));
+
+        if (_hub is not null)
+        {
+            _hub.MiniRest = await _settings.GetAsync(MiniRestKey) == "1";
+        }
 
         if (_placementApplied && _placement == placement)
         {

@@ -97,7 +97,30 @@ public static class HostText
 
     public static string IslandLeft(int n) => IsVietnamese ? $"{n} còn" : $"{n} left";
 
-    public static string IslandLater => IsVietnamese ? "Để sau" : "Later";
+    /// <summary>"còn 6g30 hôm nay": thời gian còn lại tới hết ngày (làm tròn xuống phút; dưới 1 giờ thì chỉ phút).</summary>
+    public static string IslandTimeLeft(TimeSpan left)
+    {
+        var minutes = Math.Max(0, (int)left.TotalMinutes);
+        var h = minutes / 60;
+        var m = minutes % 60;
+        var vi = h > 0 ? $"{h}g{m:00}" : $"{m} phút";
+        var en = h > 0 ? $"{h}h{m:00}" : $"{m} min";
+        return IsVietnamese ? $"còn {vi} hôm nay" : $"{en} left today";
+    }
+
+    public static string IslandFocusing => IsVietnamese ? "Đang focus" : "Focusing";
+
+    public static string IslandBreak => IsVietnamese ? "Nghỉ giải lao" : "Break";
+
+    public static string IslandDoneTitle => IsVietnamese ? "Xong hết hôm nay" : "All done today";
+
+    public static string IslandDoneSub(bool streak) => IsVietnamese ? (streak ? "Chuỗi được giữ · hẹn mai nhé" : "Hẹn mai nhé") : (streak ? "Streak kept · see you tomorrow" : "See you tomorrow");
+
+    public static string IslandFreeTitle => IsVietnamese ? "Hôm nay rảnh" : "Free today";
+
+    public static string IslandFreeSub => IsVietnamese ? "Không có việc nào đến hạn" : "Nothing is due";
+
+    public static string IslandLater =>IsVietnamese ? "Để sau" : "Later";
 
     public static string IslandStreak(int days) => IsVietnamese ? $"{days} ngày" : $"{days} days";
 

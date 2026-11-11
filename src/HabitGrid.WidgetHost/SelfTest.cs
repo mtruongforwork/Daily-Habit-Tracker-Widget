@@ -260,8 +260,9 @@ public static class SelfTest
             hub.UpdateLayout();
             var primaryWidth = System.Windows.SystemParameters.PrimaryScreenWidth;
             var dpiScale = System.Windows.Media.VisualTreeHelper.GetDpi(hub).DpiScaleX;
-            Require(hub.IsIsland && Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestWidth) < 1 && Math.Abs(hub.Height - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestHeight) < 1,
-                $"Island ở trạng thái nghỉ phải là {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestWidth}x{HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestHeight}, thực tế {hub.Width}x{hub.Height}.");
+            Require(hub.IsIsland && Math.Abs(hub.Height - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestHeight) < 1
+                    && (Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestWidth) < 1 || Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandDoneWidth) < 1),
+                $"Island ở trạng thái nghỉ phải cao {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestHeight} và rộng {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestWidth} (hoặc {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandDoneWidth} khi xong hết), thực tế {hub.Width}x{hub.Height}.");
             Require(Math.Abs((hub.Left + (hub.Width / 2)) - (primaryWidth / 2)) < 3, $"Island phải nằm giữa mép trên (tâm {hub.Left + (hub.Width / 2)} so với {primaryWidth / 2}).");
             Require(Math.Abs(hub.Top - (HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandTopGap / dpiScale)) < 1.5, $"Island phải cách mép trên 6 px, thực tế Top={hub.Top} (DPI {dpiScale}).");
             SaveShot(hub, Path.Combine(shots, "hub-island-rest.png"));
@@ -292,7 +293,7 @@ public static class SelfTest
             Require(hub.ShowReminder("Đến giờ: Đọc sách", () => { reminderDone++; return Task.CompletedTask; }, () => { reminderLater++; return Task.CompletedTask; }, holdMilliseconds: 600), "Island không nhô được thẻ nhắc nhở khi đang nghỉ.");
             await Task.Delay(500);
             hub.UpdateLayout();
-            Require(hub.IsPeeking && Math.Abs(hub.Width - 320) < 1 && Math.Abs(hub.Height - 84) < 1, $"Thẻ nhắc nhở phải là 320x84, thực tế {hub.Width}x{hub.Height}.");
+            Require(hub.IsPeeking && Math.Abs(hub.Width - Math.Max(320, HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandRestWidth)) < 1 && Math.Abs(hub.Height - 84) < 1, $"Thẻ nhắc nhở phải rộng bằng viên thuốc nghỉ (tối thiểu 320) và cao 84, thực tế {hub.Width}x{hub.Height}.");
             Require(Math.Abs((hub.Left + (hub.Width / 2)) - centerBefore) < 2 && Math.Abs(hub.Top - topBefore) < 1, "Thẻ nhắc nhở phải bung ra từ tâm viên thuốc.");
             SaveShot(hub, Path.Combine(shots, "hub-island-reminder.png"));
             await hub.InvokeReminderForTestAsync(done: true);
@@ -303,6 +304,16 @@ public static class SelfTest
             hub.SetExpanded(true, animate: false);
             Require(!hub.ShowReminder("x", () => Task.CompletedTask, () => Task.CompletedTask), "Không được nhô thẻ nhắc nhở khi người dùng đang mở danh sách.");
             hub.SetExpanded(false, animate: false);
+
+            // 6e2) Kiểu "siêu gọn" thu viên thuốc còn Buddy + chip, và quay lại được; trạng thái nghỉ luôn xác định được.
+            Require(Enum.IsDefined(hub.CurrentRestState()), "Trạng thái nghỉ không xác định.");
+            hub.MiniRest = true;
+            await Task.Delay(900);
+            Require(Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniWidth) < 1 && Math.Abs(hub.Height - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniHeight) < 1,
+                $"Siêu gọn phải là {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniWidth}x{HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniHeight}, thực tế {hub.Width}x{hub.Height}.");
+            hub.MiniRest = false;
+            await Task.Delay(900);
+            Require(hub.Width > HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandDoneWidth - 1, $"Tắt siêu gọn mà viên thuốc vẫn nhỏ ({hub.Width}).");
 
             // 6f) Đổi màn hình/độ phân giải/DPI: vị trí giữa mép trên được tính lại (giả lập bằng cách đẩy viên thuốc đi nơi khác rồi buộc kiểm tra lại).
             var correctLeft = hub.Left;
