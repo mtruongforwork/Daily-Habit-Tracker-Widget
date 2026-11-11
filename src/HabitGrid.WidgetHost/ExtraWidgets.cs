@@ -328,12 +328,27 @@ public abstract class ExtraWidgetWindow : Window
         }
     }
 
+    [System.Runtime.InteropServices.DllImport("user32.dll")]
+    private static extern bool SetWindowPos(IntPtr hwnd, IntPtr after, int x, int y, int cx, int cy, uint flags);
+
     private void Apply()
     {
-        Width = Math.Max(8, _w.Value);
-        Height = Math.Max(8, _h.Value);
-        Left = _l.Value;
-        Top = _t.Value;
+        var handle = new WindowInteropHelper(this).Handle;
+
+        if (handle != IntPtr.Zero && IsVisible)
+        {
+            // Một lần SetWindowPos cho cả vị trí lẫn kích thước (đặt từng thuộc Left/Top/Width/Height làm 4 lần đổi cửa sổ + đo bố cục mỗi khung hình).
+            var dpi = VisualTreeHelper.GetDpi(this).DpiScaleX;
+            const uint noZOrder = 0x0004, noActivate = 0x0010, noCopyBits = 0x0100;
+            SetWindowPos(handle, IntPtr.Zero, (int)Math.Round(_l.Value * dpi), (int)Math.Round(_t.Value * dpi), (int)Math.Round(Math.Max(8, _w.Value) * dpi), (int)Math.Round(Math.Max(8, _h.Value) * dpi), noZOrder | noActivate | noCopyBits);
+        }
+        else
+        {
+            Width = Math.Max(8, _w.Value);
+            Height = Math.Max(8, _h.Value);
+            Left = _l.Value;
+            Top = _t.Value;
+        }
 
         if (_card is not null)
         {
