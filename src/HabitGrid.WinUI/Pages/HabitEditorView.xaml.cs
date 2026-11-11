@@ -1,3 +1,4 @@
+using HabitGrid.Core.Domain.Icons;
 using System.ComponentModel;
 using HabitGrid.Core.Domain;
 using HabitGrid.Presentation.ViewModels;
@@ -13,11 +14,10 @@ namespace HabitGrid.WinUI.Pages;
 /// <summary>Nội dung hộp thoại tạo/sửa thói quen. Mọi trạng thái nằm trong <see cref="HabitEditorViewModel"/>.</summary>
 public sealed partial class HabitEditorView : UserControl
 {
-    private static readonly string[] Emojis =
-    [
-        "✨", "📚", "💧", "🏃", "🧘", "💪", "🍎", "😴", "🎸", "✍️", "💻", "🌱",
-        "🎯", "🧠", "🥗", "🚴", "🎨", "📝", "🧹", "💊", "☀️", "🌙", "🎧", "📵"
-    ];
+    /// <summary>Các emoji đang hiển thị trong lưới (theo danh mục hoặc kết quả tìm).</summary>
+    private List<string> _shown = [];
+
+    private IconCategory? _category;
 
     private bool _syncing;
 
@@ -68,10 +68,8 @@ public sealed partial class HabitEditorView : UserControl
         EmojiGrid.ItemContainerTransitions = new Microsoft.UI.Xaml.Media.Animation.TransitionCollection();
         ColorGrid.ItemContainerTransitions = new Microsoft.UI.Xaml.Media.Animation.TransitionCollection();
 
-        foreach (var emoji in Emojis)
-        {
-            EmojiGrid.Items.Add(new TextBlock { Text = emoji, FontSize = 22, Margin = new Thickness(6) });
-        }
+        BuildIconCategories();
+        RefreshIcons();
 
         foreach (var hex in HabitCreationService.PresetColors)
         {
@@ -116,6 +114,7 @@ public sealed partial class HabitEditorView : UserControl
     private void ApplyTexts()
     {
         IconHeader.Text = Ui.T("editor.icon");
+        IconSearchBox.PlaceholderText = Ui.T("icon.search");
         CustomEmojiBox.PlaceholderText = Ui.T("editor.icon.custom");
         ColorHeader.Text = Ui.T("editor.color");
         KindHeader.Text = Ui.T("editor.kind");
@@ -147,6 +146,11 @@ public sealed partial class HabitEditorView : UserControl
         if (e.PropertyName is nameof(HabitEditorViewModel.Name) or nameof(HabitEditorViewModel.Description)
             or nameof(HabitEditorViewModel.TagsText) or nameof(HabitEditorViewModel.Unit))
         {
+            if (e.PropertyName == nameof(HabitEditorViewModel.Name))
+            {
+                UpdateSuggestions();
+            }
+
             UpdatePreview();
             return;
         }
@@ -163,7 +167,7 @@ public sealed partial class HabitEditorView : UserControl
             IconPreviewText.Text = Ui.IconText(ViewModel.Icon);
             UpdatePreview();
 
-            var emojiIndex = Array.IndexOf(Emojis, ViewModel.Icon.StartsWith("emoji:") ? ViewModel.Icon["emoji:".Length..] : string.Empty);
+            var emojiIndex = _shown.IndexOf(ViewModel.Icon.StartsWith("emoji:") ? ViewModel.Icon["emoji:".Length..] : string.Empty);
             EmojiGrid.SelectedIndex = emojiIndex;
 
             var colorIndex = HabitCreationService.PresetColors.ToList().FindIndex(c => c.Equals(ViewModel.ColorHue, StringComparison.OrdinalIgnoreCase));
@@ -300,13 +304,102 @@ public sealed partial class HabitEditorView : UserControl
         }
     }
 
+
+    // ------------------------------------------------------------------ thư viện biểu tượng
+
+    private void BuildIconCategories()
+    {
+        IconCategoryRow.Children.Clear();
+        IconCategoryRow.Children.Add(CategoryChip(null));
+
+        foreach (var category in Enum.GetValues<IconCategory>())
+        {
+            IconCategoryRow.Children.Add(CategoryChip(category));
+        }
+    }
+
+    private ToggleButton CategoryChip(IconCategory? category)
+    {
+        var label = Ui.T("icon.cat." + (category?.ToString().ToLowerInvariant() ?? "all"));
+        var chip = new ToggleButton { Style = (Style)Application.Current.Resources["ChipStyle"], Content = label, Tag = category, IsChecked = _category == category };
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(chip, label);
+        chip.Click += (_, _) =>
+        {
+            _category = category;
+            IconSearchBox.Text = string.Empty;
+
+            foreach (var other in IconCategoryRow.Children.OfType<ToggleButton>())
+            {
+                other.IsChecked = Equals(other.Tag, category);
+            }
+
+            RefreshIcons();
+        };
+        return chip;
+    }
+
+    private void OnIconSearchChanged(object sender, TextChangedEventArgs e) => RefreshIcons();
+
+    /// <summary>Đổ lại lưới: tìm theo từ khóa nếu có, không thì theo danh mục đã chọn (mặc định tất cả).</summary>
+    private void RefreshIcons()
+    {
+        var wasSyncing = _syncing;
+        _syncing = true;
+
+        try
+        {
+            IEnumerable<IconEntry> source = string.IsNullOrWhiteSpace(IconSearchBox.Text)
+                ? (_category is { } c ? IconLibrary.InCategory(c) : IconLibrary.All)
+                : IconLibrary.Search(IconSearchBox.Text);
+
+            _shown = source.Select(i => i.Emoji).ToList();
+            EmojiGrid.Items.Clear();
+
+            foreach (var emoji in _shown)
+            {
+                EmojiGrid.Items.Add(new TextBlock { Text = emoji, FontSize = 22, Margin = new Thickness(6) });
+            }
+
+            var current = ViewModel.Icon.StartsWith("emoji:", StringComparison.Ordinal) ? ViewModel.Icon["emoji:".Length..] : string.Empty;
+            EmojiGrid.SelectedIndex = _shown.IndexOf(current);
+            UpdateSuggestions();
+        }
+        finally
+        {
+            _syncing = wasSyncing;
+        }
+    }
+
+    /// <summary>Gợi ý biểu tượng theo tên thói quen đang gõ; ẩn khi không có gợi ý.</summary>
+    private void UpdateSuggestions()
+    {
+        SuggestRow.Children.Clear();
+        var suggestions = IconLibrary.Suggest(ViewModel.Name, 6);
+        SuggestRow.Visibility = suggestions.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        if (suggestions.Count == 0)
+        {
+            return;
+        }
+
+        SuggestRow.Children.Add(new TextBlock { Text = Ui.T("icon.suggest"), VerticalAlignment = VerticalAlignment.Center, Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"] });
+
+        foreach (var entry in suggestions)
+        {
+            var button = new Button { Content = new TextBlock { Text = entry.Emoji, FontSize = 20 }, Padding = new Thickness(8, 4, 8, 4), Style = (Style)Application.Current.Resources["GhostButtonStyle"] };
+            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, entry.Keywords.Split(' ')[0] + " " + entry.Emoji);
+            button.Click += (_, _) => ViewModel.Icon = HabitIcon.Emoji(entry.Emoji).Value;
+            SuggestRow.Children.Add(button);
+        }
+    }
+
     // ------------------------------------------------------------------ giao diện → ViewModel
 
     private void OnEmojiSelected(object sender, SelectionChangedEventArgs e)
     {
         if (!_syncing && EmojiGrid.SelectedIndex >= 0)
         {
-            ViewModel.Icon = HabitIcon.Emoji(Emojis[EmojiGrid.SelectedIndex]).Value;
+            ViewModel.Icon = HabitIcon.Emoji(_shown[EmojiGrid.SelectedIndex]).Value;
         }
     }
 

@@ -714,4 +714,19 @@
   <data name="calendar.hint" xml:space="preserve"><value>Chọn một ngày để xem lại hoặc sửa.</value></data>
   <data name="calendar.prev" xml:space="preserve"><value>Tháng trước</value></data>
   <data name="calendar.next" xml:space="preserve"><value>Tháng sau</value></data>
+  <data name="icon.search" xml:space="preserve"><value>Tìm biểu tượng (vd: chạy bộ, nước)</value></data>
+  <data name="icon.suggest" xml:space="preserve"><value>Gợi ý</value></data>
+  <data name="icon.cat.all" xml:space="preserve"><value>Tất cả</value></data>
+  <data name="icon.cat.health" xml:space="preserve"><value>Sức khỏe</value></data>
+  <data name="icon.cat.sport" xml:space="preserve"><value>Thể thao</value></data>
+  <data name="icon.cat.mind" xml:space="preserve"><value>Tinh thần</value></data>
+  <data name="icon.cat.work" xml:space="preserve"><value>Công việc</value></data>
+  <data name="icon.cat.home" xml:space="preserve"><value>Nhà cửa</value></data>
+  <data name="icon.cat.food" xml:space="preserve"><value>Ăn uống</value></data>
+  <data name="icon.cat.money" xml:space="preserve"><value>Tài chính</value></data>
+  <data name="icon.cat.nature" xml:space="preserve"><value>Thiên nhiên</value></data>
+  <data name="icon.cat.fun" xml:space="preserve"><value>Giải trí</value></data>
+  <data name="icon.cat.social" xml:space="preserve"><value>Xã hội</value></data>
+  <data name="icon.cat.travel" xml:space="preserve"><value>Du lịch</value></data>
+  <data name="icon.cat.symbols" xml:space="preserve"><value>Biểu tượng</value></data>
 </root>

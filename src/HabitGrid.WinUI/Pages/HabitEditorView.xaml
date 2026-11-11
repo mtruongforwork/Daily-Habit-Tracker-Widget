@@ -32,7 +32,12 @@
             <!-- Icon -->
             <StackPanel Spacing="6">
                 <TextBlock x:Name="IconHeader" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                <GridView x:Name="EmojiGrid" SelectionMode="Single" Height="92" IsItemClickEnabled="False"
+                <StackPanel x:Name="SuggestRow" Orientation="Horizontal" Spacing="6" Visibility="Collapsed" />
+                <TextBox x:Name="IconSearchBox" MaxLength="40" HorizontalAlignment="Stretch" TextChanged="OnIconSearchChanged" />
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" HorizontalScrollMode="Enabled">
+                    <StackPanel x:Name="IconCategoryRow" Orientation="Horizontal" Spacing="6" Padding="0,0,0,6" />
+                </ScrollViewer>
+                <GridView x:Name="EmojiGrid" SelectionMode="Single" Height="150" IsItemClickEnabled="False"
                           SelectionChanged="OnEmojiSelected" />
                 <TextBox x:Name="CustomEmojiBox" MaxLength="8" Width="180" HorizontalAlignment="Left"
                          TextChanged="OnCustomEmojiChanged" />

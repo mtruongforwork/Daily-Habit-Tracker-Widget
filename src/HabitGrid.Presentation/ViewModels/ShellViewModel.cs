@@ -1,4 +1,4 @@
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using HabitGrid.Presentation.Services;
 
@@ -30,7 +30,7 @@ public sealed partial class ShellViewModel : ObservableObject
     /// <summary>Các trang chính (Segoe Fluent Icons).</summary>
     public IReadOnlyList<NavItem> MainItems { get; } =
     [
-        new(PageKeys.Today, "nav.today", ""),
+        new(PageKeys.Today, "nav.today", "\uE80F"),
         new(PageKeys.Calendar, "nav.calendar", ""),
         new(PageKeys.Habits, "nav.habits", ""),
         new(PageKeys.Insights, "nav.insights", ""),
