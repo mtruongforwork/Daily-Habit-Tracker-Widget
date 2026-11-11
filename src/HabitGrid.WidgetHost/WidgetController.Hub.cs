@@ -15,13 +15,14 @@ public sealed partial class WidgetController
     private WidgetLayoutMode? _appliedLayout;
     private bool? _appliedGlass;
 
-    /// <summary>Khóa cài đặt bật/tắt kính mờ của widget ("0" = tắt; mặc định bật).</summary>
+    /// <summary>Khóa cài đặt kính mờ của widget ("1" = kính mờ Acrylic; mặc định là kiểu Dynamic Island).</summary>
     public const string GlassKey = "widgets.glass";
 
     /// <summary>Đọc cài đặt kính mờ; đổi thì dựng lại cửa sổ để cửa sổ mới dùng đúng kiểu (kiểu cửa sổ không đổi lúc đang chạy được).</summary>
     private async Task ApplyGlassAsync(bool initial)
     {
-        var glass = await _settings.GetAsync(GlassKey) != "0";
+        // Mặc định kiểu Dynamic Island (thẻ gần đen, bo tròn); "1" = kính mờ Acrylic.
+        var glass = await _settings.GetAsync(GlassKey) == "1";
         ExtraWidgetWindow.UseGlass = glass;
 
         if (_appliedGlass == glass)
@@ -90,8 +91,9 @@ public sealed partial class WidgetController
 
     private async Task<HubWidgetWindow> CreateHubAsync()
     {
-        var window = new HubWidgetWindow { EditMode = _editApplied, OnToggle = item => ActAsync(item, 0) };
+        var window = new HubWidgetWindow { EditMode = _editApplied, OnToggle = item => ActAsync(item, 0), FocusProvider = FocusSnapshotNow };
         window.Show();
+        window.StartLiveActivities();
         window.Moved += async (_, _) =>
         {
             SnapToGrid(window);
@@ -118,6 +120,25 @@ public sealed partial class WidgetController
         }
 
         return window;
+    }
+
+    /// <summary>Phiên Focus hiện tại (nếu đang làm hoặc nghỉ) cho đồng hồ trên viên thuốc.</summary>
+    private FocusSnapshot? FocusSnapshotNow()
+    {
+        if (Focus.Timer is not { } timer || timer.Phase is not (HabitGrid.Core.Domain.Focus.FocusPhase.Work or HabitGrid.Core.Domain.Focus.FocusPhase.Break))
+        {
+            return null;
+        }
+
+        var now = DateTime.UtcNow;
+        var isBreak = timer.Phase == HabitGrid.Core.Domain.Focus.FocusPhase.Break;
+        var habit = timer.HabitId is { } id ? _quick.Items.FirstOrDefault(i => i.Id == id)?.Name : null;
+        var shown = timer.Remaining(now) ?? timer.Elapsed(now);
+        var total = TimeSpan.FromSeconds(isBreak ? timer.State.BreakSeconds : timer.State.WorkSeconds);
+        var fraction = timer.Remaining(now) is { } left && total > TimeSpan.Zero ? 1 - (left.TotalSeconds / total.TotalSeconds) : 0;
+        var clock = $"{(int)shown.TotalMinutes:00}:{shown.Seconds:00}";
+        var label = (isBreak ? "☕ " : "⏱ ") + clock + (habit is null ? string.Empty : "  " + habit) + (timer.IsPaused ? "  ⏸" : string.Empty);
+        return new FocusSnapshot(label, Math.Clamp(fraction, 0, 1), habit, timer.IsPaused, isBreak);
     }
 
     private void CloseHub()

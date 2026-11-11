@@ -87,4 +87,11 @@ public static class HostText
     public static string GoalsNone => IsVietnamese ? "Chưa có mục tiêu" : "No goals yet";
 
     public static string HubAtRisk(int pending) => IsVietnamese ? $"⚠ Còn {pending} việc, giữ chuỗi nhé!" : $"⚠ {pending} left, keep your streak!";
+
+    public static string HubAllDonePeek => IsVietnamese ? "Xong hết hôm nay!" : "All done today!";
+
+    public static string HubFocusStarted(string? habit) =>
+        IsVietnamese ? (habit is null ? "Bắt đầu Focus" : $"Focus: {habit}") : (habit is null ? "Focus started" : $"Focus: {habit}");
+
+    public static string HubFocusEnded => IsVietnamese ? "Xong phiên Focus!" : "Focus session done!";
 }

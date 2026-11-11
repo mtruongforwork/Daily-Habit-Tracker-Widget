@@ -233,7 +233,7 @@ public sealed partial class SettingsPage : Page
         var widgetGlass = new ToggleSwitch { OnContent = Ui.T("settings.widgetGlass"), OffContent = Ui.T("settings.widgetGlass"), Margin = new Thickness(0, 10, 0, 0) };
         AutomationProperties.SetName(widgetGlass, Ui.T("settings.widgetGlass"));
         _ = LoadWidgetGlassAsync();
-        async Task LoadWidgetGlassAsync() => widgetGlass.IsOn = await settingsStore.GetAsync("widgets.glass") != "0";
+        async Task LoadWidgetGlassAsync() => widgetGlass.IsOn = await settingsStore.GetAsync("widgets.glass") == "1";
         widgetGlass.Toggled += async (_, _) =>
         {
             if (!_building)

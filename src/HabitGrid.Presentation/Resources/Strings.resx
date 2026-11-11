@@ -702,5 +702,5 @@
   <data name="settings.layout.Separate" xml:space="preserve"><value>Nhiều widget riêng</value></data>
   <data name="settings.glass" xml:space="preserve"><value>Kính mờ</value></data>
   <data name="settings.glass.hint" xml:space="preserve"><value>Cửa sổ trong suốt, làm mờ hình nền Windows phía sau (hiệu ứng Acrylic). Kéo về 0 để dùng nền đặc.</value></data>
-  <data name="settings.widgetGlass" xml:space="preserve"><value>Widget kính mờ (Windows 11)</value></data>
+  <data name="settings.widgetGlass" xml:space="preserve"><value>Widget kính mờ thay cho kiểu Dynamic Island (Windows 11)</value></data>
 </root>

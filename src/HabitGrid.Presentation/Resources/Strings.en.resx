@@ -702,5 +702,5 @@
   <data name="settings.layout.Separate" xml:space="preserve"><value>Separate widgets</value></data>
   <data name="settings.glass" xml:space="preserve"><value>Glass</value></data>
   <data name="settings.glass.hint" xml:space="preserve"><value>A see-through window that blurs your Windows wallpaper behind it (Acrylic). Drag to 0 for a solid background.</value></data>
-  <data name="settings.widgetGlass" xml:space="preserve"><value>Glass widgets (Windows 11)</value></data>
+  <data name="settings.widgetGlass" xml:space="preserve"><value>Glass widgets instead of the Dynamic Island style (Windows 11)</value></data>
 </root>

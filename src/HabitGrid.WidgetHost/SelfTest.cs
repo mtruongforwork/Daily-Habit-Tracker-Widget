@@ -182,6 +182,21 @@ public static class SelfTest
             var last = HabitGrid.WidgetHost.MultiGridWidgetWindow.LastDays(longRow);
             Require(last.Count == 13 && last.All(v => v == 1), "Dạng nhỏ gọn của Multi Grid phải lấy 13 ngày gần nhất đến hôm nay.");
 
+            // Lò xo biến hình (Dynamic Island): phải tới đích, vượt đích một chút (nảy) rồi lắng lại, không dao động vô hạn.
+            var spring = new HabitGrid.WidgetHost.SpringValue();
+            spring.Snap(92);
+            spring.Target = 320;
+            double peak = 0;
+            var steps = 0;
+
+            while (spring.Step(1.0 / 60) && steps++ < 600)
+            {
+                peak = Math.Max(peak, spring.Value);
+            }
+
+            Require(steps < 600 && Math.Abs(spring.Value - 320) < 0.1, "Lò xo biến hình không lắng lại ở đích.");
+            Require(peak > 320 && peak < 320 * 1.12, $"Lò xo phải vượt đích nhẹ (nảy), đỉnh = {peak:0.0}.");
+
             // Hình màu của Buddy: đủ 5 giai đoạn và mọi phụ kiện trong danh mục phải nạp được (thiếu thì widget rơi về emoji đơn sắc).
             var spriteIds = Enum.GetValues<HabitGrid.Presentation.ViewModels.BuddyStage>().Select(HabitGrid.WidgetHost.BuddySprites.StageId)
                 .Concat(HabitGrid.Core.Domain.Gamification.BuddyAccessories.All.Select(a => a.Id)).ToList();
