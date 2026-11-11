@@ -38,6 +38,12 @@
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                         <Button x:Name="BackToTodayButton" Style="{StaticResource GhostButtonStyle}" Visibility="Collapsed"
                                 Click="OnBackToToday" />
+                        <Button x:Name="CustomizeButton" Style="{StaticResource GhostButtonStyle}" Click="OnCustomizeClick">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE771;" FontSize="14" />
+                                <TextBlock x:Name="CustomizeButtonText" />
+                            </StackPanel>
+                        </Button>
                         <Button x:Name="AddButton" Style="{StaticResource GradientButtonStyle}" Click="OnAddClick">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE710;" FontSize="14" />
@@ -54,22 +60,34 @@
                     </InfoBar.ActionButton>
                 </InfoBar>
 
+                <!-- Các khối tùy biến được (sắp xếp/ẩn qua nút Tùy chỉnh): mỗi khối nằm trong một khung riêng để ẩn/hiện không đụng logic của khối -->
                 <!-- Dải tuần -->
-                <controls:WeekStrip x:Name="Strip" Margin="0,18,0,14" />
+                <StackPanel x:Name="SecWeek">
+                    <controls:WeekStrip x:Name="Strip" Margin="0,18,0,14" />
+                </StackPanel>
 
                 <!-- Cảm xúc trong ngày -->
-                <controls:MoodBar x:Name="Mood" Margin="0,0,0,14" />
+                <StackPanel x:Name="SecMood">
+                    <controls:MoodBar x:Name="Mood" Margin="0,0,0,14" />
+                </StackPanel>
 
-                <!-- Routine -->
-                <controls:WeeklyCardStrip x:Name="Weekly" Margin="0,0,0,14" />
-                <controls:RoutineStrip x:Name="Routines" Margin="0,0,0,14" />
-                <controls:ChallengeStrip x:Name="Challenges" Margin="0,0,0,14" />
+                <StackPanel x:Name="SecRecap">
+                    <controls:WeeklyCardStrip x:Name="Weekly" Margin="0,0,0,14" />
+                </StackPanel>
+                <StackPanel x:Name="SecRoutines">
+                    <controls:RoutineStrip x:Name="Routines" Margin="0,0,0,14" />
+                </StackPanel>
+                <StackPanel x:Name="SecChallenges">
+                    <controls:ChallengeStrip x:Name="Challenges" Margin="0,0,0,14" />
+                </StackPanel>
 
                 <!-- Bento: hero + streak -->
-                <Grid ColumnDefinitions="2*,*" ColumnSpacing="14">
-                    <controls:HeroTile x:Name="Hero" />
-                    <controls:StreakTile x:Name="StreakBox" Grid.Column="1" />
-                </Grid>
+                <StackPanel x:Name="SecHero">
+                    <Grid ColumnDefinitions="2*,*" ColumnSpacing="14">
+                        <controls:HeroTile x:Name="Hero" />
+                        <controls:StreakTile x:Name="StreakBox" Grid.Column="1" />
+                    </Grid>
+                </StackPanel>
 
                 <!-- Thẻ thói quen theo khung giờ -->
                 <ItemsControl ItemsSource="{x:Bind ViewModel.Groups}" ItemTemplate="{StaticResource GroupTemplate}" />
