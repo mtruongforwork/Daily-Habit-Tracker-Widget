@@ -313,12 +313,21 @@ public static class SelfTest
                 await Task.Delay(900);
             }
 
+            // Máy chủ CI vẽ bằng phần mềm nên hoạt ảnh có thể chậm: chờ tới khi đạt (tối đa 6 giây) thay vì chờ cố định.
+            static async Task WaitUntil(Func<bool> condition)
+            {
+                for (var waited = 0; waited < 6000 && !condition(); waited += 100)
+                {
+                    await Task.Delay(100);
+                }
+            }
+
             hub.MiniRest = true;
-            await Task.Delay(900);
+            await WaitUntil(() => Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniWidth) < 1);
             Require(Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniWidth) < 1 && Math.Abs(hub.Height - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniHeight) < 1,
                 $"Siêu gọn phải là {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniWidth}x{HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniHeight}, thực tế {hub.Width}x{hub.Height} (cấp {hub.Level}, nhô lên: {hub.IsPeeking}).");
             hub.MiniRest = false;
-            await Task.Delay(900);
+            await WaitUntil(() => hub.Width > HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandDoneWidth - 1);
             Require(hub.Width > HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandDoneWidth - 1, $"Tắt siêu gọn mà viên thuốc vẫn nhỏ ({hub.Width}).");
 
             // 6e3) Ô "Thêm thói quen" của bảng đầy đủ: thêm được (hoặc báo đúng lỗi giới hạn gói Free) và không làm hỏng dữ liệu.

@@ -312,6 +312,13 @@ public abstract class ExtraWidgetWindow : Window
         {
             Width = size.Width;
             Height = size.Height;
+
+            if (CenterAnchored)
+            {
+                // Vị trí có thể đã được tính theo cỡ khác (trước khi có dữ liệu): căn lại quanh tâm màn hình chính.
+                Left = (SystemParameters.PrimaryScreenWidth / 2) - (size.Width / 2);
+            }
+
             _w.Snap(size.Width);
             _h.Snap(size.Height);
             _l.Snap(double.IsNaN(Left) ? 0 : Left);
