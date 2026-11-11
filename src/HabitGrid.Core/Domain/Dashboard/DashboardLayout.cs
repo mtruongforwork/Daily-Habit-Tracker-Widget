@@ -70,6 +70,26 @@ public sealed class DashboardLayout
     public DashboardLayout WithVisible(string id, bool visible) =>
         new(_items.Select(i => i.Id == id ? (i.Id, visible) : i).ToList());
 
+    /// <summary>
+    /// Sắp lại theo danh sách id mới (kéo-thả): giữ trạng thái hiện/ẩn, bỏ id lạ/trùng, khối không được nhắc tới giữ nguyên thứ tự tương đối ở cuối.
+    /// </summary>
+    public DashboardLayout Reorder(IEnumerable<string> ids)
+    {
+        var state = _items.ToDictionary(i => i.Id, i => i.Visible);
+        var ordered = new List<(string Id, bool Visible)>();
+
+        foreach (var id in ids)
+        {
+            if (state.TryGetValue(id, out var visible) && ordered.All(o => o.Id != id))
+            {
+                ordered.Add((id, visible));
+            }
+        }
+
+        ordered.AddRange(_items.Where(i => ordered.All(o => o.Id != i.Id)));
+        return new DashboardLayout(ordered);
+    }
+
     /// <summary>Dời một khối lên (<paramref name="delta"/> âm) hoặc xuống (dương), giữ trong giới hạn.</summary>
     public DashboardLayout Move(string id, int delta)
     {

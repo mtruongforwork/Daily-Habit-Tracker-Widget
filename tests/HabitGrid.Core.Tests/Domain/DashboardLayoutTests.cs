@@ -59,6 +59,18 @@ public class DashboardLayoutTests
     }
 
     [Fact]
+    public void Reorder_AppliesTheDraggedOrder_KeepsVisibility_AndToleratesBadInput()
+    {
+        var layout = DashboardLayout.Default().WithVisible("mood", false);
+
+        var result = layout.Reorder(["hero", "mood", "bogus", "hero", "week"]);
+
+        result.Items.Select(i => i.Id).Should().Equal("hero", "mood", "week", "recap", "routines", "challenges");
+        result.IsVisible("mood").Should().BeFalse();
+        result.IsVisible("hero").Should().BeTrue();
+    }
+
+    [Fact]
     public void Layout_IsImmutable()
     {
         var original = DashboardLayout.Default();

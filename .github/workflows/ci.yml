@@ -38,6 +38,15 @@ jobs:
           if (-not $p.WaitForExit(60000)) { $p.Kill(); Write-Error 'widget host self-test timed out'; exit 1 }
           Get-Content "$env:HABITGRID_DATA_DIR/widgethost-selftest.log" -ErrorAction SilentlyContinue
           exit $p.ExitCode
+      - name: Erase-all-data flow (smoke on its own data dir)
+        shell: pwsh
+        run: |
+          $env:HABITGRID_DATA_DIR = Join-Path $env:RUNNER_TEMP 'hg-erase'
+          $env:HABITGRID_SMOKE_ERASE = '1'
+          $exe = Get-ChildItem src/HabitGrid.WinUI/bin -Recurse -Filter HabitGrid.WinUI.exe | Select-Object -First 1
+          $p = Start-Process $exe.FullName -ArgumentList '--smoke' -PassThru
+          if (-not $p.WaitForExit(120000)) { $p.Kill(); Write-Error 'erase smoke timed out'; exit 1 }
+          exit $p.ExitCode
       - name: WidgetHost survives Explorer restart (experimental, non-blocking)
         shell: pwsh
         continue-on-error: true

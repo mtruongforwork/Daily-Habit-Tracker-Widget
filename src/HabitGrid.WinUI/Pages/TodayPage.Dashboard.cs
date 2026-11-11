@@ -81,25 +81,49 @@ public sealed partial class TodayPage
         flyout.ShowAt(anchor);
     }
 
+    /// <summary>Nội dung bảng tùy chỉnh (cho smoke test kiểm tra dựng được và đủ 6 hàng kéo-thả được).</summary>
+    public StackPanel BuildCustomizeContentForTest() => BuildCustomizePanel(new Flyout());
+
     private StackPanel BuildCustomizePanel(Flyout flyout)
     {
         var panel = new StackPanel { Spacing = 8, Width = 340 };
         panel.Children.Add(new TextBlock { Text = Ui.T("dashboard.title"), Style = (Style)Application.Current.Resources["CardTitleTextStyle"] });
         panel.Children.Add(new TextBlock { Text = Ui.T("dashboard.hint"), Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"], TextWrapping = TextWrapping.Wrap });
 
-        var rows = new StackPanel { Spacing = 4 };
+        // Kéo một hàng để đổi thứ tự (ListView tự dựng hoạt ảnh kéo-thả); nút lên/xuống vẫn có cho bàn phím và trình đọc màn hình.
+        var rows = new ListView
+        {
+            SelectionMode = ListViewSelectionMode.None,
+            CanDragItems = true,
+            CanReorderItems = true,
+            AllowDrop = true,
+            Height = DashboardSections.Default.Count * 50,
+            IsItemClickEnabled = false
+        };
+        AutomationProperties.SetName(rows, Ui.T("dashboard.title"));
         panel.Children.Add(rows);
 
         void Rebuild()
         {
-            rows.Children.Clear();
+            rows.Items.Clear();
             var items = _layout.Items;
 
             for (var i = 0; i < items.Count; i++)
             {
-                rows.Children.Add(BuildRow(items[i].Id, items[i].Visible, i == 0, i == items.Count - 1, Rebuild));
+                rows.Items.Add(BuildRow(items[i].Id, items[i].Visible, i == 0, i == items.Count - 1, Rebuild));
             }
         }
+
+        rows.DragItemsCompleted += async (_, _) =>
+        {
+            var ids = rows.Items.OfType<FrameworkElement>().Select(r => (string)r.Tag).ToList();
+
+            if (!ids.SequenceEqual(_layout.Items.Select(i => i.Id)))
+            {
+                await SetLayoutAsync(_layout.Reorder(ids));
+                DispatcherQueue.TryEnqueue(Rebuild);
+            }
+        };
 
         Rebuild();
 
@@ -116,10 +140,14 @@ public sealed partial class TodayPage
     private UIElement BuildRow(string id, bool visible, bool first, bool last, Action rebuild)
     {
         var name = Ui.T("dashboard.section." + id);
-        var row = new Grid { ColumnSpacing = 6 };
+        var row = new Grid { ColumnSpacing = 6, Tag = id };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         row.ColumnDefinitions.Add(new ColumnDefinition());
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        // Tay nắm kéo.
+        row.Children.Add(new TextBlock { Text = "⋮⋮", FontSize = 16, VerticalAlignment = VerticalAlignment.Center, Opacity = 0.6 });
 
         var toggle = new ToggleSwitch { Header = null, OnContent = name, OffContent = name, IsOn = visible, MinWidth = 0 };
         AutomationProperties.SetName(toggle, name);
@@ -130,6 +158,7 @@ public sealed partial class TodayPage
                 await SetLayoutAsync(_layout.WithVisible(id, toggle.IsOn));
             }
         };
+        Grid.SetColumn(toggle, 1);
         row.Children.Add(toggle);
 
         var up = MoveButton("", name, "dashboard.up", enabled: !first, async () =>
@@ -137,7 +166,7 @@ public sealed partial class TodayPage
             await SetLayoutAsync(_layout.Move(id, -1));
             rebuild();
         });
-        Grid.SetColumn(up, 1);
+        Grid.SetColumn(up, 2);
         row.Children.Add(up);
 
         var down = MoveButton("", name, "dashboard.down", enabled: !last, async () =>
@@ -145,7 +174,7 @@ public sealed partial class TodayPage
             await SetLayoutAsync(_layout.Move(id, 1));
             rebuild();
         });
-        Grid.SetColumn(down, 2);
+        Grid.SetColumn(down, 3);
         row.Children.Add(down);
         return row;
     }
