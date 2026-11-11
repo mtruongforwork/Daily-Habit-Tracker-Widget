@@ -1,6 +1,6 @@
-param(
+﻿param(
     [string]$Configuration = "Release",
-    [string]$Version = "1.0.0.0"
+    [string]$Version = "1.1.0.0"
 )
 
 # Đóng gói app WinUI thành MSIX để tải lên Partner Center. Gói chưa ký: Store ký khi phát hành.
