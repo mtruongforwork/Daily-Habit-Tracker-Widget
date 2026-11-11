@@ -46,8 +46,9 @@
         Description="Widget ghim màn hình nền, nhắc nhở và check-in nhanh của HabitGrid."
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
-        Square44x44Logo="Images\Square44x44Logo.png"
-        AppListEntry="none" />
+        Square44x44Logo="Images\Square44x44Logo.png" />
+      <!-- Không dùng AppListEntry="none": Store coi đó là app "headless" và chặn nếu tài khoản không có giấy phép HeadlessAppBypass.
+           Widgets hiện trong danh sách ứng dụng của Start như một lối mở thêm. -->
       <Extensions>
         <uap5:Extension Category="windows.appExecutionAlias" Executable="HabitGrid.WidgetHost.exe" EntryPoint="Windows.FullTrustApplication">
           <uap5:AppExecutionAlias>
