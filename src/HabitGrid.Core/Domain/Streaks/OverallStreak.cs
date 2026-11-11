@@ -35,4 +35,37 @@ public static class OverallStreak
 
         return count;
     }
+
+    /// <summary>Chuỗi tổng dài nhất trong toàn bộ lịch sử (ngày đóng băng nối chuỗi nhưng không được đếm).</summary>
+    public static int Longest(IEnumerable<DayLog> logs)
+    {
+        ArgumentNullException.ThrowIfNull(logs);
+
+        var all = logs as IReadOnlyCollection<DayLog> ?? logs.ToList();
+        var done = all.Where(l => l.Status == DayStatus.Done).Select(l => l.Day).ToHashSet();
+
+        if (done.Count == 0)
+        {
+            return 0;
+        }
+
+        var frozen = all.Where(l => l.Status == DayStatus.Frozen).Select(l => l.Day).ToHashSet();
+        var best = 0;
+        var run = 0;
+
+        for (var day = done.Min(); day <= done.Max(); day = day.AddDays(1))
+        {
+            if (done.Contains(day))
+            {
+                run++;
+                best = Math.Max(best, run);
+            }
+            else if (!frozen.Contains(day))
+            {
+                run = 0;
+            }
+        }
+
+        return best;
+    }
 }

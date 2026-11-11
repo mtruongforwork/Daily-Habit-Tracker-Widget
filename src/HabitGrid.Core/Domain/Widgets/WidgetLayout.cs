@@ -114,7 +114,7 @@ public static class WidgetLayout
     public const int IslandMiniHeight = 46;
 
     public const int IslandListWidth = 380;
-    public const int IslandPanelWidth = 384;
+    public const int IslandPanelWidth = 420;
 
     /// <summary>Khoảng cách từ mép trên của màn hình tới viên thuốc, pixel vật lý.</summary>
     public const int IslandTopGap = 6;

@@ -16,6 +16,22 @@ public class OverallStreakTests
     public void NoLogs_IsZero() => OverallStreak.Compute([], Today).Should().Be(0);
 
     [Fact]
+    public void Longest_FindsTheBestRunInHistory()
+    {
+        // 10-8 ngày trước: 3 ngày liền; hôm nay và hôm qua: 2 ngày liền.
+        OverallStreak.Longest([Log(10), Log(9), Log(8), Log(1), Log(0)]).Should().Be(3);
+    }
+
+    [Fact]
+    public void Longest_BridgesFrozenDaysWithoutCountingThem()
+    {
+        OverallStreak.Longest([Log(5), Log(4, DayStatus.Frozen), Log(3), Log(1)]).Should().Be(2);
+    }
+
+    [Fact]
+    public void Longest_WithNoDoneDays_IsZero() => OverallStreak.Longest([Log(1, DayStatus.Skipped)]).Should().Be(0);
+
+    [Fact]
     public void CountsConsecutiveDays_IncludingToday()
     {
         OverallStreak.Compute([Log(0), Log(1), Log(2)], Today).Should().Be(3);

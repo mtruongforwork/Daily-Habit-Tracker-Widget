@@ -673,6 +673,37 @@ public abstract class ExtraWidgetWindow : Window
     };
 
     /// <summary>Biểu tượng thói quen để hiện trong widget: emoji thì bỏ tiền tố <c>emoji:</c>; biểu tượng Fluent (không có chữ) thì dùng dấu chấm.</summary>
+    [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
+    private static extern IntPtr GetWindowLongPtr(IntPtr hwnd, int index);
+
+    [System.Runtime.InteropServices.DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")]
+    private static extern IntPtr SetWindowLongPtr(IntPtr hwnd, int index, IntPtr value);
+
+    /// <summary>
+    /// Cho cửa sổ nhận bàn phím (gõ vào ô nhập) hoặc trả về không nhận. Widget mặc định không kích hoạt để không cướp focus;
+    /// chỉ khi người dùng bấm vào ô nhập mới tạm bỏ cờ đó, và trả lại khi rời ô.
+    /// </summary>
+    protected void AllowTyping(bool allow)
+    {
+        var handle = new WindowInteropHelper(this).Handle;
+
+        if (handle == IntPtr.Zero)
+        {
+            return;
+        }
+
+        const int exStyle = -20;
+        const long noActivate = 0x08000000;
+        var value = GetWindowLongPtr(handle, exStyle).ToInt64();
+        value = allow ? value & ~noActivate : value | noActivate;
+        SetWindowLongPtr(handle, exStyle, new IntPtr(value));
+
+        if (allow)
+        {
+            Activate();
+        }
+    }
+
     protected static string IconText(string icon) =>
         icon.StartsWith(HabitIcon.EmojiPrefix, StringComparison.Ordinal) ? icon[HabitIcon.EmojiPrefix.Length..] : "•";
 
@@ -1163,4 +1194,4 @@ public sealed class MultiGridWidgetWindow : ExtraWidgetWindow
 public sealed record FocusSnapshot(string Display, double Fraction, string? Habit, bool Paused, bool IsBreak, string Clock = "");
 
 /// <summary>Dữ liệu của widget gộp: Buddy, danh sách Hôm nay (check được), Mục tiêu và lưới thói quen (hai mục sau chỉ có khi Plus).</summary>
-public sealed record HubData(BuddyWidgetData Buddy, IReadOnlyList<QuickItem> Today, GoalsWidgetData? Goals, MultiGridData? Grid);
+public sealed record HubData(BuddyWidgetData Buddy, IReadOnlyList<QuickItem> Today, GoalsWidgetData? Goals, MultiGridData? Grid, WidgetStatsData? Stats = null);

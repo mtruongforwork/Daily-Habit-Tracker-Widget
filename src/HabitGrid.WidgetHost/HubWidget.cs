@@ -16,9 +16,9 @@ namespace HabitGrid.WidgetHost;
 /// dòng phụ luân phiên và một nút tròn làm ngay việc kế tiếp (check, hoặc +1 với thói quen đếm). Mở rộng: Buddy lớn, cấp độ, thanh XP, danh sách Hôm nay
 /// (check, và −/+ cho thói quen đếm), Mục tiêu và lưới chuỗi (Plus).
 /// </summary>
-public sealed class HubWidgetWindow : ExtraWidgetWindow
+public sealed partial class HubWidgetWindow : ExtraWidgetWindow
 {
-    private const double ExpandedWidth = 384;
+    private const double ExpandedWidth = 420;
 
     private readonly DispatcherTimer _rotate = new() { Interval = TimeSpan.FromSeconds(4) };
     private HubData? _data;
@@ -146,31 +146,7 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
             : new Size(WidgetLayout.IslandRestWidth, WidgetLayout.IslandRestHeight);
     }
 
-    protected override Size ExpandedSize => new(IsIsland ? WidgetLayout.IslandPanelWidth : ExpandedWidth, EstimateHeight(_data));
-
-    /// <summary>Chiều cao dạng mở rộng theo nội dung (ước lượng để hoạt ảnh biết đích đến).</summary>
-    public static double EstimateHeight(HubData? data)
-    {
-        if (data is null)
-        {
-            return 240;
-        }
-
-        var height = 30 + 96;
-        height += 30 + Math.Max(1, Math.Min(data.Today.Count, 6)) * 34;
-
-        if (data.Goals is { IsEmpty: false } goals)
-        {
-            height += 28 + ((goals.Intent is null ? 0 : 1) + goals.Challenges.Count) * 30;
-        }
-
-        if (data.Grid is { Rows.Count: > 0 } grid)
-        {
-            height += 28 + grid.Rows.Count * 24;
-        }
-
-        return height;
-    }
+    protected override Size ExpandedSize => new(IsIsland ? WidgetLayout.IslandPanelWidth : ExpandedWidth, EstimatePanelHeight());
 
     public void Update(HubData data)
     {
@@ -336,7 +312,11 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
             var ended = focus is null && _lastFocus is not null;
             _lastFocus = focus;
 
-            if (started)
+            if (IsExpanded && (started || ended))
+            {
+                Render();
+            }
+            else if (started)
             {
                 PeekMessage("⏱", HostText.HubFocusStarted(focus!.Habit), 280, TintFocus);
             }
@@ -868,133 +848,8 @@ public sealed class HubWidgetWindow : ExtraWidgetWindow
         return track;
     }
 
-    protected override UIElement BuildExpanded()
-    {
-        var data = _data!;
-        var now = Now();
-        var buddy = data.Buddy;
-        var mood = BuddyWidgetWindow.MoodFor(buddy, now);
-        var stack = new StackPanel();
-
-        // Đầu thẻ: Buddy trong vòng tiến độ, tên + cấp, thanh XP, nút thu gọn.
-        var header = new Grid();
-        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        header.ColumnDefinitions.Add(new ColumnDefinition());
-        var hop = new TranslateTransform();
-        var avatar = Ring(mood == BuddyWidgetWindow.Mood.AllDone ? 1 : buddy.TodayDue == 0 ? 0 : buddy.TodayFraction, 76, 5, MoodColor(mood), BuddyWidgetWindow.BuildAvatar(buddy, 0.62));
-        avatar.RenderTransform = hop;
-        avatar.Cursor = Cursors.Hand;
-        avatar.MouseLeftButtonUp += (_, e) =>
-        {
-            e.Handled = true;
-            Hop(hop);
-        };
-        header.Children.Add(avatar);
-
-        var info = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 0, 0) };
-        var nameRow = new Grid();
-        nameRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        nameRow.ColumnDefinitions.Add(new ColumnDefinition());
-        nameRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        nameRow.Children.Add(Text(buddy.Name, 18, bold: true));
-        var pill = new Border
-        {
-            CornerRadius = new CornerRadius(9),
-            Background = new SolidColorBrush(Color.FromArgb(0x40, 0xA7, 0x8B, 0xFA)),
-            Padding = new Thickness(8, 1, 8, 1),
-            Margin = new Thickness(8, 0, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-            HorizontalAlignment = HorizontalAlignment.Left,
-            Child = Text(HostText.BuddyLevel(buddy.Level) + (buddy.FreezeTokens > 0 ? $"  ❄ {buddy.FreezeTokens}" : string.Empty), 11, bold: true)
-        };
-        Grid.SetColumn(pill, 1);
-        nameRow.Children.Add(pill);
-        var collapse = RoundButton("–", 24, () =>
-        {
-            Collapse();
-            return Task.CompletedTask;
-        }, fontSize: 13);
-        Grid.SetColumn(collapse, 2);
-        nameRow.Children.Add(collapse);
-        info.Children.Add(nameRow);
-
-        var say = mood == BuddyWidgetWindow.Mood.AtRisk
-            ? HostText.HubAtRisk(data.Today.Count(i => !i.IsDone && !i.IsSkipped))
-            : buddy.TodayDue == 0 ? HostText.NothingDue : mood == BuddyWidgetWindow.Mood.AllDone ? HostText.AllDone : $"{HostText.Today}  {HostText.Progress(buddy.TodayDone, buddy.TodayDue)}";
-        info.Children.Add(Text(say, 11, opacity: 0.8));
-        info.Children.Add(new Border { Height = 6 });
-        info.Children.Add(XpBar(buddy.XpFraction, 236));
-        info.Children.Add(Text($"{buddy.XpInto}/{buddy.XpNeed} XP", 10, opacity: 0.65));
-        Grid.SetColumn(info, 1);
-        header.Children.Add(info);
-        stack.Put(header);
-
-        if (_hopNext && Animations)
-        {
-            _hopNext = false;
-            Dispatcher.BeginInvoke(() => Hop(hop), DispatcherPriority.Loaded);
-        }
-
-        // Hôm nay: bấm một dòng để check / bỏ check; thói quen đếm có −/+.
-        stack.Put(Text($"{HostText.Today.ToUpperInvariant()}  {buddy.TodayDone}/{buddy.TodayDue}", 10, bold: true, opacity: 0.6), 12);
-
-        if (data.Today.Count == 0)
-        {
-            stack.Put(Text(HostText.NothingDue, 12, opacity: 0.8), 4);
-        }
-
-        foreach (var item in data.Today.Take(6))
-        {
-            stack.Put(TodayRow(item), 3);
-        }
-
-        if (data.Today.Count > 6)
-        {
-            stack.Put(Text("+" + (data.Today.Count - 6), 11, opacity: 0.6), 2);
-        }
-
-        // Mục tiêu (Plus).
-        if (data.Goals is { IsEmpty: false } goals)
-        {
-            stack.Put(Text(HostText.GoalsTitle.ToUpperInvariant(), 10, bold: true, opacity: 0.6), 12);
-
-            foreach (var (label, fraction, detail) in GoalsWidgetWindow.Rotation(goals))
-            {
-                var line = new Grid();
-                line.ColumnDefinitions.Add(new ColumnDefinition());
-                line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                line.Children.Add(Text(label, 11));
-                var d = Text(detail, 10, opacity: 0.8);
-                Grid.SetColumn(d, 1);
-                line.Children.Add(d);
-                stack.Put(line, 4);
-                stack.Put(Bar(fraction, ExpandedWidth - 32, Color.FromRgb(139, 92, 246), Color.FromRgb(236, 72, 153), 4), 2);
-            }
-        }
-
-        // Chuỗi (Plus).
-        if (data.Grid is { Rows.Count: > 0 } grid)
-        {
-            stack.Put(Text("🔥", 10, bold: true, opacity: 0.6), 12);
-
-            foreach (var row in grid.Rows)
-            {
-                var line = new Grid();
-                line.ColumnDefinitions.Add(new ColumnDefinition());
-                line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-                line.Children.Add(Text($"{IconText(row.Icon)} {row.Name}  🔥{row.Streak}", 11));
-                var strip = MultiGridWidgetWindow.Strip(row);
-                Grid.SetColumn(strip, 1);
-                line.Children.Add(strip);
-                stack.Put(line, 4);
-            }
-        }
-
-        return stack;
-    }
-
     /// <summary>Buddy nảy lên rồi rơi xuống (bấm vào, hoặc sau khi check xong một việc).</summary>
-    private static void Hop(TranslateTransform transform)
+    internal static void Hop(TranslateTransform transform)
     {
         if (!Animations)
         {

@@ -253,12 +253,13 @@ public sealed partial class WidgetController
         var buddy = await Data().BuddyAsync();
         var goals = sections.HasFlag(HubSection.Goals) ? await Data().GoalsAsync() : null;
         var grid = sections.HasFlag(HubSection.Grid) ? await Data().MultiGridAsync() : null;
-        _hub.Update(new HubData(buddy, _quick.Items, goals, grid));
+        var stats = await Data().StatsAsync();
+        _hub.Update(new HubData(buddy, _quick.Items, goals, grid, stats));
     }
 
     private async Task<HubWidgetWindow> CreateHubAsync()
     {
-        var window = new HubWidgetWindow { Placement = _placement, EditMode = _editApplied, OnToggle = item => ActAsync(item, 0), OnAdjust = ActAsync, FocusProvider = FocusSnapshotNow };
+        var window = new HubWidgetWindow { Placement = _placement, EditMode = _editApplied, OnToggle = item => ActAsync(item, 0), OnAdjust = ActAsync, FocusProvider = FocusSnapshotNow, OnAddHabit = AddHabitAsync, OnStartFocus = StartFocusFromPanelAsync, OnStopFocus = Focus.StopAsync, OnOpenApp = () => OpenMainApp?.Invoke(), HotKeyText = () => HotKeyDescription };
         window.Show();
         window.StartLiveActivities();
         window.Moved += async (_, _) =>
@@ -277,6 +278,30 @@ public sealed partial class WidgetController
 
         return window;
     }
+
+    /// <summary>Thêm thói quen từ ô nhập của bảng đầy đủ. Trả về lời báo lỗi, hoặc null nếu thành công.</summary>
+    private async Task<string?> AddHabitAsync(string name, int target)
+    {
+        await IsPlusAsync();
+        var service = new HabitGrid.Presentation.ViewModels.HabitCreationService(_habits, new HabitGrid.Core.Services.DayProvider(TimeSpan.Zero), _entitlements);
+        var draft = new HabitGrid.Presentation.ViewModels.HabitDraft(
+            name,
+            HabitGrid.Core.Domain.HabitIcon.Emoji("✨"),
+            target > 1 ? HabitGrid.Core.Domain.HabitKind.Count : HabitGrid.Core.Domain.HabitKind.Boolean,
+            target);
+        var result = await service.CreateAsync(draft);
+
+        if (!result.Succeeded)
+        {
+            return result.Errors.Any(e => e.Code == "limit.habits") ? HostText.PanelAddLimit : HostText.PanelAddFailed;
+        }
+
+        await RefreshAsync();
+        return null;
+    }
+
+    private Task StartFocusFromPanelAsync(int minutes) =>
+        Focus.StartAsync(HabitGrid.Core.Domain.Focus.FocusMode.Pomodoro, minutes, null, keepHabit: false);
 
     /// <summary>Phiên Focus hiện tại (nếu đang làm hoặc nghỉ) cho đồng hồ trên viên thuốc.</summary>
     private FocusSnapshot? FocusSnapshotNow()

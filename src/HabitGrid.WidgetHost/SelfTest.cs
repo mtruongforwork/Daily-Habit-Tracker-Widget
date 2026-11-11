@@ -307,13 +307,23 @@ public static class SelfTest
 
             // 6e2) Kiểu "siêu gọn" thu viên thuốc còn Buddy + chip, và quay lại được; trạng thái nghỉ luôn xác định được.
             Require(Enum.IsDefined(hub.CurrentRestState()), "Trạng thái nghỉ không xác định.");
+            if (hub.IsPeeking)
+            {
+                hub.DismissPeek();
+                await Task.Delay(900);
+            }
+
             hub.MiniRest = true;
             await Task.Delay(900);
             Require(Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniWidth) < 1 && Math.Abs(hub.Height - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniHeight) < 1,
-                $"Siêu gọn phải là {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniWidth}x{HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniHeight}, thực tế {hub.Width}x{hub.Height}.");
+                $"Siêu gọn phải là {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniWidth}x{HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniHeight}, thực tế {hub.Width}x{hub.Height} (cấp {hub.Level}, nhô lên: {hub.IsPeeking}).");
             hub.MiniRest = false;
             await Task.Delay(900);
             Require(hub.Width > HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandDoneWidth - 1, $"Tắt siêu gọn mà viên thuốc vẫn nhỏ ({hub.Width}).");
+
+            // 6e3) Ô "Thêm thói quen" của bảng đầy đủ: thêm được (hoặc báo đúng lỗi giới hạn gói Free) và không làm hỏng dữ liệu.
+            var addError = await hub.OnAddHabit!("Thói quen thử từ widget", 3);
+            Require(addError is null || addError == HostText.PanelAddLimit, $"Thêm thói quen từ widget lỗi: {addError}");
 
             // 6f) Đổi màn hình/độ phân giải/DPI: vị trí giữa mép trên được tính lại (giả lập bằng cách đẩy viên thuốc đi nơi khác rồi buộc kiểm tra lại).
             var correctLeft = hub.Left;
