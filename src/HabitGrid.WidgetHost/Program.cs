@@ -41,6 +41,12 @@ public static class Program
 
         var explorerTest = args.Contains("--selftest-explorer", StringComparer.OrdinalIgnoreCase);
         var selfTest = explorerTest || args.Contains("--selftest", StringComparer.OrdinalIgnoreCase);
+        if (args.Any(a => a.StartsWith("--shots=", StringComparison.OrdinalIgnoreCase)))
+        {
+            // Dựng ảnh cho Store: chọn ngôn ngữ giao diện widget theo --lang (mặc định en).
+            HostText.IsVietnamese = args.Contains("--lang=vi", StringComparer.OrdinalIgnoreCase);
+        }
+
         var customDir = Environment.GetEnvironmentVariable(DataDirVariable);
         var dataDir = string.IsNullOrWhiteSpace(customDir)
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HabitGrid")
@@ -100,6 +106,15 @@ public static class Program
                 }
 
                 pendingToasts.Clear();
+
+                var shotsArg = args.FirstOrDefault(a => a.StartsWith("--shots=", StringComparison.OrdinalIgnoreCase));
+
+                if (shotsArg is not null)
+                {
+                    exitCode = await ShotMaker.RunAsync(controller, shotsArg["--shots=".Length..].Trim('"'), HostText.IsVietnamese ? "vi" : "en");
+                    app.Shutdown();
+                    return;
+                }
 
                 if (selfTest)
                 {
