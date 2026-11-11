@@ -14,6 +14,7 @@ public static class PageKeys
     public const string Insights = "insights";
     public const string Calendar = "calendar";
     public const string Journal = "journal";
+    public const string Focus = "focus";
     public const string Buddy = "buddy";
     public const string Settings = "settings";
 }
@@ -34,6 +35,7 @@ public sealed partial class ShellViewModel : ObservableObject
         new(PageKeys.Today, "nav.today", "\uE80F"),
         new(PageKeys.Calendar, "nav.calendar", ""),
         new(PageKeys.Journal, "nav.journal", ""),
+        new(PageKeys.Focus, "nav.focus", ""),
         new(PageKeys.Habits, "nav.habits", ""),
         new(PageKeys.Insights, "nav.insights", ""),
         new(PageKeys.Buddy, "nav.buddy", "")

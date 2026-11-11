@@ -22,8 +22,17 @@ public static class HostLink
         return EnsureRunning();
     }
 
-    public static Task<bool> StartFocusAsync(Guid? habitId, int? minutes = null) =>
-        SendAsync($"focus.start|{habitId?.ToString() ?? string.Empty}|{minutes?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty}");
+    public static Task<bool> StartFocusAsync(Guid? habitId, int? minutes = null, HabitGrid.Core.Domain.Focus.FocusMode? mode = null, int? breakMinutes = null) =>
+        SendAsync(string.Join('|',
+            "focus.start",
+            habitId?.ToString() ?? string.Empty,
+            minutes?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty,
+            mode?.ToString() ?? string.Empty,
+            breakMinutes?.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty));
+
+    public static Task<bool> ToggleFocusAsync() => SendAsync("focus.toggle");
+
+    public static Task<bool> StopFocusAsync() => SendAsync("focus.stop");
 
     /// <summary>True nếu WidgetHost đang chạy hoặc vừa khởi động được.</summary>
     public static bool EnsureRunning()

@@ -765,4 +765,31 @@
   <data name="journal.saving" xml:space="preserve"><value>Saving…</value></data>
   <data name="journal.saved" xml:space="preserve"><value>Saved</value></data>
   <data name="journal.failed" xml:space="preserve"><value>Could not save</value></data>
+  <data name="nav.focus" xml:space="preserve"><value>Focus</value></data>
+  <data name="focus.title" xml:space="preserve"><value>Focus</value></data>
+  <data name="focus.start" xml:space="preserve"><value>Start</value></data>
+  <data name="focus.pause" xml:space="preserve"><value>Pause</value></data>
+  <data name="focus.resume" xml:space="preserve"><value>Resume</value></data>
+  <data name="focus.skipBreak" xml:space="preserve"><value>Skip break</value></data>
+  <data name="focus.stop" xml:space="preserve"><value>Finish</value></data>
+  <data name="focus.mode.pomodoro" xml:space="preserve"><value>Pomodoro</value></data>
+  <data name="focus.mode.countdown" xml:space="preserve"><value>Countdown</value></data>
+  <data name="focus.mode.stopwatch" xml:space="preserve"><value>Stopwatch</value></data>
+  <data name="focus.minutes" xml:space="preserve"><value>Focus minutes</value></data>
+  <data name="focus.break" xml:space="preserve"><value>Break minutes</value></data>
+  <data name="focus.habit" xml:space="preserve"><value>Habit (optional)</value></data>
+  <data name="focus.habit.none" xml:space="preserve"><value>No habit</value></data>
+  <data name="focus.hint" xml:space="preserve"><value>Sessions run in the background: you can close HabitGrid and the timer keeps going in the widget. Minutes are added to Duration habits automatically.</value></data>
+  <data name="focus.phase.ready" xml:space="preserve"><value>Ready</value></data>
+  <data name="focus.phase.work" xml:space="preserve"><value>Focusing</value></data>
+  <data name="focus.phase.paused" xml:space="preserve"><value>Paused</value></data>
+  <data name="focus.phase.break" xml:space="preserve"><value>Break</value></data>
+  <data name="focus.stats" xml:space="preserve"><value>Stats</value></data>
+  <data name="focus.today" xml:space="preserve"><value>Today</value></data>
+  <data name="focus.week" xml:space="preserve"><value>This week</value></data>
+  <data name="focus.total" xml:space="preserve"><value>Total</value></data>
+  <data name="focus.recent" xml:space="preserve"><value>Recent sessions</value></data>
+  <data name="focus.none" xml:space="preserve"><value>No sessions yet. Start your first one on the left.</value></data>
+  <data name="focus.min" xml:space="preserve"><value>{0} min</value></data>
+  <data name="focus.hm" xml:space="preserve"><value>{0} h {1:00}</value></data>
 </root>

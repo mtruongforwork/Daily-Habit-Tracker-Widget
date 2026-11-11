@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using System.Windows.Threading;
@@ -635,7 +635,10 @@ public sealed partial class WidgetController : IDisposable
             case "focus.start":
                 Guid? habit = parts.Length > 1 && Guid.TryParse(parts[1], out var id) ? id : null;
                 int? minutes = parts.Length > 2 && int.TryParse(parts[2], CultureInfo.InvariantCulture, out var m) ? m : null;
-                await Focus.StartAsync(minutes: minutes, habitId: habit, keepHabit: false);
+                // Trường tùy chọn thêm từ trang Focus của app: chế độ (tên enum) và số phút nghỉ.
+                HabitGrid.Core.Domain.Focus.FocusMode? mode = parts.Length > 3 && Enum.TryParse<HabitGrid.Core.Domain.Focus.FocusMode>(parts[3], ignoreCase: true, out var fm) ? fm : null;
+                int? breakMinutes = parts.Length > 4 && int.TryParse(parts[4], CultureInfo.InvariantCulture, out var bm) && bm is >= 0 and <= 120 ? bm : null;
+                await Focus.StartAsync(mode: mode, minutes: minutes, habitId: habit, keepHabit: false, breakMinutes: breakMinutes);
 
                 if (FocusWindow is not null)
                 {

@@ -182,11 +182,11 @@ public class HabitsViewModelTests
 public class ShellAndLocalizationTests
 {
     [Fact]
-    public void Shell_HasSevenNavigationTargets_WithUniqueKeys()
+    public void Shell_HasEightNavigationTargets_WithUniqueKeys()
     {
         var shell = new ShellViewModel(new Localizer());
 
-        shell.AllItems.Select(i => i.Key).Should().Equal("today", "calendar", "journal", "habits", "insights", "buddy", "settings");
+        shell.AllItems.Select(i => i.Key).Should().Equal("today", "calendar", "journal", "focus", "habits", "insights", "buddy", "settings");
         shell.SelectedKey.Should().Be(PageKeys.Today);
         shell.TitleOf(PageKeys.Habits).Should().Be("Thói quen");
         shell.TitleOf("nope").Should().BeEmpty();
