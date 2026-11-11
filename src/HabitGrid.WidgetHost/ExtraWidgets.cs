@@ -65,9 +65,9 @@ public abstract class ExtraWidgetWindow : Window
     private Border? _card;
     private readonly SpringValue _w = new();
     private readonly SpringValue _h = new();
-    private readonly SpringValue _l = new() { Stiffness = 300, Damping = 25 };
-    private readonly SpringValue _t = new() { Stiffness = 300, Damping = 25 };
-    private readonly SpringValue _r = new() { Stiffness = 300, Damping = 26 };
+    private readonly SpringValue _l = new() { Stiffness = 280, Damping = 32 };
+    private readonly SpringValue _t = new() { Stiffness = 280, Damping = 32 };
+    private readonly SpringValue _r = new() { Stiffness = 280, Damping = 32 };
     private bool _morphing;
     private DateTime _lastFrame;
     private int _peekVersion;
@@ -233,7 +233,7 @@ public abstract class ExtraWidgetWindow : Window
             var scale = new ScaleTransform(0.94, 0.94);
             child.RenderTransform = scale;
             var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220)) { BeginTime = TimeSpan.FromMilliseconds(70) };
-            var grow = new DoubleAnimation(0.94, 1, TimeSpan.FromMilliseconds(320)) { BeginTime = TimeSpan.FromMilliseconds(40), EasingFunction = new BackEase { Amplitude = 0.4, EasingMode = EasingMode.EaseOut } };
+            var grow = new DoubleAnimation(0.94, 1, TimeSpan.FromMilliseconds(320)) { BeginTime = TimeSpan.FromMilliseconds(40), EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
             child.BeginAnimation(OpacityProperty, fade);
             scale.BeginAnimation(ScaleTransform.ScaleXProperty, grow);
             scale.BeginAnimation(ScaleTransform.ScaleYProperty, grow);
