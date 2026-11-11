@@ -173,6 +173,7 @@ public sealed partial class HubWidgetWindow
             Padding = new Thickness(8, 1, 8, 1),
             Margin = new Thickness(8, 0, 0, 0),
             VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Left,
             Child = Text(HostText.BuddyLevel(buddy.Level) + (buddy.FreezeTokens > 0 ? $"  ❄ {buddy.FreezeTokens}" : string.Empty), 11, bold: true)
         };
         Grid.SetColumn(pill, 1);
