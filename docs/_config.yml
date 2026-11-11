@@ -1,0 +1,20 @@
+title: HabitGrid
+description: Habit tracker for Windows — privacy policy and terms of use.
+theme: jekyll-theme-minimal
+plugins:
+  - jekyll-optional-front-matter
+  - jekyll-relative-links
+# Chỉ đăng chính sách bảo mật và điều khoản; các tài liệu nội bộ không nằm trên trang.
+exclude:
+  - specs
+  - v2
+  - third-party
+  - habit-tracker-widget-spec.md
+  - habitgrid-ui-spec.md
+  - implementation-status.md
+  - poc-report.md
+  - store/HUONG-DAN-DIEN-HO-SO.md
+  - store/privacy-policy-paste.txt
+  - PRIVACY-POLICY.md
+  - store/screenshots
+  - store/store-listing.md
