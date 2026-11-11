@@ -42,6 +42,15 @@ public abstract class ExtraWidgetWindow : Window
 {
     private static readonly Brush CardBrush = Freeze(new SolidColorBrush(Color.FromArgb(0xE6, 0x1B, 0x15, 0x30)));
     private static readonly Brush RimBrush = Freeze(new SolidColorBrush(Color.FromArgb(0x33, 0xFF, 0xFF, 0xFF)));
+
+    /// <summary>Lớp phủ nhẹ khi dùng kính mờ thật (hình nền phía sau được làm mờ và lộ ra).</summary>
+    private static readonly Color GlassTint = Color.FromArgb(0x5A, 0x1B, 0x15, 0x30);
+    private static readonly Brush GlassCardBrush = Freeze(new SolidColorBrush(Color.FromArgb(0x1F, 0x1B, 0x15, 0x30)));
+
+    /// <summary>Bật kính mờ thật cho các widget Plus/gộp (đặt trước khi tạo cửa sổ; mặc định bật, chỉ có tác dụng trên Windows 11).</summary>
+    public static bool UseGlass { get; set; } = true;
+
+    private readonly bool _glass = UseGlass && GlassInterop.IsSupported;
     private readonly DispatcherTimer _expandTimer = new() { Interval = TimeSpan.FromMilliseconds(220) };
     private readonly DispatcherTimer _collapseTimer = new() { Interval = TimeSpan.FromMilliseconds(900) };
     private bool _pinnedOpen;
@@ -51,12 +60,18 @@ public abstract class ExtraWidgetWindow : Window
     protected ExtraWidgetWindow(string title)
     {
         WindowStyle = WindowStyle.None;
-        AllowsTransparency = true;
+        // Kính mờ thật chỉ chạy được trên cửa sổ không phân lớp (AllowsTransparency = false); không có thì dùng thẻ đặc trong suốt một phần.
+        AllowsTransparency = !_glass;
         Background = Brushes.Transparent;
         ShowInTaskbar = false;
         ShowActivated = false;
         ResizeMode = ResizeMode.NoResize;
         Title = title;
+
+        if (_glass)
+        {
+            SourceInitialized += (_, _) => GlassInterop.Enable(new WindowInteropHelper(this).Handle, GlassTint, dark: true);
+        }
 
         // Kích thước thật đặt ở lần dựng nội dung đầu tiên; trước đó giữ cửa sổ cực nhỏ để không lóe lên 1152x592 (cỡ mặc định của Window).
         Width = 8;
@@ -131,6 +146,9 @@ public abstract class ExtraWidgetWindow : Window
 
     public bool EditMode { get; set; }
 
+    /// <summary>Cửa sổ này đang dùng kính mờ thật hay thẻ đặc.</summary>
+    public bool IsGlass => _glass;
+
     public bool IsExpanded { get; private set; }
 
     public event EventHandler? Moved;
@@ -159,8 +177,9 @@ public abstract class ExtraWidgetWindow : Window
 
         Content = new Border
         {
-            CornerRadius = new CornerRadius(IsExpanded ? 22 : 18),
-            Background = CardBrush,
+            // Kính mờ: góc bo do Windows 11 quyết định (khoảng 8 px) nên thẻ bên trong dùng cùng độ bo, tránh lộ kính ở góc.
+            CornerRadius = new CornerRadius(_glass ? 8 : IsExpanded ? 22 : 18),
+            Background = _glass ? GlassCardBrush : CardBrush,
             BorderBrush = RimBrush,
             BorderThickness = new Thickness(1),
             Padding = IsExpanded ? new Thickness(16, 14, 16, 14) : new Thickness(8),

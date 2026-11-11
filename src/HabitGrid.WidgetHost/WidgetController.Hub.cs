@@ -13,6 +13,30 @@ public sealed partial class WidgetController
     private const string HubPositionKey = "widget.pos.hub";
     private HubWidgetWindow? _hub;
     private WidgetLayoutMode? _appliedLayout;
+    private bool? _appliedGlass;
+
+    /// <summary>Khóa cài đặt bật/tắt kính mờ của widget ("0" = tắt; mặc định bật).</summary>
+    public const string GlassKey = "widgets.glass";
+
+    /// <summary>Đọc cài đặt kính mờ; đổi thì dựng lại cửa sổ để cửa sổ mới dùng đúng kiểu (kiểu cửa sổ không đổi lúc đang chạy được).</summary>
+    private async Task ApplyGlassAsync(bool initial)
+    {
+        var glass = await _settings.GetAsync(GlassKey) != "0";
+        ExtraWidgetWindow.UseGlass = glass;
+
+        if (_appliedGlass == glass)
+        {
+            return;
+        }
+
+        var changed = _appliedGlass is not null;
+        _appliedGlass = glass;
+
+        if (changed && !initial)
+        {
+            await RebuildAllAsync();
+        }
+    }
 
     /// <summary>Chế độ hiển thị mặc định (tự kiểm tra trên CI dùng Separate để kiểm các widget riêng).</summary>
     public WidgetLayoutMode DefaultLayout { get; init; } = WidgetLayoutMode.Hub;

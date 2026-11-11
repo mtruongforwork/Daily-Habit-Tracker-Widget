@@ -110,6 +110,7 @@ public sealed partial class WidgetController : IDisposable
     {
         await ApplyPinChoiceAsync(initial: true);
         await ApplyLayoutModeAsync(initial: true);
+        await ApplyGlassAsync(initial: true);
         _today = CurrentDay();
         await _quick.LoadAsync(_today);
         await CreateAuxiliaryWindowsAsync();
@@ -778,6 +779,7 @@ public sealed partial class WidgetController : IDisposable
                 await ApplyHotKeysAsync();
                 await ApplyPinChoiceAsync(initial: false);
                 await ApplyLayoutModeAsync(initial: false);
+                await ApplyGlassAsync(initial: false);
                 await SyncMomentWidgetAsync();
                 await SyncExtraWidgetsAsync();
             }

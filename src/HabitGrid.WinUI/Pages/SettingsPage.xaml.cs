@@ -229,6 +229,21 @@ public sealed partial class SettingsPage : Page
         }
 
 
+        // Kính mờ cho widget (Windows 11): làm mờ hình nền phía sau widget.
+        var widgetGlass = new ToggleSwitch { OnContent = Ui.T("settings.widgetGlass"), OffContent = Ui.T("settings.widgetGlass"), Margin = new Thickness(0, 10, 0, 0) };
+        AutomationProperties.SetName(widgetGlass, Ui.T("settings.widgetGlass"));
+        _ = LoadWidgetGlassAsync();
+        async Task LoadWidgetGlassAsync() => widgetGlass.IsOn = await settingsStore.GetAsync("widgets.glass") != "0";
+        widgetGlass.Toggled += async (_, _) =>
+        {
+            if (!_building)
+            {
+                await settingsStore.SetAsync("widgets.glass", widgetGlass.IsOn ? "1" : "0");
+                HostLink.EnsureRunning();
+            }
+        };
+        widgetsCard.Children.Add(widgetGlass);
+
         // Cách hiển thị: một widget gộp (mặc định) hay nhiều widget riêng.
         widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.layout"), Style = Res("SectionHeader"), Margin = new Thickness(0, 10, 0, 0) });
         widgetsCard.Children.Add(new TextBlock { Text = Ui.T("settings.layout.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
