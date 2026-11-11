@@ -63,6 +63,11 @@ public partial class App : Application
             {
                 _ = SmokeRunner.RunAsync(window);
             }
+            else
+            {
+                // Mở app thì bảo đảm widget đang chạy (WidgetHost là tiến trình riêng, nên không tự có mặt nếu chưa đăng nhập lại hoặc đã thoát).
+                _ = Task.Run(HostLink.EnsureRunning);
+            }
         }
         catch (Exception ex)
         {
