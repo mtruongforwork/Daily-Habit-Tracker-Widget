@@ -700,4 +700,6 @@
   <data name="settings.layout.hint" xml:space="preserve"><value>Một widget nhỏ gọn duy nhất: rê chuột hoặc bấm để mở ra đủ Buddy, việc hôm nay (bấm để check), mục tiêu và lưới thói quen. Hoặc chọn nhiều widget riêng.</value></data>
   <data name="settings.layout.Hub" xml:space="preserve"><value>Một widget gọn (khuyên dùng)</value></data>
   <data name="settings.layout.Separate" xml:space="preserve"><value>Nhiều widget riêng</value></data>
+  <data name="settings.glass" xml:space="preserve"><value>Kính mờ</value></data>
+  <data name="settings.glass.hint" xml:space="preserve"><value>Cửa sổ trong suốt, làm mờ hình nền Windows phía sau (hiệu ứng Acrylic). Kéo về 0 để dùng nền đặc.</value></data>
 </root>

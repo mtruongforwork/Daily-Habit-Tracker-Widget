@@ -87,6 +87,21 @@ public sealed partial class SettingsPage : Page
         modeCard.Children.Add(_modeChips);
         Wrap(modeCard);
 
+        // Kính mờ Acrylic: kéo để đổi độ trong suốt của cửa sổ (0 = nền đặc).
+        var glassCard = Card(Ui.T("settings.glass"));
+        glassCard.Children.Add(new TextBlock { Text = Ui.T("settings.glass.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
+        var glass = new Slider { Minimum = 0, Maximum = 100, StepFrequency = 5, Value = _theme.GlassStrength, MaxWidth = 460, HorizontalAlignment = HorizontalAlignment.Left };
+        AutomationProperties.SetName(glass, Ui.T("settings.glass"));
+        glass.ValueChanged += async (_, e) =>
+        {
+            if (!_building)
+            {
+                await _theme.SetGlassAsync((int)e.NewValue, XamlRoot.Content as FrameworkElement);
+            }
+        };
+        glassCard.Children.Add(glass);
+        Wrap(glassCard);
+
         // Giảm chuyển động
         var motionCard = Card(Ui.T("settings.motion"));
         var motion = new ToggleSwitch { IsOn = _theme.ReduceMotionSetting, OnContent = string.Empty, OffContent = string.Empty };

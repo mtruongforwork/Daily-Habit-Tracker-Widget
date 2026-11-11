@@ -54,8 +54,31 @@ public sealed class GradientBackdrop : UserControl
     }
 
     /// <summary>Đặt màu đốm theo bảng màu (và tùy chọn theo màu thói quen của người dùng).</summary>
+    private Windows.UI.Color _canvas = Windows.UI.Color.FromArgb(255, 14, 14, 20);
+
+    /// <summary>
+    /// Độ đục của lớp nền canvas. 255 = đặc (kính tắt); thấp hơn thì kính mờ Acrylic của cửa sổ lộ ra phía sau
+    /// (cửa sổ phải đặt <c>SystemBackdrop</c>, nếu không phần trong suốt sẽ chỉ thấy nền đen).
+    /// </summary>
+    public void SetGlass(byte alpha)
+    {
+        _root.Background = new SolidColorBrush(Windows.UI.Color.FromArgb(alpha, _canvas.R, _canvas.G, _canvas.B));
+    }
+
+    /// <summary>Độ đục đang áp (để dựng lại nền khi đổi theme).</summary>
+    public byte GlassAlpha { get; private set; } = 255;
+
+    public void SetGlassAlpha(byte alpha)
+    {
+        GlassAlpha = alpha;
+        SetGlass(alpha);
+    }
+
     public void Apply(ThemePalette palette, IReadOnlyList<string>? habitColors = null)
     {
+        _canvas = Ui.ParseColor(palette.Canvas, _canvas);
+        SetGlass(GlassAlpha);
+
         var colors = habitColors is { Count: >= 2 } ? habitColors : palette.Blobs;
 
         for (var i = 0; i < _blobs.Count; i++)

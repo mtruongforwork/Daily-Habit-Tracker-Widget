@@ -700,4 +700,6 @@
   <data name="settings.layout.hint" xml:space="preserve"><value>One compact widget: hover or click to open Buddy, today's tasks (click to check), goals and the habit grid. Or choose separate widgets.</value></data>
   <data name="settings.layout.Hub" xml:space="preserve"><value>One compact widget (recommended)</value></data>
   <data name="settings.layout.Separate" xml:space="preserve"><value>Separate widgets</value></data>
+  <data name="settings.glass" xml:space="preserve"><value>Glass</value></data>
+  <data name="settings.glass.hint" xml:space="preserve"><value>A see-through window that blurs your Windows wallpaper behind it (Acrylic). Drag to 0 for a solid background.</value></data>
 </root>

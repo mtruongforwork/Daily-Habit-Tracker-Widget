@@ -162,8 +162,30 @@ public sealed partial class MainWindow : Window
         }
     }
 
+    /// <summary>
+    /// Kính mờ Acrylic thật của Windows: cửa sổ nhìn xuyên và làm mờ hình nền phía sau. Cường độ 0 hoặc hệ thống không hỗ trợ thì dùng nền đặc.
+    /// Ảnh chụp trong smoke test (vẽ XAML ngoài màn hình) không có lớp kính này.
+    /// </summary>
+    private void ApplyGlass(ThemePalette palette)
+    {
+        var supported = Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported();
+        var enabled = supported && _theme.GlassStrength > 0;
+
+        if (enabled && SystemBackdrop is not Microsoft.UI.Xaml.Media.DesktopAcrylicBackdrop)
+        {
+            SystemBackdrop = new Microsoft.UI.Xaml.Media.DesktopAcrylicBackdrop();
+        }
+        else if (!enabled && SystemBackdrop is not null)
+        {
+            SystemBackdrop = null;
+        }
+
+        Backdrop.SetGlassAlpha(enabled ? HabitGrid.Core.Domain.GlassStyle.CanvasAlpha(palette.IsDark, _theme.GlassStrength) : (byte)255);
+    }
+
     private void ApplyPalette(ThemePalette palette)
     {
+        ApplyGlass(palette);
         Backdrop.Apply(palette);
 
         // Nút hệ thống (thu nhỏ/phóng to/đóng) theo màu chữ của theme, nền trong suốt.

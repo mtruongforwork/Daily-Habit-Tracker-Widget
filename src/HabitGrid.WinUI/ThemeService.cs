@@ -39,6 +39,17 @@ public sealed class ThemeService
 
     public bool AnimationsEnabled { get; private set; } = true;
 
+    /// <summary>Cường độ kính mờ 0–100 (0 = nền đặc). Lưu ở <c>appearance.glass</c>.</summary>
+    public int GlassStrength { get; private set; } = GlassStyle.Default;
+
+    /// <summary>Đặt cường độ kính mờ, lưu và áp ngay (phát <see cref="Changed"/> để cửa sổ đổi nền).</summary>
+    public async Task SetGlassAsync(int strength, FrameworkElement? root)
+    {
+        GlassStrength = GlassStyle.Clamp(strength);
+        await _settings.SetAsync(GlassStyle.SettingKey, GlassStrength.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        Apply(root);
+    }
+
     /// <summary>Màu nhấn người dùng chọn (#RRGGBB), lưu ngay cả khi hết Plus để nâng cấp lại là dùng tiếp.</summary>
     public string? AccentColor { get; private set; }
 
@@ -52,6 +63,7 @@ public sealed class ThemeService
         ReduceMotionSetting = await _settings.GetAsync(SettingKeys.ReduceMotion) == "1";
         AnimationsEnabled = _uiSettings.AnimationsEnabled && !ReduceMotionSetting;
         AccentColor = AccentColors.Normalize(await _settings.GetAsync(AccentColors.SettingKey));
+        GlassStrength = GlassStyle.Parse(await _settings.GetAsync(GlassStyle.SettingKey));
     }
 
     /// <summary>Đặt (hoặc xóa với null) màu nhấn tùy chỉnh và áp ngay. Trả false nếu mã màu không hợp lệ.</summary>

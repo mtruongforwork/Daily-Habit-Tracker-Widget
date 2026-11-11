@@ -87,3 +87,30 @@ public static class AppFonts
     public static FontChoice Resolve(string? id) =>
         All.FirstOrDefault(f => string.Equals(f.Id, id?.Trim(), StringComparison.OrdinalIgnoreCase)) ?? All[0];
 }
+
+/// <summary>
+/// Hiệu ứng kính mờ (Acrylic) của cửa sổ chính. Cường độ 0–100: 0 = nền đặc; càng cao nền càng trong và hình nền Windows phía sau càng lộ.
+/// Hàm thuần nên kiểm thử được; việc áp lên cửa sổ nằm ở WinUI.
+/// </summary>
+public static class GlassStyle
+{
+    public const string SettingKey = "appearance.glass";
+    public const int Default = 65;
+
+    /// <summary>Độ đục thấp nhất của nền khi cường độ 100 (tối: 96/255, sáng: 130/255 để chữ tối vẫn đọc được).</summary>
+    private const int MinAlphaDark = 96;
+    private const int MinAlphaLight = 130;
+
+    public static int Clamp(int strength) => Math.Clamp(strength, 0, 100);
+
+    /// <summary>Đọc cường độ đã lưu; không có hoặc sai định dạng thì dùng mặc định.</summary>
+    public static int Parse(string? stored) =>
+        int.TryParse(stored, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) ? Clamp(value) : Default;
+
+    /// <summary>Độ đục (0–255) của lớp nền canvas phủ lên kính ở một cường độ.</summary>
+    public static byte CanvasAlpha(bool isDark, int strength)
+    {
+        var min = isDark ? MinAlphaDark : MinAlphaLight;
+        return (byte)Math.Round(255 - (255 - min) * Clamp(strength) / 100.0);
+    }
+}
