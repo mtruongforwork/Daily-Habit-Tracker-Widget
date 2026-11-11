@@ -28,6 +28,11 @@ public static class SelfTest
         try
         {
             await Task.Delay(1500);
+            if (Environment.GetEnvironmentVariable("HABITGRID_FRAMELOG") == "1")
+            {
+                ExtraWidgetWindow.FrameLog = [];
+            }
+
             Require(controller.Windows.Count > 0, "Không dựng được widget nào từ CSDL.");
             Require(controller.Windows.All(w => w.IsVisible), "Có widget không hiển thị.");
 
@@ -339,6 +344,11 @@ public static class SelfTest
             var after2 = (await controller.FocusService.HistoryAsync()).Count;
             Require(after2 == before2 + 1, "Phiên Focus hết giờ nhưng không được ghi.");
             Note(dbPath, $"focus sessions={after2} focusHotkey={controller.FocusHotKeyDescription ?? "none"}");
+
+            if (ExtraWidgetWindow.FrameLog is { } frames)
+            {
+                File.WriteAllLines(Path.Combine(Path.GetDirectoryName(dbPath)!, "framelog.txt"), frames);
+            }
 
             File.AppendAllText(Path.Combine(Path.GetDirectoryName(dbPath)!, "widgethost-selftest.log"),
                 $"hotkey={controller.HotKeyDescription ?? "none"}{Environment.NewLine}");

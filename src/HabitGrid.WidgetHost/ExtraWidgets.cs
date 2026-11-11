@@ -299,7 +299,11 @@ public abstract class ExtraWidgetWindow : Window
             return;
         }
 
-        SetCardContent(BuildFor(Level), SizeFor(Level), crossfade, peek: false);
+        var started = System.Diagnostics.Stopwatch.GetTimestamp();
+        var content = BuildFor(Level);
+        var builtMs = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+        SetCardContent(content, SizeFor(Level), crossfade, peek: false);
+        FrameLog?.Add($"BUILD level={Level} build={builtMs:0.0}ms total={System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds:0.0}ms");
     }
 
     private void SetCardContent(UIElement child, Size size, bool crossfade, bool peek)
@@ -430,6 +434,9 @@ public abstract class ExtraWidgetWindow : Window
 
     private Rect _box;
 
+    /// <summary>Chẩn đoán: khi khác null, mỗi khung hình co giãn ghi một dòng (dt giữa hai khung, thời gian Apply).</summary>
+    public static List<string>? FrameLog { get; set; }
+
     private void ApplyBox()
     {
         var handle = new WindowInteropHelper(this).Handle;
@@ -472,7 +479,14 @@ public abstract class ExtraWidgetWindow : Window
             moving |= spring.Step(dt);
         }
 
+        var applyStart = System.Diagnostics.Stopwatch.GetTimestamp();
         Apply();
+
+        if (FrameLog is not null)
+        {
+            var applyMs = System.Diagnostics.Stopwatch.GetElapsedTime(applyStart).TotalMilliseconds;
+            FrameLog.Add($"dt={dt * 1000:0.0}ms apply={applyMs:0.0}ms");
+        }
 
         if (!moving)
         {
