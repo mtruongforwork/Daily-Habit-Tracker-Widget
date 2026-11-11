@@ -50,6 +50,7 @@ public sealed partial class SettingsPage : Page
         BuildPlusCard();
         BuildBackupCard();
         BuildVacationCard();
+        BuildPrivacyCard();
 
         // Chủ đề màu
         var themeCard = Card(Ui.T("settings.theme"));

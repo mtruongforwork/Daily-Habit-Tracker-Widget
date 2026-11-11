@@ -729,4 +729,16 @@
   <data name="icon.cat.social" xml:space="preserve"><value>Social</value></data>
   <data name="icon.cat.travel" xml:space="preserve"><value>Travel</value></data>
   <data name="icon.cat.symbols" xml:space="preserve"><value>Symbols</value></data>
+  <data name="privacy.title" xml:space="preserve"><value>Privacy and data</value></data>
+  <data name="privacy.where" xml:space="preserve"><value>All your data lives on this PC, in the folder: {0}</value></data>
+  <data name="privacy.nosend" xml:space="preserve"><value>HabitGrid sends your data nowhere: there is no account and no tracking.</value></data>
+  <data name="privacy.erase" xml:space="preserve"><value>Delete all my data</value></data>
+  <data name="privacy.erase.title" xml:space="preserve"><value>Delete all data?</value></data>
+  <data name="privacy.erase.body" xml:space="preserve"><value>This permanently deletes your habits, history, notes, level and badges, settings, moment photos, backups and logs on this PC. It cannot be undone. Copies you placed in your cloud folder (if any) are outside the app and are not deleted; remove them yourself if needed. Share images saved to Pictures are not deleted either.</value></data>
+  <data name="privacy.erase.type" xml:space="preserve"><value>Type "{0}" to confirm.</value></data>
+  <data name="privacy.erase.word" xml:space="preserve"><value>DELETE</value></data>
+  <data name="privacy.erase.confirm" xml:space="preserve"><value>Delete permanently</value></data>
+  <data name="privacy.erase.failed" xml:space="preserve"><value>Could not delete all data. Try again, or close the widgets and delete the data folder.</value></data>
+  <data name="privacy.erase.done.title" xml:space="preserve"><value>Data deleted</value></data>
+  <data name="privacy.erase.done" xml:space="preserve"><value>Your data has been removed from this PC. HabitGrid will close; the next launch starts as a fresh install.</value></data>
 </root>

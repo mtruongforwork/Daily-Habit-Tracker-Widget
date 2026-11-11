@@ -729,4 +729,16 @@
   <data name="icon.cat.social" xml:space="preserve"><value>Xã hội</value></data>
   <data name="icon.cat.travel" xml:space="preserve"><value>Du lịch</value></data>
   <data name="icon.cat.symbols" xml:space="preserve"><value>Biểu tượng</value></data>
+  <data name="privacy.title" xml:space="preserve"><value>Quyền riêng tư và dữ liệu</value></data>
+  <data name="privacy.where" xml:space="preserve"><value>Toàn bộ dữ liệu của bạn nằm trên máy này, trong thư mục: {0}</value></data>
+  <data name="privacy.nosend" xml:space="preserve"><value>HabitGrid không gửi dữ liệu của bạn đi đâu cả, không có tài khoản và không có theo dõi.</value></data>
+  <data name="privacy.erase" xml:space="preserve"><value>Xóa toàn bộ dữ liệu của tôi</value></data>
+  <data name="privacy.erase.title" xml:space="preserve"><value>Xóa toàn bộ dữ liệu?</value></data>
+  <data name="privacy.erase.body" xml:space="preserve"><value>Thao tác này xóa vĩnh viễn thói quen, lịch sử, ghi chú, cấp độ và huy hiệu, cài đặt, ảnh khoảnh khắc, các bản sao lưu và nhật ký trên máy này. Không thể hoàn tác. Bản sao đã chép vào thư mục cloud của bạn (nếu có) nằm ngoài ứng dụng nên không bị xóa; hãy xóa chúng bằng tay nếu cần. Ảnh chia sẻ đã lưu trong Pictures cũng không bị xóa.</value></data>
+  <data name="privacy.erase.type" xml:space="preserve"><value>Gõ "{0}" để xác nhận.</value></data>
+  <data name="privacy.erase.word" xml:space="preserve"><value>XÓA</value></data>
+  <data name="privacy.erase.confirm" xml:space="preserve"><value>Xóa vĩnh viễn</value></data>
+  <data name="privacy.erase.failed" xml:space="preserve"><value>Không xóa được hết dữ liệu. Hãy thử lại hoặc đóng widget rồi xóa thư mục dữ liệu.</value></data>
+  <data name="privacy.erase.done.title" xml:space="preserve"><value>Đã xóa dữ liệu</value></data>
+  <data name="privacy.erase.done" xml:space="preserve"><value>Dữ liệu đã được xóa khỏi máy. HabitGrid sẽ đóng lại; lần mở sau sẽ bắt đầu như mới cài.</value></data>
 </root>
