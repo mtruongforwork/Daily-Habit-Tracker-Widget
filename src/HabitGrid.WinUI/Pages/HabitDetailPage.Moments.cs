@@ -38,19 +38,17 @@ public sealed partial class HabitDetailPage
         var service = App.Host.Get<MomentService>();
         var moments = service.Store.ForHabit(habit.Id);
 
-        var header = new Grid();
-        header.ColumnDefinitions.Add(new ColumnDefinition());
-        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        header.Children.Add(new TextBlock { Text = Ui.T("moments.title").ToUpperInvariant(), Style = (Style)Application.Current.Resources["SectionHeader"], Margin = new Thickness(0), VerticalAlignment = VerticalAlignment.Center });
+        // v3: khối hẹp 1 cột, nên tiêu đề ở trên, các nút tự xuống dòng bên dưới.
+        var header = new StackPanel { Spacing = 10 };
+        header.Children.Add(new TextBlock { Text = Ui.T("moments.title").ToUpperInvariant(), Style = (Style)Application.Current.Resources["SectionHeader"], Margin = new Thickness(0) });
 
-        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        var buttons = new HabitGrid.WinUI.Controls.WrapPanel { HorizontalSpacing = 8, VerticalSpacing = 8 };
         var capture = Action("📷 " + Ui.T("moments.capture"), Ui.T("moments.capture"), async () => await AddFromAsync(MomentCapture.CaptureAsync));
         var pick = Action("🖼 " + Ui.T("moments.pick"), Ui.T("moments.pick"), async () => await AddFromAsync(MomentCapture.PickAsync));
         var share = Action("🎞 " + Ui.T("moments.share"), Ui.T("moments.share"), async () => await ShareCardDialog.ShowAsync(XamlRoot, habit.Id));
         buttons.Children.Add(capture);
         buttons.Children.Add(pick);
         buttons.Children.Add(share);
-        Grid.SetColumn(buttons, 1);
         header.Children.Add(buttons);
 
         var stack = new StackPanel { Spacing = 12 };
@@ -67,13 +65,37 @@ public sealed partial class HabitDetailPage
         }
         else
         {
-            var strip = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+            // Khung ảnh kiểu polaroid kính mờ: 2 ảnh mới nhất cạnh nhau (giữ khối thấp ngang heatmap; bấm để mở ảnh, chuột phải để xóa).
+            var strip = new Grid { ColumnSpacing = 10, RowSpacing = 10 };
+            strip.ColumnDefinitions.Add(new ColumnDefinition());
+            strip.ColumnDefinitions.Add(new ColumnDefinition());
+            var shown = moments.Take(2).ToList();
 
-            foreach (var moment in moments.Take(30))
+            for (var i = 0; i < shown.Count; i++)
             {
-                var image = new Image { Source = MomentCapture.Thumbnail(moment.Path, ThumbWidth), Width = ThumbWidth, Height = ThumbWidth, Stretch = Microsoft.UI.Xaml.Media.Stretch.UniformToFill };
+                strip.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            }
+
+            foreach (var (moment, index) in shown.Select((m, i) => (m, i)))
+            {
+                var image = new Image { Source = MomentCapture.Thumbnail(moment.Path, ThumbWidth), Height = 104, Stretch = Microsoft.UI.Xaml.Media.Stretch.UniformToFill };
                 var label = Ui.LongDate(moment.Day);
-                var tile = new Button { Padding = new Thickness(0), BorderThickness = new Thickness(0), CornerRadius = new CornerRadius(14), Content = new Grid { CornerRadius = new CornerRadius(14), Children = { image } } };
+                var polaroid = new StackPanel { Spacing = 6 };
+                polaroid.Children.Add(new Border { CornerRadius = new CornerRadius(8), Child = image });
+                polaroid.Children.Add(new TextBlock { Text = moment.Day.ToString("dd/MM", Ui.CurrentCulture), FontSize = 11, HorizontalAlignment = HorizontalAlignment.Center, Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"] });
+                var tile = new Button
+                {
+                    Padding = new Thickness(6, 6, 6, 4),
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                    CornerRadius = new CornerRadius(12),
+                    Background = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["SurfaceBrush"],
+                    BorderBrush = (Microsoft.UI.Xaml.Media.Brush)Application.Current.Resources["GlassStrokeBrush"],
+                    BorderThickness = new Thickness(1),
+                    Content = polaroid
+                };
+                Grid.SetColumn(tile, index % 2);
+                Grid.SetRow(tile, index / 2);
                 AutomationProperties.SetName(tile, Ui.Loc.Format("moments.photo", label));
                 ToolTipService.SetToolTip(tile, label);
                 tile.Click += (_, _) => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(moment.Path) { UseShellExecute = true });
@@ -88,10 +110,15 @@ public sealed partial class HabitDetailPage
                 strip.Children.Add(tile);
             }
 
-            stack.Children.Add(new ScrollViewer { Content = strip, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, HorizontalScrollMode = ScrollMode.Enabled });
+            stack.Children.Add(strip);
+
+            if (moments.Count > shown.Count)
+            {
+                stack.Children.Add(new TextBlock { Text = Ui.Loc.Format("moments.more", moments.Count - shown.Count), Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"] });
+            }
         }
 
-        MomentsHost.Children.Add(new Border { Style = (Style)Application.Current.Resources["CardBorder"], Child = stack });
+        MomentsHost.Children.Add(new Border { Style = (Style)Application.Current.Resources["GlassCard"], Child = stack });
     }
 
     private static Button Action(string text, string name, Func<Task> run)

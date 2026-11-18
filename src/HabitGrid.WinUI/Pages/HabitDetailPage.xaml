@@ -5,7 +5,7 @@
     xmlns:controls="using:HabitGrid.WinUI.Controls">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Padding="36,24,36,32" Spacing="16" MaxWidth="1040" HorizontalAlignment="Stretch">
+        <StackPanel Padding="32,20,32,28" Spacing="16">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Button x:Name="BackButton" Click="OnBackClick" Style="{StaticResource GhostButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
@@ -37,9 +37,14 @@
 
             <TextBlock x:Name="NotFoundText" Visibility="Collapsed" Style="{StaticResource CardTitleTextStyle}" />
 
-            <StackPanel x:Name="Body" Spacing="16">
+            <!--
+                v3 "No-Scroll Bento Dashboard": cả 7 phần trong lưới 4 cột × 3 hàng.
+                Hàng 1: banner (2) + 3 chỉ số (2). Hàng 2: heatmap 52 tuần (3) + khoảnh khắc (1). Hàng 3: theo tháng (1.5) + theo thứ (1.5) + nhật ký (1).
+                Span tính theo rãnh: 1 cột = 2 rãnh.
+            -->
+            <controls:BentoGrid x:Name="Body">
                 <!-- Hero -->
-                <Grid x:Name="Hero" CornerRadius="32" MinHeight="190">
+                <Grid x:Name="Hero" CornerRadius="32" MinHeight="190" controls:BentoGrid.Span="4">
                     <Border x:Name="HeroFill" CornerRadius="32" />
                     <Border x:Name="HeroScrim" CornerRadius="32" Background="Black" />
                     <Grid Padding="28,24" ColumnDefinitions="*,Auto">
@@ -56,21 +61,21 @@
                 </Grid>
 
                 <!-- Thẻ số liệu -->
-                <Grid ColumnSpacing="12" ColumnDefinitions="*,*,*">
-                    <Border Style="{StaticResource CardBorder}">
+                <Grid ColumnSpacing="12" ColumnDefinitions="*,*,*" controls:BentoGrid.Span="4">
+                    <Border Style="{StaticResource GlassCard}">
                         <StackPanel Spacing="2">
                             <TextBlock x:Name="BestLabel" Style="{StaticResource BodySecondaryTextStyle}" />
                             <TextBlock x:Name="BestValue" Style="{StaticResource TitleDisplayTextStyle}" />
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="1" Style="{StaticResource CardBorder}">
+                    <Border Grid.Column="1" Style="{StaticResource GlassCard}">
                         <StackPanel Spacing="2">
                             <TextBlock x:Name="RateLabel" Style="{StaticResource BodySecondaryTextStyle}" />
                             <TextBlock x:Name="RateValue" Style="{StaticResource TitleDisplayTextStyle}" />
                             <TextBlock x:Name="RateDelta" Style="{StaticResource BodySecondaryTextStyle}" />
                         </StackPanel>
                     </Border>
-                    <Border Grid.Column="2" Style="{StaticResource CardBorder}">
+                    <Border Grid.Column="2" Style="{StaticResource GlassCard}">
                         <StackPanel Spacing="2">
                             <TextBlock x:Name="TotalLabel" Style="{StaticResource BodySecondaryTextStyle}" />
                             <TextBlock x:Name="TotalValue" Style="{StaticResource TitleDisplayTextStyle}" />
@@ -79,7 +84,7 @@
                 </Grid>
 
                 <!-- Heatmap 52 tuần -->
-                <Border Style="{StaticResource CardBorder}">
+                <Border Style="{StaticResource GlassCard}" controls:BentoGrid.Span="6">
                     <StackPanel Spacing="12">
                         <TextBlock x:Name="HeatmapTitle" Style="{StaticResource SectionHeader}" Margin="0" />
                         <Grid x:Name="HeatmapHost" SizeChanged="OnHeatmapHostSizeChanged">
@@ -89,33 +94,31 @@
                 </Border>
 
                 <!-- Khoảnh khắc (ảnh) -->
-                <StackPanel x:Name="MomentsHost" />
+                <StackPanel x:Name="MomentsHost" controls:BentoGrid.Span="2" />
 
                 <!-- Theo tháng + theo thứ -->
-                <Grid ColumnSpacing="12" ColumnDefinitions="*,*">
-                    <Border Style="{StaticResource CardBorder}">
-                        <StackPanel Spacing="12">
-                            <TextBlock x:Name="MonthsTitle" Style="{StaticResource SectionHeader}" Margin="0" />
-                            <Grid x:Name="MonthsChart" Height="140" ColumnSpacing="10" />
-                        </StackPanel>
-                    </Border>
-                    <Border Grid.Column="1" Style="{StaticResource CardBorder}">
-                        <StackPanel Spacing="12">
-                            <TextBlock x:Name="WeekdaysTitle" Style="{StaticResource SectionHeader}" Margin="0" />
-                            <Grid x:Name="WeekdaysChart" Height="140" ColumnSpacing="10" />
-                        </StackPanel>
-                    </Border>
-                </Grid>
+                <Border Style="{StaticResource GlassCard}" controls:BentoGrid.Span="3">
+                    <StackPanel Spacing="12">
+                        <TextBlock x:Name="MonthsTitle" Style="{StaticResource SectionHeader}" Margin="0" />
+                        <Grid x:Name="MonthsChart" Height="140" ColumnSpacing="8" />
+                    </StackPanel>
+                </Border>
+                <Border Style="{StaticResource GlassCard}" controls:BentoGrid.Span="3">
+                    <StackPanel Spacing="12">
+                        <TextBlock x:Name="WeekdaysTitle" Style="{StaticResource SectionHeader}" Margin="0" />
+                        <Grid x:Name="WeekdaysChart" Height="140" ColumnSpacing="8" />
+                    </StackPanel>
+                </Border>
 
                 <!-- Nhật ký -->
-                <Border Style="{StaticResource CardBorder}">
+                <Border Style="{StaticResource GlassCard}" controls:BentoGrid.Span="2">
                     <StackPanel Spacing="10">
                         <TextBlock x:Name="JournalTitle" Style="{StaticResource SectionHeader}" Margin="0" />
                         <TextBlock x:Name="JournalEmpty" Style="{StaticResource BodySecondaryTextStyle}" TextWrapping="Wrap" />
                         <StackPanel x:Name="JournalList" Spacing="10" />
                     </StackPanel>
                 </Border>
-            </StackPanel>
+            </controls:BentoGrid>
         </StackPanel>
     </ScrollViewer>
 </Page>

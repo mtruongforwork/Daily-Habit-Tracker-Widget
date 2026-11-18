@@ -29,21 +29,78 @@ public sealed partial class HabitsPage : Page
         {
             TitleText.Text = Ui.T("habits.title");
             AddButtonText.Text = Ui.T("habits.add");
-            ChallengeButton.Content = "🏁 " + Ui.T("challenge.title");
-            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(ChallengeButton, Ui.T("challenge.title"));
-            RoutineButton.Content = "🔗 " + Ui.T("routine.title");
-            Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(RoutineButton, Ui.T("routine.title"));
             Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(AddButton, AddButtonText.Text);
             EmptyText.Text = Ui.T("habits.empty");
             UndoButton.Content = Ui.T("today.undo");
             UpdateChips();
             await ViewModel.LoadAsync();
             UpdateEmpty();
+            await BuildExtrasAsync();
         }
         catch (Exception ex)
         {
             Log(ex, "Mở trang Thói quen lỗi");
         }
+    }
+
+    private readonly RoutineStrip _routines = new();
+    private readonly ChallengeStrip _challenges = new();
+    private bool _extrasWired;
+
+    /// <summary>Hai khối Bento dưới lưới thẻ: Routine (theo hôm nay) và Thử thách đang mở, mỗi khối có nút Quản lý và lời gợi ý khi trống.</summary>
+    private async Task BuildExtrasAsync()
+    {
+        if (!_extrasWired)
+        {
+            _extrasWired = true;
+            _routines.Changed += async (_, _) => await ReloadExtrasAsync();
+            _challenges.Changed += async (_, _) => await ReloadExtrasAsync();
+        }
+
+        await ReloadExtrasAsync();
+    }
+
+    private async Task ReloadExtrasAsync()
+    {
+        try
+        {
+            await _routines.ReloadAsync(DateOnly.FromDateTime(DateTime.Today));
+            await _challenges.ReloadAsync();
+            Extras.Children.Clear();
+            Extras.Visibility = ViewModel.ShowArchived ? Visibility.Collapsed : Visibility.Visible;
+            Extras.Add(ExtraCard("🔗", "routine.title", "habits.routines.hint", "habits.routines.empty", _routines, _routines.HasItems, OnRoutineClick), columns: 2);
+            Extras.Add(ExtraCard("🏁", "challenge.title", "habits.challenges.hint", "habits.challenges.empty", _challenges, _challenges.HasItems, OnChallengeClick), columns: 2);
+        }
+        catch (Exception ex)
+        {
+            Log(ex, "Nạp routine/thử thách lỗi");
+        }
+    }
+
+    private static Border ExtraCard(string emoji, string titleKey, string hintKey, string emptyKey, FrameworkElement content, bool hasItems, RoutedEventHandler manage)
+    {
+        var head = new Grid { ColumnSpacing = 12 };
+        head.ColumnDefinitions.Add(new ColumnDefinition());
+        head.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var titles = new StackPanel { Spacing = 2 };
+        titles.Children.Add(new TextBlock { Text = $"{emoji}  {Ui.T(titleKey)}", Style = (Style)Application.Current.Resources["CardTitleTextStyle"] });
+        titles.Children.Add(new TextBlock { Text = Ui.T(hintKey), Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"], TextWrapping = TextWrapping.Wrap });
+        head.Children.Add(titles);
+        var button = new Button { Content = Ui.T("habits.manage"), Style = (Style)Application.Current.Resources["GhostButtonStyle"], VerticalAlignment = VerticalAlignment.Top };
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(button, $"{Ui.T("habits.manage")}: {Ui.T(titleKey)}");
+        button.Click += manage;
+        Grid.SetColumn(button, 1);
+        head.Children.Add(button);
+
+        if (content.Parent is Panel old)
+        {
+            old.Children.Remove(content);
+        }
+
+        var stack = new StackPanel { Spacing = 14 };
+        stack.Children.Add(head);
+        stack.Children.Add(hasItems ? content : new TextBlock { Text = Ui.T(emptyKey), Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"], TextWrapping = TextWrapping.Wrap });
+        return new Border { Style = (Style)Application.Current.Resources["GlassCard"], Child = stack };
     }
 
     private void OnViewModelChanged(object? sender, PropertyChangedEventArgs e)
@@ -91,6 +148,7 @@ public sealed partial class HabitsPage : Page
         {
             await ChallengeDialog.ShowAsync(XamlRoot);
             await ViewModel.LoadAsync();
+            await ReloadExtrasAsync();
         }
         catch (Exception ex)
         {
@@ -104,6 +162,7 @@ public sealed partial class HabitsPage : Page
         {
             await RoutineManagerDialog.ShowAsync(XamlRoot);
             await ViewModel.LoadAsync();
+            await ReloadExtrasAsync();
         }
         catch (Exception ex)
         {
@@ -122,6 +181,7 @@ public sealed partial class HabitsPage : Page
         EmptyText.Text = Ui.T(ViewModel.ShowArchived ? "habits.empty.archived" : "habits.empty");
         List.CanReorderItems = !ViewModel.ShowArchived;
         AddButton.Visibility = ViewModel.ShowArchived ? Visibility.Collapsed : Visibility.Visible;
+        Extras.Visibility = ViewModel.ShowArchived ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private void OnActiveChipClick(object sender, RoutedEventArgs e)
