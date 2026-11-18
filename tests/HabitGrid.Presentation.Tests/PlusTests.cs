@@ -26,7 +26,7 @@ public sealed class FakePlusStore : IPlusStore
         Task.FromResult<IReadOnlyList<PlusProduct>>(Products ??
         [
             new(PlusPlan.Monthly, PlusProducts.Monthly, "39.000 ₫", false, false),
-            new(PlusPlan.Yearly, PlusProducts.Yearly, "249.000 ₫", true, false),
+            new(PlusPlan.Yearly, PlusProducts.Yearly, "249.000 ₫", true, false, 30),
             new(PlusPlan.Lifetime, PlusProducts.Lifetime, "499.000 ₫", false, false)
         ]);
 
@@ -301,9 +301,10 @@ public class PaywallTests
         await vm.LoadAsync();
 
         vm.PricesAreReference.Should().BeTrue();
-        vm.Plans.Select(p => p.Price).Should().Equal("$1.99", "$9.99", "$19.99");
+        vm.Plans.Select(p => p.Price).Should().Equal("49.000 ₫", "199.000 ₫", "299.000 ₫");
         vm.Plans.Should().OnlyContain(p => !p.HasTrial, "giá tham khảo không được hứa dùng thử mà Store không có (chính sách 10.8.4)");
-        vm.Plans.Single(p => p.Plan == PlusPlan.Yearly).SavePercent.Should().Be(58);
+        // 49.000 ₫ × 12 = 588.000 ₫ so với 199.000 ₫/năm.
+        vm.Plans.Single(p => p.Plan == PlusPlan.Yearly).SavePercent.Should().Be(66);
     }
 
     [Fact]
@@ -317,6 +318,9 @@ public class PaywallTests
 
         // 39.000 ₫/tháng × 12 = 468.000 ₫ so với 249.000 ₫/năm: tiết kiệm 47% (trước đây ghi cứng 44%).
         vm.Plans.Single(p => p.Plan == PlusPlan.Yearly).SavePercent.Should().Be(47);
+        // Số ngày dùng thử đi theo đúng gói (Store cấu hình): gói Năm 30 ngày, gói Tháng không có.
+        vm.Plans.Single(p => p.Plan == PlusPlan.Yearly).TrialDays.Should().Be(30);
+        vm.Plans.Single(p => p.Plan == PlusPlan.Monthly).HasTrial.Should().BeFalse();
     }
 
     [Fact]

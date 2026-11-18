@@ -14,7 +14,7 @@ public enum PaywallSource
 }
 
 /// <summary>Một gói trên paywall.</summary>
-public sealed record PaywallPlan(PlusPlan Plan, string Price, bool HasTrial, bool IsBestValue, int? SavePercent);
+public sealed record PaywallPlan(PlusPlan Plan, string Price, bool HasTrial, bool IsBestValue, int? SavePercent, int? TrialDays = null);
 
 /// <summary>
 /// Paywall Plus (02-UX-SCREENS §12, SPEC-V2-10 §6): 3 gói, giá đầy đủ, ghi rõ tự gia hạn, nút đóng rõ ràng.
@@ -22,12 +22,12 @@ public sealed record PaywallPlan(PlusPlan Plan, string Price, bool HasTrial, boo
 /// </summary>
 public sealed partial class PaywallViewModel : ObservableObject
 {
-    /// <summary>Giá tham khảo khi Store không trả giá; hiển thị kèm nhãn "tham khảo". Theo bảng giá v3 ($1.99 / $9.99 / $19.99); giá thật đặt trong Partner Center.</summary>
+    /// <summary>Giá tham khảo khi Store không trả giá; hiển thị kèm nhãn "tham khảo". Theo bảng giá v3 (49.000 / 199.000 / 299.000 ₫); giá thật đặt trong Partner Center.</summary>
     public static readonly IReadOnlyDictionary<PlusPlan, string> ReferencePrices = new Dictionary<PlusPlan, string>
     {
-        [PlusPlan.Monthly] = "$1.99",
-        [PlusPlan.Yearly] = "$9.99",
-        [PlusPlan.Lifetime] = "$19.99"
+        [PlusPlan.Monthly] = "49.000 ₫",
+        [PlusPlan.Yearly] = "199.000 ₫",
+        [PlusPlan.Lifetime] = "299.000 ₫"
     };
 
     private readonly PlusService _plus;
@@ -143,7 +143,7 @@ public sealed partial class PaywallViewModel : ObservableObject
 
     private static PaywallPlan Make(PlusPlan plan, IReadOnlyDictionary<PlusPlan, PlusProduct> byPlan, bool best, int? save) =>
         byPlan.TryGetValue(plan, out var product)
-            ? new PaywallPlan(plan, product.Price, product.HasTrial, best, save)
+            ? new PaywallPlan(plan, product.Price, product.HasTrial, best, save, product.TrialDays)
             // Giá tham khảo không bao giờ kèm "dùng thử": chỉ Store mới biết add-on có bật dùng thử hay không
             // (ghi dùng thử mà không có là mô tả sai, vi phạm chính sách 10.8.4 của Store).
             : new PaywallPlan(plan, ReferencePrices[plan], HasTrial: false, best, save);

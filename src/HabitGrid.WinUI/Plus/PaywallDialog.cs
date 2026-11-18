@@ -157,7 +157,9 @@ public static class PaywallDialog
 
         if (plan.HasTrial)
         {
-            stack.Children.Add(new TextBlock { Text = Ui.T("plus.trial"), Foreground = (Brush)Application.Current.Resources["AccentBrandBrush"], FontSize = 12 });
+            // Ghi đúng số ngày dùng thử của từng gói theo Store (Tháng 7 ngày, Năm 30 ngày); không rõ thì chỉ ghi "có dùng thử".
+            var trialText = plan.TrialDays is { } days ? Ui.Loc.Format("plus.trial.days", days) : Ui.T("plus.trial");
+            stack.Children.Add(new TextBlock { Text = trialText, Foreground = (Brush)Application.Current.Resources["AccentBrandBrush"], FontSize = 12, TextWrapping = TextWrapping.Wrap });
         }
 
         var buy = new Button

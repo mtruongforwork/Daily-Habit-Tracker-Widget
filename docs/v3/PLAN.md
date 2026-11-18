@@ -35,15 +35,17 @@ Nguồn: "Tài liệu Refactor UI HabitGrid (Master Spec v3.0)". Tài liệu nà
 4. **Không đổi dữ liệu, không đổi logic nghiệp vụ.** Chỉ đổi lớp giao diện, ngoại trừ: nhãn tháng heatmap, xếp ô Bento, giá tham khảo, ngôn ngữ và âm thanh Focus.
 5. **Phiên bản:** gói 3.0.0.0. Phải lớn hơn bản đã đăng (1.1.x).
 
-## 2. Các điểm cần bạn quyết (mình đã chọn mặc định, đổi được)
+## 2. Quyết định đã chốt (19/11/2026)
 
-| # | Vấn đề | Mặc định mình làm | Lý do |
+| # | Chốt | Làm trong app | Bạn làm trong Partner Center |
 |---|---|---|---|
-| Q1 | Giá mới $1.99 / $9.99 / $19.99, VN 29.000 / 149.000 / 299.000 ₫ (ra mắt 249.000 ₫) | Sửa giá tham khảo trong app. **Bạn tự đổi giá thật** trong Partner Center (từng add-on → Pricing). Giá ra mắt dùng "Schedule a price change" / sale | App không tự đặt giá được; Store mới là nguồn giá |
-| Q2 | Spec muốn "Dùng thử 7 ngày" cho gói Năm (Store trial) | **Không bật.** Giữ dùng thử 30 ngày trong app như hiện tại | Hai kiểu dùng thử chồng nhau gây rối. Mô tả Store vừa phải sửa vì 10.8.4; bật thêm trial thì phải sửa mô tả lần nữa |
-| Q3 | Thêm 日本語 / 한국어 | Làm đủ: 795 chuỗi app + chuỗi widget, phông chữ dự phòng, lưới chọn 4 ngôn ngữ | **Bản dịch do mình viết, chưa có người bản xứ duyệt.** Nên nhờ người biết tiếng duyệt trước khi thêm ngôn ngữ vào trang Store |
-| Q4 | "Ambient Sound Mixer" ở trang Focus | Tự tạo âm thanh bằng code (tiếng ồn trắng/hồng/nâu, mưa, sóng tổng hợp), có thanh âm lượng từng kênh và sóng âm chạy | Không cần file âm thanh có bản quyền. Nếu bạn có file âm thanh riêng muốn dùng, đưa mình |
-| Q5 | Thứ tự phát hành | 3.0.0 phát hành sau khi bản 1.1 hiện tại đã lên Store | Tránh hai bản nộp chồng nhau trong Partner Center |
+| Q1 | Giá: Tháng **49.000 ₫**, Năm **199.000 ₫**, Trọn đời **299.000 ₫** | Giá tham khảo đổi theo; "Tiết kiệm x%" tính từ giá thật (49k × 12 so với 199k = 66%) | Từng add-on → Pricing and availability → Base price |
+| Q2 | Dùng thử của Store: Tháng **7 ngày**, Năm **30 ngày**; Trọn đời không có | Paywall đọc số ngày dùng thử của từng gói từ Store. **Tắt tặng Plus 30 ngày cho người dùng mới** (tránh dùng thử chồng dùng thử); ai đã bắt đầu thời gian tặng vẫn dùng hết | `plus_monthly` → Properties → Free trial **1 week**; `plus_yearly` → **1 month** |
+| Q3 | Thêm 日本語 / 한국어; bản dịch do Antigravity duyệt | Mình dịch đủ chuỗi app + widget, đưa file để duyệt | Thêm ngôn ngữ vào trang Store sau khi duyệt xong |
+| Q4 | Âm thanh Focus tự tạo bằng code | Tiếng ồn trắng/hồng/nâu, mưa, sóng tổng hợp; không dùng file có bản quyền | — |
+| Q5 | 3.0.0 phát hành sau khi bản 1.1 đang duyệt đã lên Store | — | — |
+
+**Cần sửa mô tả Store khi phát hành 3.0.0:** đoạn "DÙNG THỬ MIỄN PHÍ VÀ PLUS" hiện nói người dùng mới được tặng 30 ngày. Từ 3.0.0 phải đổi thành: dùng thử 7 ngày (gói Tháng) / 30 ngày (gói Năm) qua Store, tự gia hạn sau khi hết dùng thử nếu không hủy, và giới hạn của gói Free (tối đa 5 thói quen đang hoạt động, các tính năng Plus bị khóa).
 
 ## 3. Lộ trình (4 sprint, mỗi sprint 1 PR)
 

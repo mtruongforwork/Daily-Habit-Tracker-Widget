@@ -19,12 +19,26 @@ public enum PlusTier
 /// </summary>
 public static class PlusPromo
 {
-    public const bool Enabled = true;
+    /// <summary>
+    /// Tắt từ v3: các gói trả phí đã có dùng thử của Store (Tháng 7 ngày, Năm 30 ngày), tặng thêm sẽ thành dùng thử chồng dùng thử.
+    /// Người đã bắt đầu thời gian tặng trước đó vẫn dùng hết số ngày còn lại (ngày bắt đầu đã lưu).
+    /// </summary>
+    public const bool Enabled = false;
     public const int Days = 30;
 
     /// <summary>Quyền tặng tính từ lần đầu mở app (hoặc lần đầu có chương trình).</summary>
     public static LicenseState StateFor(DateTime startedAtUtc) =>
         new(PlusTier.Promo, startedAtUtc, startedAtUtc.AddDays(Days), IsTrial: true);
+
+    /// <summary>Đổi thời hạn dùng thử của Store (độ dài + đơn vị) ra số ngày để ghi trên paywall.</summary>
+    public static int? TrialDays(uint length, string unit) => unit switch
+    {
+        "Day" => (int)length,
+        "Week" => (int)length * 7,
+        "Month" => (int)length * 30,
+        "Year" => (int)length * 365,
+        _ => null
+    };
 
     public static int DaysLeft(LicenseState state, DateTime nowUtc) =>
         state.Tier == PlusTier.Promo && state.ExpiresAtUtc is { } end
@@ -66,8 +80,11 @@ public static class PlusProducts
     public static bool IsSubscription(PlusTier tier) => tier is PlusTier.Monthly or PlusTier.Yearly;
 }
 
-/// <summary>Sản phẩm hiển thị trên paywall. Giá lấy từ Store (đúng tiền tệ của người dùng); không có Store thì là giá tham khảo.</summary>
-public sealed record PlusProduct(PlusPlan Plan, string StoreId, string Price, bool HasTrial, bool IsReferencePrice);
+/// <summary>
+/// Sản phẩm hiển thị trên paywall. Giá lấy từ Store (đúng tiền tệ của người dùng); không có Store thì là giá tham khảo.
+/// <paramref name="TrialDays"/>: số ngày dùng thử Store cấu hình cho gói (ví dụ Tháng 7, Năm 30); null nếu không rõ.
+/// </summary>
+public sealed record PlusProduct(PlusPlan Plan, string StoreId, string Price, bool HasTrial, bool IsReferencePrice, int? TrialDays = null);
 
 /// <summary>Quyền đã xác minh gần nhất (được lưu cache mã hóa để dùng offline).</summary>
 public sealed record LicenseState(PlusTier Tier, DateTime VerifiedAtUtc, DateTime? ExpiresAtUtc = null, bool IsTrial = false)

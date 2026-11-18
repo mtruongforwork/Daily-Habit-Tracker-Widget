@@ -332,8 +332,9 @@
   <data name="plus.per.month" xml:space="preserve"><value>mỗi tháng</value></data>
   <data name="plus.per.year" xml:space="preserve"><value>mỗi năm</value></data>
   <data name="plus.once" xml:space="preserve"><value>trả một lần</value></data>
+  <data name="plus.trial.days" xml:space="preserve"><value>Dùng thử miễn phí {0} ngày</value></data>
   <data name="plus.save" xml:space="preserve"><value>Tiết kiệm {0}%</value></data>
-  <data name="plus.trial" xml:space="preserve"><value>Dùng thử 7 ngày</value></data>
+  <data name="plus.trial" xml:space="preserve"><value>Có dùng thử miễn phí</value></data>
   <data name="plus.buy" xml:space="preserve"><value>Chọn gói này</value></data>
   <data name="plus.restore" xml:space="preserve"><value>Khôi phục mua hàng</value></data>
   <data name="plus.close" xml:space="preserve"><value>Để sau</value></data>

@@ -54,8 +54,9 @@ public sealed class WindowsPlusStore : IPlusStore
             }
 
             _storeIdByToken[token] = product.StoreId;
-            var trial = product.Skus.Any(s => s.IsSubscription && s.SubscriptionInfo?.HasTrialPeriod == true);
-            list.Add(new PlusProduct(plan.Value, token, product.Price.FormattedPrice, trial, false));
+            var trialSku = product.Skus.FirstOrDefault(s => s.IsSubscription && s.SubscriptionInfo?.HasTrialPeriod == true);
+            var trialDays = trialSku?.SubscriptionInfo is { } info ? PlusPromo.TrialDays(info.TrialPeriod, info.TrialPeriodUnit.ToString()) : null;
+            list.Add(new PlusProduct(plan.Value, token, product.Price.FormattedPrice, trialSku is not null, false, trialDays));
         }
 
         return list;
