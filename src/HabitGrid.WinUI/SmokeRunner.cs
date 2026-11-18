@@ -648,7 +648,7 @@ public static class SmokeRunner
         await Task.Delay(600);
 
         Require(page.CurrentLayout.Serialize() == custom.Serialize(), "Bố cục Hôm nay không được nạp lại từ cài đặt.");
-        var parent = (Microsoft.UI.Xaml.Controls.Panel)((Microsoft.UI.Xaml.Controls.ScrollViewer)page.FindName("Scroll")).Content;
+        var parent = (Microsoft.UI.Xaml.Controls.Panel)page.FindName("Dashboard");
         var order = new[] { "SecHero", "SecWeek", "SecMood", "SecRecap", "SecRoutines", "SecChallenges" }
             .Select(n => (Name: n, Element: (Microsoft.UI.Xaml.FrameworkElement)page.FindName(n)))
             .OrderBy(x => parent.Children.IndexOf(x.Element))

@@ -8,8 +8,8 @@ public class BentoLayoutTests
 {
     [Theory]
     [InlineData(1920, 8)]
-    [InlineData(1100, 8)]
-    [InlineData(1099, 4)]
+    [InlineData(1000, 8)]
+    [InlineData(999, 4)]
     [InlineData(720, 4)]
     [InlineData(719, 2)]
     public void TracksFor_FollowsTheBreakpoints(double width, int tracks) => BentoLayout.TracksFor(width).Should().Be(tracks);

@@ -36,6 +36,24 @@ public class JournalModelTests
     }
 
     [Fact]
+    public async Task MoodTrend_ListsMoodsOfTheLast30Days_OldestFirst_AndIgnoresSearch()
+    {
+        using var f = new AppFixture();
+        var model = Model(f);
+        await model.LoadAsync(AppFixture.Today.AddDays(-40));
+        await model.SaveAsync("Quá cũ", 1);
+        await model.LoadAsync(AppFixture.Today.AddDays(-3));
+        await model.SaveAsync("Hơi mệt", 2);
+        await model.LoadAsync(AppFixture.Today);
+        await model.SaveAsync("Vui", 5);
+        await model.SaveAsync("Vui", 5);
+
+        await model.SearchAsync("không có");
+
+        model.MoodTrend.Should().Equal((AppFixture.Today.AddDays(-3), 2), (AppFixture.Today, 5));
+    }
+
+    [Fact]
     public async Task ShiftDay_MovesBackButNeverIntoTheFuture()
     {
         using var f = new AppFixture();

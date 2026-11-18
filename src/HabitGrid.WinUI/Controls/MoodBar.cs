@@ -28,14 +28,17 @@ public sealed class MoodBar : UserControl
         IsTabStop = false;
         _title.Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"];
 
-        var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        // Năm cột bằng nhau co theo bề rộng ô (v3: ô Tâm trạng chỉ rộng 1 cột Bento; hàng ngang cố định làm mặt thứ 5 bị cắt).
+        var row = new Grid { ColumnSpacing = 6 };
 
         for (var i = 0; i < Faces.Length; i++)
         {
             var value = i + 1;
-            var button = new ToggleButton { Content = Faces[i], FontSize = 22, Padding = new Thickness(14, 2, 14, 2), Style = (Style)Application.Current.Resources["ChipStyle"] };
+            row.ColumnDefinitions.Add(new ColumnDefinition());
+            var button = new ToggleButton { Content = Faces[i], FontSize = 22, Padding = new Thickness(0, 2, 0, 2), MinWidth = 0, HorizontalAlignment = HorizontalAlignment.Stretch, Style = (Style)Application.Current.Resources["ChipStyle"] };
             AutomationProperties.SetName(button, Faces[i]);
             button.Click += async (_, _) => await OnPickedAsync(value);
+            Grid.SetColumn(button, i);
             _buttons.Add(button);
             row.Children.Add(button);
         }

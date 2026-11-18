@@ -10,14 +10,15 @@ using Microsoft.UI.Xaml.Navigation;
 namespace HabitGrid.WinUI.Pages;
 
 /// <summary>
-/// Trang Nhật ký: viết một đoạn cho mỗi ngày kèm tâm trạng, xem lại các ngày gần đây và tìm trong nhật ký.
+/// Trang Nhật ký (v3, lưới Bento cao hết trang): cột trái là danh sách + tìm kiếm; giữa là vùng viết kính mờ có thanh chèn nhanh và chọn
+/// tâm trạng; cột phải là biểu đồ tâm trạng 30 ngày và ảnh khoảnh khắc của ngày đang xem.
 /// Tự lưu sau khi ngừng gõ ~0,8 giây và trước khi đổi ngày/rời trang. Dữ liệu chỉ nằm trên máy.
 /// </summary>
 public sealed partial class JournalPage : Page
 {
     private static readonly string[] MoodEmoji = ["😞", "🙁", "😐", "🙂", "😄"];
 
-    private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(36, 28, 36, 32), MaxWidth = 1100, HorizontalAlignment = HorizontalAlignment.Stretch };
+    private readonly StackPanel _root = new() { Spacing = 18, Padding = new Thickness(32, 24, 32, 32) };
     private readonly DispatcherTimerLite _saveTimer;
     private TextBox? _editor;
     private TextBlock? _status;
@@ -109,13 +110,12 @@ public sealed partial class JournalPage : Page
         _root.Children.Clear();
         _root.Children.Add(BuildHeader());
 
-        var body = new Grid { ColumnSpacing = 16 };
-        body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star), MinWidth = 260 });
-        body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(3, GridUnitType.Star) });
-        body.Children.Add(BuildList());
-        var editor = BuildEditor();
-        Grid.SetColumn(editor, 1);
-        body.Children.Add(editor);
+        // Hai hàng tối thiểu 300: lưới cao gần hết khung nhìn, không còn nửa dưới trống.
+        var body = new HabitGrid.WinUI.Controls.BentoGrid { MinRowHeight = 300 };
+        body.Add(BuildList(), columns: 1, rows: 2);
+        body.Add(BuildEditor(), columns: 2, rows: 2);
+        body.Add(BuildMoodChart(), columns: 1);
+        body.Add(BuildMoments(), columns: 1);
         _root.Children.Add(body);
     }
 
@@ -145,15 +145,7 @@ public sealed partial class JournalPage : Page
         return button;
     }
 
-    private Border Card() => new()
-    {
-        CornerRadius = (CornerRadius)Application.Current.Resources["RadiusLg"],
-        Background = Res("CardIdleBrush"),
-        BorderBrush = Res("StrokeSubtleBrush"),
-        BorderThickness = new Thickness(1),
-        Padding = new Thickness(16),
-        VerticalAlignment = VerticalAlignment.Top
-    };
+    private static Border Card() => new() { Style = Sty("GlassCard") };
 
     private FrameworkElement BuildList()
     {
@@ -252,6 +244,25 @@ public sealed partial class JournalPage : Page
 
         stack.Children.Add(moods);
 
+        // Thanh chèn nhanh: gạch đầu dòng, việc cần làm, giờ hiện tại, câu gợi ý biết ơn (nhật ký là văn bản thường, không có định dạng ẩn).
+        var tools = new HabitGrid.WinUI.Controls.WrapPanel { HorizontalSpacing = 6, VerticalSpacing = 6 };
+
+        foreach (var (label, key, insert) in new (string, string, Func<string>)[]
+        {
+            ("•", "journal.tool.bullet", () => "• "),
+            ("☐", "journal.tool.todo", () => "☐ "),
+            ("🕒", "journal.tool.time", () => DateTime.Now.ToString("HH:mm", Ui.CurrentCulture) + " "),
+            ("🙏", "journal.tool.grateful", () => Ui.T("journal.tool.grateful.text") + " ")
+        })
+        {
+            var button = new Button { Style = Sty("GhostButtonStyle"), Content = $"{label}  {Ui.T(key)}", Padding = new Thickness(12, 6, 12, 6) };
+            AutomationProperties.SetName(button, Ui.T(key));
+            button.Click += (_, _) => InsertAtCaret(insert());
+            tools.Children.Add(button);
+        }
+
+        stack.Children.Add(tools);
+
         _loading = true;
         _editor = new TextBox
         {
@@ -259,7 +270,7 @@ public sealed partial class JournalPage : Page
             PlaceholderText = Ui.T("journal.placeholder"),
             AcceptsReturn = true,
             TextWrapping = TextWrapping.Wrap,
-            MinHeight = 260,
+            MinHeight = 420,
             MaxLength = JournalRules.MaxLength
         };
         _loading = false;
@@ -271,6 +282,128 @@ public sealed partial class JournalPage : Page
         stack.Children.Add(_status);
         card.Child = stack;
         return card;
+    }
+
+    /// <summary>Chèn chữ vào vị trí con trỏ; đang ở giữa dòng mà chèn gạch đầu dòng/việc cần làm thì xuống dòng trước.</summary>
+    private void InsertAtCaret(string text)
+    {
+        if (_editor is null)
+        {
+            return;
+        }
+
+        var caret = _editor.SelectionStart;
+        var before = _editor.Text[..caret];
+        var lineStart = before.Length == 0 || before.EndsWith('\r') || before.EndsWith('\n');
+        var insert = (!lineStart && text is "• " or "☐ " ? "\r" : string.Empty) + text;
+        _editor.Text = before + insert + _editor.Text[caret..];
+        _editor.SelectionStart = caret + insert.Length;
+        _editor.Focus(FocusState.Programmatic);
+    }
+
+    /// <summary>Biểu đồ tâm trạng 30 ngày: đường nối các ngày có ghi tâm trạng (1–5), chấm tô theo mức.</summary>
+    private FrameworkElement BuildMoodChart()
+    {
+        var stack = new StackPanel { Spacing = 10 };
+        stack.Children.Add(new TextBlock { Text = Ui.T("journal.mood.title"), Style = Sty("CardTitleTextStyle"), TextWrapping = TextWrapping.Wrap });
+
+        var points = Model.MoodTrend;
+
+        if (points.Count == 0)
+        {
+            stack.Children.Add(new TextBlock { Text = Ui.T("journal.mood.empty"), Style = Sty("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
+            return new Border { Style = Sty("GlassCard"), Child = stack };
+        }
+
+        const double width = 240, height = 120;
+        var canvas = new Canvas { Width = width, Height = height, HorizontalAlignment = HorizontalAlignment.Center };
+        var first = Model.Today.AddDays(-(HabitGrid.Presentation.Services.JournalModel.MoodDays - 1));
+        double X(DateOnly day) => (day.DayNumber - first.DayNumber) / (double)(HabitGrid.Presentation.Services.JournalModel.MoodDays - 1) * (width - 12) + 6;
+        double Y(int mood) => height - 8 - ((mood - 1) / 4.0 * (height - 16));
+
+        // Lưới mờ 5 mức.
+        for (var m = 1; m <= 5; m++)
+        {
+            var line = new Microsoft.UI.Xaml.Shapes.Line { X1 = 0, X2 = width, Y1 = Y(m), Y2 = Y(m), Stroke = Res("StrokeSubtleBrush"), StrokeThickness = 1 };
+            canvas.Children.Add(line);
+        }
+
+        var poly = new Microsoft.UI.Xaml.Shapes.Polyline { Stroke = Res("AccentGradientBrush"), StrokeThickness = 3, StrokeLineJoin = PenLineJoin.Round };
+
+        foreach (var (day, mood) in points)
+        {
+            poly.Points.Add(new Windows.Foundation.Point(X(day), Y(mood)));
+        }
+
+        canvas.Children.Add(poly);
+
+        foreach (var (day, mood) in points)
+        {
+            var dot = new Microsoft.UI.Xaml.Shapes.Ellipse { Width = 10, Height = 10, Fill = Res("AccentBrandBrush"), Stroke = Res("TextPrimaryBrush"), StrokeThickness = 1.5 };
+            Canvas.SetLeft(dot, X(day) - 5);
+            Canvas.SetTop(dot, Y(mood) - 5);
+            ToolTipService.SetToolTip(dot, $"{Ui.LongDate(day)} · {MoodEmoji[mood - 1]}");
+            canvas.Children.Add(dot);
+        }
+
+        AutomationProperties.SetName(canvas, Ui.Loc.Format("journal.mood.summary", points.Count, Math.Round(points.Average(p => p.Mood), 1)));
+        stack.Children.Add(canvas);
+
+        var legend = new Grid();
+        legend.ColumnDefinitions.Add(new ColumnDefinition());
+        legend.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        legend.Children.Add(new TextBlock { Text = Ui.T("journal.mood.from"), Style = Sty("BodySecondaryTextStyle"), FontSize = 11 });
+        var today = new TextBlock { Text = Ui.T("journal.today"), Style = Sty("BodySecondaryTextStyle"), FontSize = 11 };
+        Grid.SetColumn(today, 1);
+        legend.Children.Add(today);
+        stack.Children.Add(legend);
+        return new Border { Style = Sty("GlassCard"), Child = stack };
+    }
+
+    /// <summary>Ảnh khoảnh khắc (mọi thói quen) của ngày đang xem.</summary>
+    private FrameworkElement BuildMoments()
+    {
+        var stack = new StackPanel { Spacing = 10 };
+        stack.Children.Add(new TextBlock { Text = Ui.T("journal.moments.title"), Style = Sty("CardTitleTextStyle"), TextWrapping = TextWrapping.Wrap });
+        var moments = App.Host.Get<MomentService>().Store.All().Where(m => m.Day == Model.SelectedDay).Take(4).ToList();
+
+        if (moments.Count == 0)
+        {
+            stack.Children.Add(new TextBlock { Text = Ui.T("journal.moments.empty"), Style = Sty("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
+            return new Border { Style = Sty("GlassCard"), Child = stack };
+        }
+
+        var grid = new Grid { ColumnSpacing = 8, RowSpacing = 8 };
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        grid.RowDefinitions.Add(new RowDefinition());
+        grid.RowDefinitions.Add(new RowDefinition());
+
+        for (var i = 0; i < moments.Count; i++)
+        {
+            var image = new Image { Stretch = Stretch.UniformToFill, Height = 96 };
+            var frame = new Border { CornerRadius = new CornerRadius(12), Child = image, Background = Res("SurfaceBrush") };
+            Grid.SetColumn(frame, i % 2);
+            Grid.SetRow(frame, i / 2);
+            grid.Children.Add(frame);
+            var path = moments[i].Path;
+            _ = LoadThumbAsync(image, path);
+        }
+
+        stack.Children.Add(grid);
+        return new Border { Style = Sty("GlassCard"), Child = stack };
+    }
+
+    private static async Task LoadThumbAsync(Image image, string path)
+    {
+        try
+        {
+            image.Source = await HabitGrid.WinUI.Moments.MomentCapture.LoadNowAsync(path, 240);
+        }
+        catch (Exception ex)
+        {
+            App.Host.Get<IAppLogger>().Error("Nạp ảnh khoảnh khắc cho nhật ký lỗi", ex);
+        }
     }
 
     private void MarkDirty()

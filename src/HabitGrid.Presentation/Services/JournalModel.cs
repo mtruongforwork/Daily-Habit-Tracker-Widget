@@ -33,6 +33,12 @@ public sealed class JournalModel
 
     public string Query { get; private set; } = string.Empty;
 
+    /// <summary>Số ngày của biểu đồ tâm trạng.</summary>
+    public const int MoodDays = 30;
+
+    /// <summary>Tâm trạng (1..5) theo ngày trong <see cref="MoodDays"/> ngày gần nhất, cũ → mới; ngày không ghi tâm trạng thì không có. Không đổi theo ô tìm kiếm.</summary>
+    public IReadOnlyList<(DateOnly Day, int Mood)> MoodTrend { get; private set; } = [];
+
     public bool CanGoNext => SelectedDay < Today;
 
     public async Task LoadAsync(DateOnly? day = null, CancellationToken ct = default)
@@ -63,6 +69,12 @@ public sealed class JournalModel
 
     private async Task RefreshListAsync(CancellationToken ct)
     {
+        MoodTrend = (await _repository.GetRangeAsync(Today.AddDays(-(MoodDays - 1)), Today, ct))
+            .Where(e => e.Mood is >= 1 and <= 5)
+            .OrderBy(e => e.Day)
+            .Select(e => (e.Day, e.Mood!.Value))
+            .ToList();
+
         Entries = Query.Length > 0
             ? await _repository.SearchAsync(Query, 100, ct)
             : await _repository.GetRangeAsync(Today.AddDays(-RecentDays), Today, ct);

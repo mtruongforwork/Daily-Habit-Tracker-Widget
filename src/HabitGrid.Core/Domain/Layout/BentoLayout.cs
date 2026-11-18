@@ -18,7 +18,7 @@ public static class BentoLayout
     public const int NarrowTracks = 2;
 
     /// <summary>Bề rộng (DIP) từ đó dùng lưới đầy đủ 4 cột (8 rãnh).</summary>
-    public const double WideFrom = 1100;
+    public const double WideFrom = 1000;
 
     /// <summary>Bề rộng (DIP) từ đó dùng 2 cột (4 rãnh); hẹp hơn thì 1 cột.</summary>
     public const double MediumFrom = 720;
