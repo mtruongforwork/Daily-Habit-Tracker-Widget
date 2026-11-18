@@ -14,7 +14,7 @@ public enum PaywallSource
 }
 
 /// <summary>Một gói trên paywall.</summary>
-public sealed record PaywallPlan(PlusPlan Plan, string Price, bool HasTrial, bool IsBestValue, int? SavePercent);
+public sealed record PaywallPlan(PlusPlan Plan, string Price, bool HasTrial, bool IsBestValue, int? SavePercent, int? TrialDays = null);
 
 /// <summary>
 /// Paywall Plus (02-UX-SCREENS §12, SPEC-V2-10 §6): 3 gói, giá đầy đủ, ghi rõ tự gia hạn, nút đóng rõ ràng.
@@ -22,12 +22,12 @@ public sealed record PaywallPlan(PlusPlan Plan, string Price, bool HasTrial, boo
 /// </summary>
 public sealed partial class PaywallViewModel : ObservableObject
 {
-    /// <summary>Giá tham khảo khi Store không trả giá (spec §2); hiển thị kèm nhãn "tham khảo".</summary>
+    /// <summary>Giá tham khảo khi Store không trả giá; hiển thị kèm nhãn "tham khảo". Theo bảng giá v3 (49.000 / 199.000 / 299.000 ₫); giá thật đặt trong Partner Center.</summary>
     public static readonly IReadOnlyDictionary<PlusPlan, string> ReferencePrices = new Dictionary<PlusPlan, string>
     {
-        [PlusPlan.Monthly] = "$2.99",
-        [PlusPlan.Yearly] = "$19.99",
-        [PlusPlan.Lifetime] = "$39.99"
+        [PlusPlan.Monthly] = "49.000 ₫",
+        [PlusPlan.Yearly] = "199.000 ₫",
+        [PlusPlan.Lifetime] = "299.000 ₫"
     };
 
     private readonly PlusService _plus;
@@ -78,10 +78,14 @@ public sealed partial class PaywallViewModel : ObservableObject
         PricesAreReference = products.Count == 0 || products.Any(p => p.IsReferencePrice);
         HasStoreProducts = products.Count > 0;
 
+        var monthly = Make(PlusPlan.Monthly, byPlan, false, null);
+        var yearlyPrice = byPlan.TryGetValue(PlusPlan.Yearly, out var yearlyProduct) ? yearlyProduct.Price : ReferencePrices[PlusPlan.Yearly];
+
+        // "Tiết kiệm x%" tính từ chính giá đang hiện (trước đây cố định 44%, sai khi đổi giá); không đọc được giá thì không ghi.
         Plans =
         [
-            Make(PlusPlan.Monthly, byPlan, false, null),
-            Make(PlusPlan.Yearly, byPlan, true, 44),
+            monthly,
+            Make(PlusPlan.Yearly, byPlan, true, HabitGrid.Core.Domain.Monetization.PlusPricing.YearlySavePercent(monthly.Price, yearlyPrice)),
             Make(PlusPlan.Lifetime, byPlan, false, null)
         ];
         OnPropertyChanged(nameof(Plans));
@@ -139,6 +143,8 @@ public sealed partial class PaywallViewModel : ObservableObject
 
     private static PaywallPlan Make(PlusPlan plan, IReadOnlyDictionary<PlusPlan, PlusProduct> byPlan, bool best, int? save) =>
         byPlan.TryGetValue(plan, out var product)
-            ? new PaywallPlan(plan, product.Price, product.HasTrial, best, save)
-            : new PaywallPlan(plan, ReferencePrices[plan], plan == PlusPlan.Yearly, best, save);
+            ? new PaywallPlan(plan, product.Price, product.HasTrial, best, save, product.TrialDays)
+            // Giá tham khảo không bao giờ kèm "dùng thử": chỉ Store mới biết add-on có bật dùng thử hay không
+            // (ghi dùng thử mà không có là mô tả sai, vi phạm chính sách 10.8.4 của Store).
+            : new PaywallPlan(plan, ReferencePrices[plan], HasTrial: false, best, save);
 }

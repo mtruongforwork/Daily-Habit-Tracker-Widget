@@ -156,11 +156,31 @@ public class HeatmapBuilderTests
 
         labels.Should().HaveCountGreaterThanOrEqualTo(12);
         labels.Select(l => l.Column).Should().BeInAscendingOrder().And.OnlyHaveUniqueItems();
-        labels[0].Column.Should().Be(0);
+        labels[0].Column.Should().BeLessThan(5);
         for (var i = 1; i < labels.Count; i++)
         {
             labels[i].Month.Should().NotBe(labels[i - 1].Month);
+            (labels[i].Column - labels[i - 1].Column).Should().BeGreaterThanOrEqualTo(3, "hai nhãn tháng sát nhau sẽ đè chữ");
         }
+    }
+
+    [Fact]
+    public void MonthLabels_HideAShortFirstMonth_SoLabelsDoNotOverlap()
+    {
+        // Tháng 10 chỉ có 2 cột ở đầu lưới: bỏ nhãn "Thg 10", nhãn đầu tiên là tháng 11 ở cột 2.
+        var starts = Enumerable.Range(0, 10).Select(i => new DateOnly(2026, 10, 19).AddDays(7 * i)).ToList();
+
+        var labels = HeatmapBuilder.MonthLabels(starts);
+
+        labels.Select(l => (l.Column, l.Month)).Should().Equal((2, 11), (7, 12));
+    }
+
+    [Fact]
+    public void MonthLabels_KeepAFirstMonthWithEnoughColumns()
+    {
+        var starts = Enumerable.Range(0, 8).Select(i => new DateOnly(2026, 10, 5).AddDays(7 * i)).ToList();
+
+        HeatmapBuilder.MonthLabels(starts).First().Should().Be((0, 10, 2026));
     }
 
     [Fact]

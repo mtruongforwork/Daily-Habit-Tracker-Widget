@@ -14,7 +14,7 @@ namespace HabitGrid.WinUI.Pages;
 /// <summary>Trang Buddy: linh vật tiến hóa theo level, thanh XP, token freeze và lưới huy hiệu (có huy hiệu bí mật ẩn điều kiện).</summary>
 public sealed partial class BuddyPage : Page
 {
-    private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(36, 28, 36, 32), MaxWidth = 1040, HorizontalAlignment = HorizontalAlignment.Left };
+    private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(36, 28, 36, 32), MaxWidth = 1040, HorizontalAlignment = HorizontalAlignment.Center };
 
     public BuddyPage()
     {
@@ -153,14 +153,13 @@ public sealed partial class BuddyPage : Page
         foreach (var slot in Enum.GetValues<AccessorySlot>())
         {
             stack.Children.Add(new TextBlock { Text = Ui.T("wardrobe.slot." + slot), FontSize = 13, Foreground = (Brush)Application.Current.Resources["TextMutedBrush"] });
-            var row = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
-
-            foreach (var item in _wardrobe.Items.Where(i => i.Accessory.Slot == slot))
+            // Lưới tự xuống dòng thay cho hàng cuộn ngang (lỗi thanh cuộn ngang và cắt chữ "Hoa tulip" ở kệ phụ kiện).
+            var tiles = _wardrobe.Items.Where(i => i.Accessory.Slot == slot).Select(BuildAccessoryTile).ToList();
+            stack.Children.Add(new ItemsRepeater
             {
-                row.Children.Add(BuildAccessoryTile(item));
-            }
-
-            stack.Children.Add(new ScrollViewer { Content = row, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, HorizontalScrollMode = ScrollMode.Enabled });
+                ItemsSource = tiles,
+                Layout = new UniformGridLayout { MinItemWidth = 124, MinItemHeight = 136, MinColumnSpacing = 10, MinRowSpacing = 10, ItemsStretch = UniformGridLayoutItemsStretch.Fill }
+            });
         }
 
         return stack;
@@ -180,7 +179,7 @@ public sealed partial class BuddyPage : Page
 
         var text = new StackPanel { Spacing = 2, HorizontalAlignment = HorizontalAlignment.Center };
         text.Children.Add(new TextBlock { Text = item.Owned ? a.Emoji : "🔒", FontSize = 32, HorizontalAlignment = HorizontalAlignment.Center, Opacity = item.Owned ? 1 : 0.6 });
-        text.Children.Add(new TextBlock { Text = name, FontSize = 13, HorizontalAlignment = HorizontalAlignment.Center });
+        text.Children.Add(new TextBlock { Text = name, FontSize = 13, HorizontalAlignment = HorizontalAlignment.Center, TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center });
         text.Children.Add(new TextBlock
         {
             Text = item.Equipped ? Ui.T("wardrobe.worn") : item.Owned ? string.Empty : requirement,
@@ -194,7 +193,10 @@ public sealed partial class BuddyPage : Page
         var button = new Button
         {
             Content = text,
-            Width = 136,
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+            VerticalContentAlignment = VerticalAlignment.Center,
             Padding = new Thickness(8, 10, 8, 10),
             CornerRadius = new CornerRadius(16),
             Background = item.Equipped ? (Brush)Application.Current.Resources["Surface2Brush"] : (Brush)Application.Current.Resources["CardIdleBrush"],
@@ -231,7 +233,8 @@ public sealed partial class BuddyPage : Page
         var description = badge.Hidden ? Ui.T("badge.secret.desc") : Ui.T($"badge.{badge.Id}.desc");
 
         var icon = new TextBlock { Text = badge.Hidden ? "❓" : GroupEmoji(badge.Group), FontSize = 30, VerticalAlignment = VerticalAlignment.Center };
-        var title = new TextBlock { Text = name, Style = Res("CardTitleTextStyle"), TextTrimming = TextTrimming.CharacterEllipsis };
+        // Tiêu đề tối đa 2 dòng thay vì cắt "..." ("Ngày hoàn hả...", "Chiến binh cu...").
+        var title = new TextBlock { Text = name, Style = Res("CardTitleTextStyle"), TextWrapping = TextWrapping.Wrap, MaxLines = 2, TextTrimming = TextTrimming.CharacterEllipsis, LineHeight = 22 };
         var body = new TextBlock { Text = description, Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap, MaxLines = 2, TextTrimming = TextTrimming.CharacterEllipsis };
 
         var text = new StackPanel { Spacing = 2 };

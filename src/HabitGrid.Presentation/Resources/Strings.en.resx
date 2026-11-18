@@ -332,8 +332,9 @@
   <data name="plus.per.month" xml:space="preserve"><value>per month</value></data>
   <data name="plus.per.year" xml:space="preserve"><value>per year</value></data>
   <data name="plus.once" xml:space="preserve"><value>one-time</value></data>
+  <data name="plus.trial.days" xml:space="preserve"><value>{0}-day free trial</value></data>
   <data name="plus.save" xml:space="preserve"><value>Save {0}%</value></data>
-  <data name="plus.trial" xml:space="preserve"><value>7-day free trial</value></data>
+  <data name="plus.trial" xml:space="preserve"><value>Free trial included</value></data>
   <data name="plus.buy" xml:space="preserve"><value>Choose this plan</value></data>
   <data name="plus.restore" xml:space="preserve"><value>Restore purchases</value></data>
   <data name="plus.close" xml:space="preserve"><value>Not now</value></data>

@@ -19,11 +19,14 @@ public sealed class FakePlusStore : IPlusStore
 
     public bool ThrowOnOwned { get; set; }
 
+    /// <summary>Đặt để thay danh sách sản phẩm mặc định (ví dụ rỗng: Store chưa có add-on, app dùng giá tham khảo).</summary>
+    public IReadOnlyList<PlusProduct>? Products { get; set; }
+
     public Task<IReadOnlyList<PlusProduct>> GetProductsAsync(CancellationToken ct = default) =>
-        Task.FromResult<IReadOnlyList<PlusProduct>>(
+        Task.FromResult<IReadOnlyList<PlusProduct>>(Products ??
         [
             new(PlusPlan.Monthly, PlusProducts.Monthly, "39.000 ₫", false, false),
-            new(PlusPlan.Yearly, PlusProducts.Yearly, "249.000 ₫", true, false),
+            new(PlusPlan.Yearly, PlusProducts.Yearly, "249.000 ₫", true, false, 30),
             new(PlusPlan.Lifetime, PlusProducts.Lifetime, "499.000 ₫", false, false)
         ]);
 
@@ -285,6 +288,39 @@ public class PaywallTests
         store.PurchaseCalls.Should().Be(1);
         vm.IsPlus.Should().BeTrue();
         vm.MessageKey.Should().Be("plus.msg.thanks");
+    }
+
+    [Fact]
+    public async Task WithoutStoreProducts_ReferencePrices_NeverPromiseATrial_AndSavingsAreComputed()
+    {
+        using var f = new AppFixture();
+        var store = new FakePlusStore { Products = [] };
+        var service = new PlusService(store, new MemoryLicenseCache(), new LiveEntitlements(), f.Settings, f.Habits) { PromoEnabled = false };
+        var vm = new PaywallViewModel(service, PaywallSource.Settings);
+
+        await vm.LoadAsync();
+
+        vm.PricesAreReference.Should().BeTrue();
+        vm.Plans.Select(p => p.Price).Should().Equal("49.000 ₫", "199.000 ₫", "299.000 ₫");
+        vm.Plans.Should().OnlyContain(p => !p.HasTrial, "giá tham khảo không được hứa dùng thử mà Store không có (chính sách 10.8.4)");
+        // 49.000 ₫ × 12 = 588.000 ₫ so với 199.000 ₫/năm.
+        vm.Plans.Single(p => p.Plan == PlusPlan.Yearly).SavePercent.Should().Be(66);
+    }
+
+    [Fact]
+    public async Task StorePrices_GiveTheRealYearlySaving()
+    {
+        using var f = new AppFixture();
+        var service = new PlusService(new FakePlusStore(), new MemoryLicenseCache(), new LiveEntitlements(), f.Settings, f.Habits) { PromoEnabled = false };
+        var vm = new PaywallViewModel(service, PaywallSource.Settings);
+
+        await vm.LoadAsync();
+
+        // 39.000 ₫/tháng × 12 = 468.000 ₫ so với 249.000 ₫/năm: tiết kiệm 47% (trước đây ghi cứng 44%).
+        vm.Plans.Single(p => p.Plan == PlusPlan.Yearly).SavePercent.Should().Be(47);
+        // Số ngày dùng thử đi theo đúng gói (Store cấu hình): gói Năm 30 ngày, gói Tháng không có.
+        vm.Plans.Single(p => p.Plan == PlusPlan.Yearly).TrialDays.Should().Be(30);
+        vm.Plans.Single(p => p.Plan == PlusPlan.Monthly).HasTrial.Should().BeFalse();
     }
 
     [Fact]

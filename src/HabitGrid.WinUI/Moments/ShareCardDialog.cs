@@ -35,7 +35,8 @@ public static class ShareCardDialog
         var hideWatermark = false;
         var host = new Border { Width = CardWidth, Height = CardHeight, HorizontalAlignment = HorizontalAlignment.Center };
         var status = new TextBlock { TextWrapping = TextWrapping.Wrap, Visibility = Visibility.Collapsed };
-        var frames = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6 };
+        // Các khung tự xuống dòng thay vì cuộn ngang (lỗi nút khung thứ 5 bị cắt ngoài mép).
+        var frames = new HabitGrid.WinUI.Controls.WrapPanel { HorizontalSpacing = 6, VerticalSpacing = 6 };
         var watermark = new CheckBox { Content = Ui.T("share.watermark.hide"), IsEnabled = service.IsPlus };
         AutomationProperties.SetName(watermark, Ui.T("share.watermark.hide"));
 
@@ -127,8 +128,9 @@ public static class ShareCardDialog
 
         var panel = new StackPanel { Spacing = 12 };
         panel.Children.Add(layouts);
-        panel.Children.Add(new ScrollViewer { Content = frames, HorizontalScrollBarVisibility = ScrollBarVisibility.Auto, VerticalScrollBarVisibility = ScrollBarVisibility.Disabled, HorizontalScrollMode = ScrollMode.Enabled });
-        panel.Children.Add(host);
+        panel.Children.Add(frames);
+        // Chỉ thu nhỏ phần HIỂN THỊ (80%) để thẻ không bị cắt đáy trong hộp thoại; ảnh lưu vẫn render từ thẻ gốc 360×640 ở 1080×1920.
+        panel.Children.Add(new Viewbox { Child = host, Height = CardHeight * 0.8, HorizontalAlignment = HorizontalAlignment.Center });
         panel.Children.Add(watermark);
         panel.Children.Add(new TextBlock { Text = Ui.T("share.hint"), TextWrapping = TextWrapping.Wrap, Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"] });
         panel.Children.Add(status);

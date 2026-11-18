@@ -56,6 +56,7 @@ public static class SmokeRunner
             App.Host.Get<GamificationService>().Celebrated += (_, _) => celebrations++;
 
             await OnboardingJourneyAsync(window, logger);
+            await FreePlanThenLegacyPromoAsync(logger);
             await CheckInRoundTripAsync(window, logger);
             await EditorJourneyAsync(window, logger);
 
@@ -930,13 +931,29 @@ public static class SmokeRunner
         _ => parent.GetType().Name
     };
 
+    /// <summary>
+    /// Từ v3 người dùng mới ở gói Free (không tặng Plus; dùng thử nằm ở gói Store). Kiểm điều đó, rồi dựng trường hợp người đã bắt đầu
+    /// thời gian tặng trước v3 (ngày bắt đầu đã lưu): họ vẫn giữ Plus tới hết số ngày. Các luồng sau cần Plus (phụ kiện, chủ đề…).
+    /// </summary>
+    private static async Task FreePlanThenLegacyPromoAsync(IAppLogger logger)
+    {
+        var plus = App.Host.Get<PlusService>();
+        Require(plus.Status.Tier == HabitGrid.Core.Domain.Monetization.PlusTier.None, $"Người dùng mới phải ở gói Free, đang là {plus.Status.Tier}.");
+        Require(plus.PromoDaysLeft == 0, $"Người dùng mới không được tặng Plus, đang còn {plus.PromoDaysLeft} ngày.");
+        Require(App.Host.Get<IEntitlements>().MaxActiveHabits == HabitGrid.Core.Domain.FreeEntitlements.FreeMaxActiveHabits, "Gói Free phải giới hạn số thói quen.");
+
+        await App.Host.Get<ISettingsStore>().SetAsync(PlusService.PromoStartedKey, DateTime.UtcNow.ToString("O", System.Globalization.CultureInfo.InvariantCulture));
+        await plus.InitializeAsync();
+        Require(plus.Status.Tier == HabitGrid.Core.Domain.Monetization.PlusTier.Promo && plus.PromoDaysLeft is 29 or 30, $"Người đã bắt đầu thời gian tặng phải còn Plus 30 ngày, đang là {plus.Status.Tier} / {plus.PromoDaysLeft}.");
+        logger.Info("SMOKE plan OK (new user free, legacy promo kept)");
+    }
+
     private static async Task PlusJourneyAsync(MainWindow window, IAppLogger logger)
     {
         var plus = App.Host.Get<PlusService>();
         Require(!plus.StoreAvailable, "Bản không đóng gói không được coi là có Microsoft Store.");
-        // Chưa mở bán trên Store: người dùng mới được tặng Plus 30 ngày (quyền cục bộ, không phải mua).
-        Require(plus.Status.Tier == HabitGrid.Core.Domain.Monetization.PlusTier.Promo, $"Người dùng mới phải được tặng Plus, đang là {plus.Status.Tier}.");
-        Require(plus.PromoDaysLeft is 29 or 30, $"Thời gian tặng phải còn 30 ngày, đang còn {plus.PromoDaysLeft}.");
+        // Người đã bắt đầu thời gian tặng trước v3 vẫn giữ Plus tới hết số ngày (FreePlanThenLegacyPromoAsync dựng trường hợp này).
+        Require(plus.Status.Tier == HabitGrid.Core.Domain.Monetization.PlusTier.Promo, $"Người đang trong thời gian tặng phải còn Plus, đang là {plus.Status.Tier}.");
         Require(App.Host.Get<IEntitlements>().MaxActiveHabits == int.MaxValue, "Đang Plus tặng thì không giới hạn thói quen.");
 
         var root = window.Content.XamlRoot;
@@ -945,13 +962,13 @@ public static class SmokeRunner
 
         var dialog = VisualTreeHelper.GetOpenPopupsForXamlRoot(root).Select(p => p.Child).OfType<ContentDialog>().FirstOrDefault()
                      ?? throw new InvalidOperationException("Paywall không mở được.");
-        var buyButtons = FindAll<Button>(dialog).Where(b => Equals(b.Content, Ui.T("plus.buy"))).ToList();
+        var buyButtons = FindAll<Button>(dialog).Where(b => ((b.Content as TextBlock)?.Text ?? b.Content as string) == Ui.T("plus.buy")).ToList();
         Require(buyButtons.Count == 3, $"Paywall phải có 3 gói, thấy {buyButtons.Count}.");
         Require(buyButtons.All(b => !b.IsEnabled), "Không có Store mà nút Mua vẫn bấm được.");
 
         dialog.Hide();
         await showing;
-        logger.Info($"SMOKE plus OK (promo {plus.PromoDaysLeft} days left, no store, paywall builds, buy disabled)");
+        logger.Info($"SMOKE plus OK (legacy promo {plus.PromoDaysLeft} days left, no store, paywall builds, buy disabled)");
     }
 
     private static async Task ShortcutsJourneyAsync(MainWindow window, IAppLogger logger)

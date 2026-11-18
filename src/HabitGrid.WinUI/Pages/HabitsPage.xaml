@@ -50,7 +50,8 @@
             <TextBlock x:Name="EmptyText" Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" />
         </StackPanel>
 
-        <InfoBar Grid.Row="3" x:Name="UndoBar" Severity="Informational" IsClosable="True" IsOpen="False">
+        <InfoBar Grid.Row="3" x:Name="UndoBar" Severity="Informational" IsClosable="True" IsOpen="False"
+                 HorizontalAlignment="Center" MaxWidth="460" CornerRadius="19" Margin="16,0,16,16">
             <InfoBar.ActionButton>
                 <Button x:Name="UndoButton" Click="OnUndoDeleteClick" />
             </InfoBar.ActionButton>

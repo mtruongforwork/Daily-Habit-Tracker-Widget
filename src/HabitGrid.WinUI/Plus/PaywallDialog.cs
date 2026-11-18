@@ -145,9 +145,10 @@ public static class PaywallDialog
         };
 
         var stack = new StackPanel { Spacing = 6 };
-        stack.Children.Add(new TextBlock { Text = Ui.T(nameKey), Style = (Style)Application.Current.Resources["CardTitleTextStyle"] });
-        stack.Children.Add(new TextBlock { Text = plan.Price, FontSize = 22, FontWeight = Microsoft.UI.Text.FontWeights.Bold });
-        stack.Children.Add(new TextBlock { Text = Ui.T(periodKey), Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"] });
+        // Chữ trong thẻ giá tự xuống dòng và có khoảng dòng đủ cao: không cắt chân chữ ("mỗi năm") hay cắt ngang tên gói.
+        stack.Children.Add(new TextBlock { Text = Ui.T(nameKey), Style = (Style)Application.Current.Resources["CardTitleTextStyle"], TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None });
+        stack.Children.Add(new TextBlock { Text = plan.Price, FontSize = 22, FontWeight = Microsoft.UI.Text.FontWeights.Bold, TextWrapping = TextWrapping.Wrap });
+        stack.Children.Add(new TextBlock { Text = Ui.T(periodKey), Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"], TextWrapping = TextWrapping.Wrap, LineHeight = 19 });
 
         if (plan.SavePercent is { } save)
         {
@@ -156,14 +157,19 @@ public static class PaywallDialog
 
         if (plan.HasTrial)
         {
-            stack.Children.Add(new TextBlock { Text = Ui.T("plus.trial"), Foreground = (Brush)Application.Current.Resources["AccentBrandBrush"], FontSize = 12 });
+            // Ghi đúng số ngày dùng thử của từng gói theo Store (Tháng 7 ngày, Năm 30 ngày); không rõ thì chỉ ghi "có dùng thử".
+            var trialText = plan.TrialDays is { } days ? Ui.Loc.Format("plus.trial.days", days) : Ui.T("plus.trial");
+            stack.Children.Add(new TextBlock { Text = trialText, Foreground = (Brush)Application.Current.Resources["AccentBrandBrush"], FontSize = 12, TextWrapping = TextWrapping.Wrap });
         }
 
         var buy = new Button
         {
-            Content = Ui.T("plus.buy"),
+            // Nút rộng hết thẻ, chữ tự xuống dòng, đệm ngang hẹp hơn: không còn "Chọn gói nà" khi thẻ gói Năm có thêm dòng.
+            Content = new TextBlock { Text = Ui.T("plus.buy"), TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center },
             Style = (Style)Application.Current.Resources["GradientButtonStyle"],
+            Padding = new Thickness(12, 10, 12, 10),
             HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 6, 0, 0),
             IsEnabled = vm.PurchasesOpen && !vm.IsPlus
         };
