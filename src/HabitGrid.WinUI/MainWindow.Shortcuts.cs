@@ -17,6 +17,8 @@ public sealed partial class MainWindow
 
     private void RegisterShortcuts()
     {
+        // Phím tắt gắn vào toàn cửa sổ: tắt tooltip tự động của WinUI, nếu không nhãn "Ctrl+K" hiện lơ lửng ở bất cứ chỗ nào con trỏ dừng.
+        Root.KeyboardAcceleratorPlacementMode = KeyboardAcceleratorPlacementMode.Hidden;
         AddAccelerator(VirtualKey.K, async () => await ShowPaletteAsync());
         AddAccelerator(VirtualKey.N, async () => await AddHabitAsync());
         AddAccelerator(Comma, () =>

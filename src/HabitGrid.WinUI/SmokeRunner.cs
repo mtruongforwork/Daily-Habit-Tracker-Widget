@@ -945,7 +945,7 @@ public static class SmokeRunner
 
         var dialog = VisualTreeHelper.GetOpenPopupsForXamlRoot(root).Select(p => p.Child).OfType<ContentDialog>().FirstOrDefault()
                      ?? throw new InvalidOperationException("Paywall không mở được.");
-        var buyButtons = FindAll<Button>(dialog).Where(b => Equals(b.Content, Ui.T("plus.buy"))).ToList();
+        var buyButtons = FindAll<Button>(dialog).Where(b => ((b.Content as TextBlock)?.Text ?? b.Content as string) == Ui.T("plus.buy")).ToList();
         Require(buyButtons.Count == 3, $"Paywall phải có 3 gói, thấy {buyButtons.Count}.");
         Require(buyButtons.All(b => !b.IsEnabled), "Không có Store mà nút Mua vẫn bấm được.");
 

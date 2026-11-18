@@ -19,7 +19,7 @@ namespace HabitGrid.WinUI.Pages;
 public sealed partial class SettingsPage : Page
 {
     private readonly ThemeService _theme = App.Host.Get<ThemeService>();
-    private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(36, 28, 36, 32), MaxWidth = 860, HorizontalAlignment = HorizontalAlignment.Left };
+    private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(36, 28, 36, 32), MaxWidth = 860, HorizontalAlignment = HorizontalAlignment.Center };
     private readonly Dictionary<string, Border> _tiles = [];
     private ChipGroup? _modeChips;
     private static readonly ThemeMode[] ModeOrder = [ThemeMode.System, ThemeMode.Light, ThemeMode.Dark];

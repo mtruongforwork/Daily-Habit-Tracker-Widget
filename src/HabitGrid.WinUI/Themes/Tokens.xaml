@@ -86,6 +86,23 @@
         <Setter Property="Padding" Value="20,16" />
     </Style>
 
+    <!--
+        Thẻ kính kiểu v3 (Master Spec v3, "Glassmorphism"): nền mờ một phần để lớp Acrylic/Mica phía sau xuyên qua,
+        viền sáng phía trên nhạt dần xuống dưới như cạnh kính bắt sáng. Dùng cho mọi ô của lưới Bento.
+    -->
+    <LinearGradientBrush x:Key="GlassStrokeBrush" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#33FFFFFF" Offset="0" />
+        <GradientStop Color="#0DFFFFFF" Offset="1" />
+    </LinearGradientBrush>
+
+    <Style x:Key="GlassCard" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource CardIdleBrush}" />
+        <Setter Property="BorderBrush" Value="{StaticResource GlassStrokeBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="20" />
+        <Setter Property="Padding" Value="20,18" />
+    </Style>
+
     <Style x:Key="SectionHeader" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource DisplayBoldFont}" />
         <Setter Property="FontWeight" Value="Bold" />

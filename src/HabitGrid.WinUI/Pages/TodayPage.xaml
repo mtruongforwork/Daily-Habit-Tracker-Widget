@@ -114,14 +114,14 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Hoàn tác + lỗi nổi ở đáy -->
-        <StackPanel VerticalAlignment="Bottom" Margin="30,0,34,16" Spacing="8">
-            <InfoBar x:Name="UndoBar" Severity="Success" IsClosable="True" IsOpen="False">
+        <!-- Hoàn tác + lỗi: viên thuốc nổi giữa đáy, rộng tối đa 460 (không trải ngang đè lên các buổi như trước). -->
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center" MaxWidth="460" Margin="16,0,16,20" Spacing="8">
+            <InfoBar x:Name="UndoBar" Severity="Success" IsClosable="True" IsOpen="False" CornerRadius="19">
                 <InfoBar.ActionButton>
                     <Button x:Name="UndoButton" Click="OnUndoClick" />
                 </InfoBar.ActionButton>
             </InfoBar>
-            <InfoBar x:Name="ErrorBar" Severity="Warning" IsClosable="True" IsOpen="False" />
+            <InfoBar x:Name="ErrorBar" Severity="Warning" IsClosable="True" IsOpen="False" CornerRadius="19" />
         </StackPanel>
 
         <controls:ConfettiOverlay x:Name="Confetti" />

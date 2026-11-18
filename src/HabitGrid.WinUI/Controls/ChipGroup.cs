@@ -56,7 +56,8 @@ public sealed class ChipGroup : UserControl
         var index = _chips.Count;
         var chip = new ToggleButton
         {
-            Content = text,
+            // Chữ tự xuống dòng thay vì bị cắt khi chip hẹp hơn nhãn (lỗi "Be Vietnam Pro (mặ", "Luôn trên cùng (khuyên dùn").
+            Content = new TextBlock { Text = text, TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center, TextTrimming = TextTrimming.None },
             Style = (Style)Application.Current.Resources["ChipStyle"],
             IsChecked = index == _selected,
             HorizontalAlignment = HorizontalAlignment.Stretch

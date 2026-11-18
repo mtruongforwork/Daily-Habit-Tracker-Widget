@@ -116,21 +116,39 @@ public static class HeatmapBuilder
     }
 
     /// <summary>Nhãn tháng cho trục ngang: (chỉ số cột, tháng) ở tuần đầu tiên của mỗi tháng.</summary>
-    public static IReadOnlyList<(int Column, int Month, int Year)> MonthLabels(HeatmapData data)
+    public static IReadOnlyList<(int Column, int Month, int Year)> MonthLabels(HeatmapData data) =>
+        MonthLabels(data.Weeks.Select(w => w[0].Day).ToList());
+
+    /// <summary>
+    /// Nhãn tháng theo ngày đầu của từng cột tuần: gắn ở cột đầu mỗi tháng. Tháng chỉ có ít hơn <paramref name="minColumns"/> cột
+    /// trước nhãn kế tiếp (thường là tháng đầu lưới) thì bỏ nhãn, để hai nhãn không đè lên nhau ("Thg 11" / "Thg 12").
+    /// </summary>
+    public static IReadOnlyList<(int Column, int Month, int Year)> MonthLabels(IReadOnlyList<DateOnly> weekStarts, int minColumns = 3)
     {
-        var labels = new List<(int, int, int)>();
+        ArgumentNullException.ThrowIfNull(weekStarts);
+        var starts = new List<(int Column, int Month, int Year)>();
         var lastMonth = -1;
 
-        for (var column = 0; column < data.Weeks.Count; column++)
+        for (var column = 0; column < weekStarts.Count; column++)
         {
-            // Dùng ngày đầu tuần để quyết định tháng; chỉ gắn nhãn khi đổi tháng.
-            var day = data.Weeks[column][0].Day;
+            var day = weekStarts[column];
 
             if (day.Month != lastMonth)
             {
-                // Bỏ nhãn của cột cuối nếu chỉ còn 1 cột trong tháng đó (không đủ chỗ hiển thị).
-                labels.Add((column, day.Month, day.Year));
+                starts.Add((column, day.Month, day.Year));
                 lastMonth = day.Month;
+            }
+        }
+
+        var labels = new List<(int, int, int)>(starts.Count);
+
+        for (var i = 0; i < starts.Count; i++)
+        {
+            var next = i + 1 < starts.Count ? starts[i + 1].Column : int.MaxValue;
+
+            if (next - starts[i].Column >= minColumns)
+            {
+                labels.Add(starts[i]);
             }
         }
 

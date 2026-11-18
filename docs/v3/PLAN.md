@@ -49,7 +49,7 @@ Nguồn: "Tài liệu Refactor UI HabitGrid (Master Spec v3.0)". Tài liệu nà
 
 ### Sprint 1: Nền tảng + sửa 10 lỗi cắt chữ (`v3/s1-foundation`)
 1. `BentoGrid` (Core: xếp ô + test; WinUI: Panel) và style `GlassCard` + token.
-2. Bỏ `MaxWidth`/căn trái ở gốc mọi trang; trang dùng toàn chiều rộng (nội dung từng trang chuyển sang Bento ở sprint sau).
+2. Bỏ căn trái (Cài đặt, Buddy căn giữa). `MaxWidth` được bỏ khi từng trang chuyển sang Bento ở sprint của nó: bỏ sớm khi trang còn xếp 1 cột sẽ làm dòng chữ và hàng chip dài hết 1920 px, xấu hơn hiện tại.
 3. Mười lỗi trong mục 4 của spec:
    1. Nút chọn gói Paywall bị cắt: nút rộng 100% thẻ.
    2. Chip phông chữ bị cắt: `ChipGroup` co theo chữ, cho xuống dòng.
