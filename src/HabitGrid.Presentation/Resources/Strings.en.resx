@@ -811,4 +811,24 @@
   <data name="focus.ambient.Waves" xml:space="preserve"><value>Ocean waves</value></data>
   <data name="focus.minimize" xml:space="preserve"><value>Minimise</value></data>
   <data name="focus.minimize.hint" xml:space="preserve"><value>Minimise the app: the focus session keeps running in the widget (Dynamic Island pill) and the ambient sound keeps playing.</value></data>
+  <data name="calendar.summary" xml:space="preserve"><value>Month summary</value></data>
+  <data name="calendar.summary.rate" xml:space="preserve"><value>completed</value></data>
+  <data name="calendar.summary.perfect" xml:space="preserve"><value>perfect days</value></data>
+  <data name="calendar.summary.active" xml:space="preserve"><value>active days</value></data>
+  <data name="journal.tool.bullet" xml:space="preserve"><value>Bullet</value></data>
+  <data name="journal.tool.todo" xml:space="preserve"><value>To-do</value></data>
+  <data name="journal.tool.time" xml:space="preserve"><value>Time</value></data>
+  <data name="journal.tool.grateful" xml:space="preserve"><value>Gratitude</value></data>
+  <data name="journal.tool.grateful.text" xml:space="preserve"><value>Today I'm grateful for</value></data>
+  <data name="journal.mood.title" xml:space="preserve"><value>Mood, last 30 days</value></data>
+  <data name="journal.mood.empty" xml:space="preserve"><value>Pick a mood when you write to see the chart here.</value></data>
+  <data name="journal.mood.summary" xml:space="preserve"><value>{0} days with a mood, average {1}/5</value></data>
+  <data name="journal.mood.from" xml:space="preserve"><value>30 days ago</value></data>
+  <data name="journal.moments.title" xml:space="preserve"><value>Moments of the day</value></data>
+  <data name="journal.moments.empty" xml:space="preserve"><value>No moment photos for this day yet.</value></data>
+  <data name="today.quickFocus.title" xml:space="preserve"><value>Quick focus</value></data>
+  <data name="today.quickFocus.hint" xml:space="preserve"><value>25 minutes of focus, runs in the widget.</value></data>
+  <data name="today.quickFocus.start" xml:space="preserve"><value>Start 25 min</value></data>
+  <data name="today.quickFocus.started" xml:space="preserve"><value>Started. The timer is running in the widget.</value></data>
+  <data name="today.quickFocus.failed" xml:space="preserve"><value>Couldn't start. Open the Focus page to try again.</value></data>
 </root>

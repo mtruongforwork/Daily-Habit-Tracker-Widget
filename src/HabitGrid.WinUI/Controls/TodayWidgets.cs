@@ -328,6 +328,69 @@ public sealed class StreakTile : UserControl
     }
 }
 
+/// <summary>
+/// Ô "Focus nhanh" của hàng Mochi (v3): bắt đầu ngay một phiên Pomodoro 25 phút. Phiên chạy ở widget (tiếp tục kể cả khi đóng app),
+/// đồng hồ hiện trên viên thuốc Dynamic Island; trang Focus có đầy đủ lựa chọn.
+/// </summary>
+public sealed class QuickFocusTile : UserControl
+{
+    private readonly TextBlock _status = new() { FontSize = 12, TextWrapping = TextWrapping.Wrap };
+
+    public QuickFocusTile()
+    {
+        IsTabStop = false;
+        _status.Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"];
+        _status.Text = Ui.T("today.quickFocus.hint");
+
+        var start = new Button
+        {
+            Style = (Style)Application.Current.Resources["GradientButtonStyle"],
+            Content = new TextBlock { Text = Ui.T("today.quickFocus.start"), TextWrapping = TextWrapping.Wrap, TextAlignment = TextAlignment.Center },
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            HorizontalContentAlignment = HorizontalAlignment.Center,
+            Padding = new Thickness(12, 10, 12, 10)
+        };
+        AutomationProperties.SetName(start, Ui.T("today.quickFocus.start"));
+        start.Click += async (_, _) =>
+        {
+            start.IsEnabled = false;
+
+            try
+            {
+                var model = App.Host.Get<HabitGrid.Presentation.Services.FocusPageModel>();
+                await model.LoadAsync();
+                await model.StartAsync(new HabitGrid.Presentation.Services.FocusChoice(HabitGrid.Core.Domain.Focus.FocusMode.Pomodoro, 25, 5, null), DateTime.UtcNow);
+                _status.Text = Ui.T("today.quickFocus.started");
+            }
+            catch (Exception ex)
+            {
+                App.Host.Get<HabitGrid.Presentation.Services.IAppLogger>().Error("Bắt đầu Focus nhanh lỗi", ex);
+                _status.Text = Ui.T("today.quickFocus.failed");
+            }
+            finally
+            {
+                start.IsEnabled = true;
+            }
+        };
+
+        var stack = new StackPanel { Spacing = 8, VerticalAlignment = VerticalAlignment.Center };
+        stack.Children.Add(new TextBlock { Text = "⏱", FontSize = 34 });
+        stack.Children.Add(new TextBlock { Text = Ui.T("today.quickFocus.title"), Style = (Style)Application.Current.Resources["CardTitleTextStyle"], TextWrapping = TextWrapping.Wrap });
+        stack.Children.Add(_status);
+        stack.Children.Add(start);
+
+        Content = new Border
+        {
+            CornerRadius = new CornerRadius(32),
+            Padding = new Thickness(22, 20, 22, 20),
+            Background = (Brush)Application.Current.Resources["CardIdleBrush"],
+            BorderBrush = (Brush)Application.Current.Resources["GlassStrokeBrush"],
+            BorderThickness = new Thickness(1),
+            Child = stack
+        };
+    }
+}
+
 /// <summary>Confetti nhẹ (XAML + Composition, ≤ 80 hạt) cho khoảnh khắc hoàn thành cả ngày.</summary>
 public sealed class ConfettiOverlay : UserControl
 {

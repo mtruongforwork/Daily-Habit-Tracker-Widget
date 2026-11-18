@@ -811,4 +811,24 @@
   <data name="focus.ambient.Waves" xml:space="preserve"><value>Sóng biển</value></data>
   <data name="focus.minimize" xml:space="preserve"><value>Thu nhỏ</value></data>
   <data name="focus.minimize.hint" xml:space="preserve"><value>Thu nhỏ app: phiên Focus tiếp tục ở widget (viên thuốc Dynamic Island) và âm thanh nền vẫn phát.</value></data>
+  <data name="calendar.summary" xml:space="preserve"><value>Tổng kết tháng</value></data>
+  <data name="calendar.summary.rate" xml:space="preserve"><value>hoàn thành</value></data>
+  <data name="calendar.summary.perfect" xml:space="preserve"><value>ngày trọn vẹn</value></data>
+  <data name="calendar.summary.active" xml:space="preserve"><value>ngày có việc</value></data>
+  <data name="journal.tool.bullet" xml:space="preserve"><value>Gạch đầu dòng</value></data>
+  <data name="journal.tool.todo" xml:space="preserve"><value>Việc cần làm</value></data>
+  <data name="journal.tool.time" xml:space="preserve"><value>Giờ</value></data>
+  <data name="journal.tool.grateful" xml:space="preserve"><value>Biết ơn</value></data>
+  <data name="journal.tool.grateful.text" xml:space="preserve"><value>Hôm nay mình biết ơn vì</value></data>
+  <data name="journal.mood.title" xml:space="preserve"><value>Tâm trạng 30 ngày</value></data>
+  <data name="journal.mood.empty" xml:space="preserve"><value>Chọn tâm trạng khi viết nhật ký để thấy biểu đồ ở đây.</value></data>
+  <data name="journal.mood.summary" xml:space="preserve"><value>{0} ngày có tâm trạng, trung bình {1}/5</value></data>
+  <data name="journal.mood.from" xml:space="preserve"><value>30 ngày trước</value></data>
+  <data name="journal.moments.title" xml:space="preserve"><value>Khoảnh khắc trong ngày</value></data>
+  <data name="journal.moments.empty" xml:space="preserve"><value>Chưa có ảnh khoảnh khắc nào cho ngày này.</value></data>
+  <data name="today.quickFocus.title" xml:space="preserve"><value>Focus nhanh</value></data>
+  <data name="today.quickFocus.hint" xml:space="preserve"><value>25 phút tập trung, chạy nền ở widget.</value></data>
+  <data name="today.quickFocus.start" xml:space="preserve"><value>Bắt đầu 25 phút</value></data>
+  <data name="today.quickFocus.started" xml:space="preserve"><value>Đã bắt đầu. Đồng hồ đang chạy ở widget.</value></data>
+  <data name="today.quickFocus.failed" xml:space="preserve"><value>Chưa bắt đầu được. Mở trang Focus để thử lại.</value></data>
 </root>

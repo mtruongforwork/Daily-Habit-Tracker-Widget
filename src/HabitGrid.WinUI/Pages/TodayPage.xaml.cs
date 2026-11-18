@@ -136,11 +136,8 @@ public sealed partial class TodayPage : Page
         GreetingText.Text = ViewModel.IsViewingPast ? Ui.Loc.Format("today.viewing", Ui.LongDate(day)) : Ui.Greeting(DateTime.Now);
         DateText.Text = ViewModel.IsViewingPast ? string.Empty : Ui.LongDate(day);
         DateText.Visibility = ViewModel.IsViewingPast ? Visibility.Collapsed : Visibility.Visible;
-        AddButtonText.Text = Ui.T("habits.add");
         CustomizeButtonText.Text = Ui.T("dashboard.customize");
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(CustomizeButton, CustomizeButtonText.Text);
-        // Nút có icon + chữ trong StackPanel: trình đọc màn hình không tự lấy tên, phải đặt.
-        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(AddButton, AddButtonText.Text);
         BackToTodayButton.Content = Ui.T("today.backToToday");
         BackToTodayButton.Visibility = ViewModel.IsViewingPast ? Visibility.Visible : Visibility.Collapsed;
         EmptyTitle.Text = Ui.T("today.empty.title");
@@ -206,9 +203,9 @@ public sealed partial class TodayPage : Page
     private void UpdateEmpty()
     {
         EmptyPanel.Visibility = ViewModel.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
-        AddButton.Visibility = ViewModel.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
         Hero.Visibility = ViewModel.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
         StreakBox.Visibility = ViewModel.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
+        QuickFocus.Visibility = ViewModel.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
         Strip.Visibility = ViewModel.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
         NotTodayPanel.Visibility = ViewModel.NotToday.Count > 0 ? Visibility.Visible : Visibility.Collapsed;
         NotTodayToggle.Content = Ui.T("today.notToday") + $" ({ViewModel.NotToday.Count})";

@@ -38,30 +38,27 @@ public sealed partial class TodayPage
         ApplyLayout();
     }
 
-    /// <summary>Xếp lại các khung trong cột chính theo bố cục: giữ chỗ chèn ở vị trí khung đầu tiên cũ, ẩn khung bị tắt.</summary>
+    /// <summary>Độ rộng của từng khối trong lưới Bento, theo số "cột" thiết kế (lưới đầy đủ có 4 cột).</summary>
+    public static double ColumnsOf(string id) => id switch
+    {
+        DashboardSections.Week => 3,
+        DashboardSections.Mood => 1,
+        DashboardSections.Recap => 2,
+        DashboardSections.Routines => 2,
+        _ => 4
+    };
+
+    /// <summary>Xếp lại các khối trong lưới Bento theo bố cục (thứ tự + độ rộng), ẩn khối bị tắt (lưới bỏ qua khối ẩn).</summary>
     public void ApplyLayout()
     {
-        // Dùng Scroll.Content (cột chính) thay cho Parent của khung: Parent còn null khi đang điều hướng vào trang.
-        if (Scroll.Content is not Panel parent)
-        {
-            return;
-        }
-
         var sections = Sections;
-        var slot = sections.Values.Min(e => parent.Children.IndexOf(e));
-
-        foreach (var element in sections.Values)
-        {
-            parent.Children.Remove(element);
-        }
-
-        var index = slot;
+        Dashboard.Children.Clear();
 
         foreach (var (id, visible) in _layout.Items)
         {
             var element = sections[id];
             element.Visibility = visible ? Visibility.Visible : Visibility.Collapsed;
-            parent.Children.Insert(index++, element);
+            Dashboard.Add(element, ColumnsOf(id));
         }
     }
 

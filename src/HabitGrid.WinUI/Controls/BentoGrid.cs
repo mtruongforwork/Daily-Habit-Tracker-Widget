@@ -20,6 +20,7 @@ public sealed class BentoGrid : Panel
         DependencyProperty.RegisterAttached("RowSpan", typeof(int), typeof(BentoGrid), new PropertyMetadata(1, OnCellChanged));
 
     private IReadOnlyList<BentoSlot> _slots = [];
+    private List<UIElement> _placed = [];
     private double[] _rows = [];
     private double _track;
 
@@ -76,7 +77,15 @@ public sealed class BentoGrid : Panel
         Tracks = BentoLayout.TracksFor(width);
         _track = Math.Max(0, (width - ((Tracks - 1) * Gap)) / Tracks);
 
-        var visible = Children.Where(c => c.Visibility == Visibility.Visible).ToList();
+        // Đo trước theo bề rộng của ô (chỉ phụ thuộc số rãnh, không phụ thuộc vị trí): ô rỗng (cao 0, ví dụ khối không có nội dung hôm nay)
+        // không chiếm hàng và không thêm khoảng cách.
+        foreach (var child in Children.Where(c => c.Visibility == Visibility.Visible))
+        {
+            var span = Math.Clamp(GetSpan(child), 1, Tracks);
+            child.Measure(new Size((span * _track) + ((span - 1) * Gap), double.PositiveInfinity));
+        }
+
+        var visible = Children.Where(c => c.Visibility == Visibility.Visible && c.DesiredSize.Height > 0.5).ToList();
         _slots = BentoLayout.Arrange(visible.Select(c => new BentoItem(GetSpan(c), GetRowSpan(c))).ToList(), Tracks);
         _rows = new double[BentoLayout.RowCount(_slots)];
 
@@ -117,20 +126,25 @@ public sealed class BentoGrid : Panel
             hidden.Measure(new Size(0, 0));
         }
 
+        _placed = visible;
+
         var total = _rows.Length == 0 ? 0 : RowsHeight(0, _rows.Length);
         return new Size(width, total);
     }
 
     protected override Size ArrangeOverride(Size finalSize)
     {
-        var visible = Children.Where(c => c.Visibility == Visibility.Visible).ToList();
-
-        for (var i = 0; i < visible.Count && i < _slots.Count; i++)
+        for (var i = 0; i < _placed.Count && i < _slots.Count; i++)
         {
             var slot = _slots[i];
             var x = slot.Column * (_track + Gap);
             var y = slot.Row == 0 ? 0 : RowsHeight(0, slot.Row) + Gap;
-            visible[i].Arrange(new Rect(x, y, CellWidth(slot), RowsHeight(slot.Row, slot.RowSpan)));
+            _placed[i].Arrange(new Rect(x, y, CellWidth(slot), RowsHeight(slot.Row, slot.RowSpan)));
+        }
+
+        foreach (var other in Children.Where(c => !_placed.Contains(c)))
+        {
+            other.Arrange(new Rect(0, 0, 0, 0));
         }
 
         return finalSize;

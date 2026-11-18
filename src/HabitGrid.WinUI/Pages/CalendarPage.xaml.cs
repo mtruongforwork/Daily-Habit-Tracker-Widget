@@ -14,12 +14,12 @@ using Windows.UI;
 namespace HabitGrid.WinUI.Pages;
 
 /// <summary>
-/// Trang Lịch: lưới tháng tô đậm theo tỷ lệ việc đã xong mỗi ngày, chọn một ngày để xem lại và sửa (check, tăng/giảm cho loại đếm).
-/// Không thể xem ngày tương lai; tháng sau tháng hiện tại không có.
+/// Trang Lịch (v3, lưới Bento): lịch tháng ô kính (2.5 cột × 2 hàng) tô theo tỷ lệ việc đã xong mỗi ngày; bên phải là checklist của ngày
+/// đang chọn (xem lại và sửa) và thẻ tổng kết tháng có vòng tiến độ. Không xem được ngày tương lai; không có tháng sau tháng hiện tại.
 /// </summary>
 public sealed partial class CalendarPage : Page
 {
-    private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(36, 28, 36, 32), MaxWidth = 1100, HorizontalAlignment = HorizontalAlignment.Stretch };
+    private readonly StackPanel _root = new() { Spacing = 18, Padding = new Thickness(32, 24, 32, 32) };
 
     public CalendarPage()
     {
@@ -66,13 +66,10 @@ public sealed partial class CalendarPage : Page
 
         _root.Children.Add(BuildHeader(grid));
 
-        var body = new Grid { ColumnSpacing = 16 };
-        body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(3, GridUnitType.Star) });
-        body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star), MinWidth = 300 });
-        body.Children.Add(BuildMonth(grid));
-        var panel = BuildDayPanel();
-        Grid.SetColumn(panel, 1);
-        body.Children.Add(panel);
+        var body = new HabitGrid.WinUI.Controls.BentoGrid();
+        body.Add(BuildMonth(grid), columns: 2.5, rows: 2);
+        body.Add(BuildDayPanel(), columns: 1.5);
+        body.Add(BuildSummary(grid), columns: 1.5);
         _root.Children.Add(body);
     }
 
@@ -118,25 +115,8 @@ public sealed partial class CalendarPage : Page
     private FrameworkElement BuildMonth(MonthGrid grid)
     {
         var culture = Ui.CurrentCulture;
-        var card = new Border
-        {
-            CornerRadius = (CornerRadius)Application.Current.Resources["RadiusLg"],
-            Background = Res("CardIdleBrush"),
-            BorderBrush = Res("StrokeSubtleBrush"),
-            BorderThickness = new Thickness(1),
-            Padding = new Thickness(16)
-        };
-
+        var card = new Border { Style = Sty("GlassCard") };
         var stack = new StackPanel { Spacing = 10 };
-
-        // Tổng kết tháng.
-        var summary = new TextBlock
-        {
-            Style = Sty("BodySecondaryTextStyle"),
-            TextWrapping = TextWrapping.Wrap,
-            Text = string.Join("  ·  ", Ui.Loc.Format("calendar.perfect", grid.PerfectDays), Ui.Loc.Format("calendar.active", grid.ActiveDays), Ui.Loc.Format("calendar.average", (int)Math.Round(grid.AverageFraction * 100)))
-        };
-        stack.Children.Add(summary);
 
         var cells = new Grid { RowSpacing = 6, ColumnSpacing = 6 };
 
@@ -162,7 +142,7 @@ public sealed partial class CalendarPage : Page
 
         for (var w = 0; w < grid.Weeks.Count; w++)
         {
-            cells.RowDefinitions.Add(new RowDefinition { Height = new GridLength(64) });
+            cells.RowDefinitions.Add(new RowDefinition { Height = new GridLength(72) });
 
             for (var c = 0; c < 7; c++)
             {
@@ -192,7 +172,11 @@ public sealed partial class CalendarPage : Page
         }
         else if (cell.IsComplete)
         {
-            fill = new SolidColorBrush(Color.FromArgb(0xCC, success.R, success.G, success.B));
+            // Ô kính: gradient xanh trong suốt một phần (trước đây là màu xanh đặc, nhìn phẳng).
+            var gradient = new LinearGradientBrush { StartPoint = new Windows.Foundation.Point(0, 0), EndPoint = new Windows.Foundation.Point(1, 1) };
+            gradient.GradientStops.Add(new GradientStop { Color = Color.FromArgb(0xC8, success.R, success.G, success.B), Offset = 0 });
+            gradient.GradientStops.Add(new GradientStop { Color = Color.FromArgb(0x70, success.R, success.G, success.B), Offset = 1 });
+            fill = gradient;
         }
         else
         {
@@ -204,8 +188,8 @@ public sealed partial class CalendarPage : Page
         {
             CornerRadius = (CornerRadius)Application.Current.Resources["RadiusMd"],
             Background = fill,
-            BorderThickness = new Thickness(selected ? 2 : cell.IsToday ? 1.5 : 0),
-            BorderBrush = selected ? Res("TextPrimaryBrush") : Res("AccentBrandBrush"),
+            BorderThickness = new Thickness(selected ? 2 : cell.IsToday ? 1.5 : 1),
+            BorderBrush = selected ? Res("TextPrimaryBrush") : cell.IsToday ? Res("AccentBrandBrush") : Res("StrokeSubtleBrush"),
             Opacity = cell.InMonth ? (cell.IsFuture ? 0.45 : 1) : 0.28,
             IsTapEnabled = !cell.IsFuture
         };
@@ -244,17 +228,46 @@ public sealed partial class CalendarPage : Page
         return border;
     }
 
+    /// <summary>Thẻ tổng kết tháng: vòng tiến độ (tỷ lệ hoàn thành trung bình), số ngày trọn vẹn và số ngày có việc.</summary>
+    private static FrameworkElement BuildSummary(MonthGrid grid)
+    {
+        var percent = (int)Math.Round(grid.AverageFraction * 100);
+        var center = new StackPanel { Spacing = 0 };
+        center.Children.Add(new TextBlock { Text = $"{percent}%", FontSize = 26, FontWeight = FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center });
+        center.Children.Add(new TextBlock { Text = Ui.T("calendar.summary.rate"), Style = Sty("BodySecondaryTextStyle"), FontSize = 11, HorizontalAlignment = HorizontalAlignment.Center });
+        var ring = new HabitGrid.WinUI.Controls.RingProgress(128, 12, center);
+        ring.SetFraction(grid.AverageFraction);
+        AutomationProperties.SetName(ring, Ui.Loc.Format("calendar.average", percent));
+
+        var numbers = new StackPanel { Spacing = 12, VerticalAlignment = VerticalAlignment.Center };
+        numbers.Children.Add(Stat(grid.PerfectDays, Ui.T("calendar.summary.perfect")));
+        numbers.Children.Add(Stat(grid.ActiveDays, Ui.T("calendar.summary.active")));
+
+        var row = new Grid { ColumnSpacing = 20 };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition());
+        row.Children.Add(ring);
+        Grid.SetColumn(numbers, 1);
+        row.Children.Add(numbers);
+
+        var stack = new StackPanel { Spacing = 14 };
+        stack.Children.Add(new TextBlock { Text = Ui.T("calendar.summary"), Style = Sty("CardTitleTextStyle") });
+        stack.Children.Add(row);
+        return new Border { Style = Sty("GlassCard"), Child = stack };
+    }
+
+    private static FrameworkElement Stat(int value, string label)
+    {
+        var stack = new StackPanel { Spacing = 0 };
+        stack.Children.Add(new TextBlock { Text = value.ToString(Ui.CurrentCulture), FontSize = 26, FontWeight = FontWeights.Bold });
+        stack.Children.Add(new TextBlock { Text = label, Style = Sty("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
+        AutomationProperties.SetName(stack, $"{label}: {value}");
+        return stack;
+    }
+
     private FrameworkElement BuildDayPanel()
     {
-        var card = new Border
-        {
-            CornerRadius = (CornerRadius)Application.Current.Resources["RadiusLg"],
-            Background = Res("CardIdleBrush"),
-            BorderBrush = Res("StrokeSubtleBrush"),
-            BorderThickness = new Thickness(1),
-            Padding = new Thickness(16),
-            VerticalAlignment = VerticalAlignment.Top
-        };
+        var card = new Border { Style = Sty("GlassCard") };
 
         var stack = new StackPanel { Spacing = 10 };
         stack.Children.Add(new TextBlock { Text = Ui.LongDate(Model.SelectedDay), Style = Sty("CardTitleTextStyle"), TextWrapping = TextWrapping.Wrap });
