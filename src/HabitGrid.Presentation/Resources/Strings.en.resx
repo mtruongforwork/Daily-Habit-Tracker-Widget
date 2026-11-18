@@ -837,4 +837,6 @@
   <data name="habits.challenges.hint" xml:space="preserve"><value>Running 7 to 100-day challenges.</value></data>
   <data name="habits.challenges.empty" xml:space="preserve"><value>No challenges yet. Use Manage to start one, like "30 days without bubble tea".</value></data>
   <data name="moments.more" xml:space="preserve"><value>+{0} more photos</value></data>
+  <data name="share.layout" xml:space="preserve"><value>Layout</value></data>
+  <data name="share.frames" xml:space="preserve"><value>Frames</value></data>
 </root>

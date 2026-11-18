@@ -837,4 +837,6 @@
   <data name="habits.challenges.hint" xml:space="preserve"><value>Thử thách 7 đến 100 ngày đang chạy.</value></data>
   <data name="habits.challenges.empty" xml:space="preserve"><value>Chưa có thử thách nào. Bấm Quản lý để bắt đầu, ví dụ "30 ngày không trà sữa".</value></data>
   <data name="moments.more" xml:space="preserve"><value>+{0} ảnh nữa</value></data>
+  <data name="share.layout" xml:space="preserve"><value>Bố cục</value></data>
+  <data name="share.frames" xml:space="preserve"><value>Khung</value></data>
 </root>

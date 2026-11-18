@@ -126,14 +126,23 @@ public static class ShareCardDialog
             layouts.Children.Add(chip);
         }
 
-        var panel = new StackPanel { Spacing = 12 };
-        panel.Children.Add(layouts);
-        panel.Children.Add(frames);
-        // Chỉ thu nhỏ phần HIỂN THỊ (80%) để thẻ không bị cắt đáy trong hộp thoại; ảnh lưu vẫn render từ thẻ gốc 360×640 ở 1080×1920.
-        panel.Children.Add(new Viewbox { Child = host, Height = CardHeight * 0.8, HorizontalAlignment = HorizontalAlignment.Center });
-        panel.Children.Add(watermark);
-        panel.Children.Add(new TextBlock { Text = Ui.T("share.hint"), TextWrapping = TextWrapping.Wrap, Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"] });
-        panel.Children.Add(status);
+        // "Studio" 2 cột (v3, rộng 760): bên trái là thẻ xem trước trọn vẹn (thu nhỏ phần HIỂN THỊ còn 85%, ảnh lưu vẫn render từ thẻ gốc
+        // 360×640 ở 1080×1920); bên phải là bảng điều khiển: bố cục, các khung (tự xuống dòng), ẩn hình mờ, gợi ý và trạng thái.
+        var controls = new StackPanel { Spacing = 14 };
+        controls.Children.Add(new TextBlock { Text = Ui.T("share.layout").ToUpperInvariant(), Style = (Style)Application.Current.Resources["SectionHeader"], Margin = new Thickness(0) });
+        controls.Children.Add(layouts);
+        controls.Children.Add(new TextBlock { Text = Ui.T("share.frames").ToUpperInvariant(), Style = (Style)Application.Current.Resources["SectionHeader"], Margin = new Thickness(0, 6, 0, 0) });
+        controls.Children.Add(frames);
+        controls.Children.Add(watermark);
+        controls.Children.Add(new TextBlock { Text = Ui.T("share.hint"), TextWrapping = TextWrapping.Wrap, Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"] });
+        controls.Children.Add(status);
+
+        var panel = new Grid { ColumnSpacing = 24, Width = 720 };
+        panel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        panel.ColumnDefinitions.Add(new ColumnDefinition());
+        panel.Children.Add(new Viewbox { Child = host, Height = CardHeight * 0.85, VerticalAlignment = VerticalAlignment.Top });
+        Grid.SetColumn(controls, 1);
+        panel.Children.Add(controls);
 
         var dialog = new ContentDialog
         {
@@ -144,6 +153,9 @@ public static class ShareCardDialog
             SecondaryButtonText = Ui.T("share.copy"),
             CloseButtonText = Ui.T("plus.close")
         };
+
+        // ContentDialog mặc định rộng tối đa 548: nới ra để đủ chỗ cho 2 cột.
+        dialog.Resources["ContentDialogMaxWidth"] = 800.0;
 
         dialog.PrimaryButtonClick += async (_, args) =>
         {

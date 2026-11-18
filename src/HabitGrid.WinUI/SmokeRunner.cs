@@ -565,6 +565,13 @@ public static class SmokeRunner
         await File.WriteAllBytesAsync(Path.Combine(Shot.Directory, $"{++_shotNo:00}-share-strip.png"), stripPng);
 
         var dialog = VisualTreeHelper.GetOpenPopupsForXamlRoot(root).Select(p => p.Child).OfType<ContentDialog>().FirstOrDefault();
+
+        // Ảnh cả hộp thoại (bố cục 2 cột) để duyệt giao diện.
+        if (dialog?.Content is UIElement dialogContent)
+        {
+            await SnapElementAsync(dialogContent, "share-dialog");
+        }
+
         dialog?.Hide();
         await showing;
         logger.Info($"SMOKE moments OK (5 photos, share card {png.Length} bytes, strip {stripPng.Length} bytes)");
