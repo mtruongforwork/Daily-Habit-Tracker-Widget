@@ -800,4 +800,15 @@
   <data name="settings.restmini" xml:space="preserve"><value>Compact style</value></data>
   <data name="settings.restmini.full" xml:space="preserve"><value>Full</value></data>
   <data name="settings.restmini.mini" xml:space="preserve"><value>Ultra compact</value></data>
+  <data name="focus.ambient.title" xml:space="preserve"><value>Ambient sound</value></data>
+  <data name="focus.ambient.hint" xml:space="preserve"><value>Mix generated sounds to help you focus. Keeps playing when the app is minimised.</value></data>
+  <data name="focus.ambient.play" xml:space="preserve"><value>Play</value></data>
+  <data name="focus.ambient.pause" xml:space="preserve"><value>Pause</value></data>
+  <data name="focus.ambient.White" xml:space="preserve"><value>White noise</value></data>
+  <data name="focus.ambient.Pink" xml:space="preserve"><value>Pink noise</value></data>
+  <data name="focus.ambient.Brown" xml:space="preserve"><value>Brown noise</value></data>
+  <data name="focus.ambient.Rain" xml:space="preserve"><value>Rain</value></data>
+  <data name="focus.ambient.Waves" xml:space="preserve"><value>Ocean waves</value></data>
+  <data name="focus.minimize" xml:space="preserve"><value>Minimise</value></data>
+  <data name="focus.minimize.hint" xml:space="preserve"><value>Minimise the app: the focus session keeps running in the widget (Dynamic Island pill) and the ambient sound keeps playing.</value></data>
 </root>

@@ -800,4 +800,15 @@
   <data name="settings.restmini" xml:space="preserve"><value>Kiểu thu gọn</value></data>
   <data name="settings.restmini.full" xml:space="preserve"><value>Đầy đủ</value></data>
   <data name="settings.restmini.mini" xml:space="preserve"><value>Siêu gọn</value></data>
+  <data name="focus.ambient.title" xml:space="preserve"><value>Âm thanh nền</value></data>
+  <data name="focus.ambient.hint" xml:space="preserve"><value>Trộn các âm tự tạo để dễ tập trung. Vẫn phát khi thu nhỏ app.</value></data>
+  <data name="focus.ambient.play" xml:space="preserve"><value>Phát</value></data>
+  <data name="focus.ambient.pause" xml:space="preserve"><value>Tạm dừng</value></data>
+  <data name="focus.ambient.White" xml:space="preserve"><value>Ồn trắng</value></data>
+  <data name="focus.ambient.Pink" xml:space="preserve"><value>Ồn hồng</value></data>
+  <data name="focus.ambient.Brown" xml:space="preserve"><value>Ồn nâu</value></data>
+  <data name="focus.ambient.Rain" xml:space="preserve"><value>Mưa</value></data>
+  <data name="focus.ambient.Waves" xml:space="preserve"><value>Sóng biển</value></data>
+  <data name="focus.minimize" xml:space="preserve"><value>Thu nhỏ</value></data>
+  <data name="focus.minimize.hint" xml:space="preserve"><value>Thu nhỏ app: phiên Focus tiếp tục ở widget (viên thuốc Dynamic Island) và âm thanh nền vẫn phát.</value></data>
 </root>
