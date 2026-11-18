@@ -831,4 +831,10 @@
   <data name="today.quickFocus.start" xml:space="preserve"><value>Bắt đầu 25 phút</value></data>
   <data name="today.quickFocus.started" xml:space="preserve"><value>Đã bắt đầu. Đồng hồ đang chạy ở widget.</value></data>
   <data name="today.quickFocus.failed" xml:space="preserve"><value>Chưa bắt đầu được. Mở trang Focus để thử lại.</value></data>
+  <data name="habits.manage" xml:space="preserve"><value>Quản lý</value></data>
+  <data name="habits.routines.hint" xml:space="preserve"><value>Chuỗi bước buổi sáng, buổi tối… check từng bước ngay tại đây.</value></data>
+  <data name="habits.routines.empty" xml:space="preserve"><value>Chưa có routine. Bấm Quản lý để gom vài thói quen thành một chuỗi bước.</value></data>
+  <data name="habits.challenges.hint" xml:space="preserve"><value>Thử thách 7 đến 100 ngày đang chạy.</value></data>
+  <data name="habits.challenges.empty" xml:space="preserve"><value>Chưa có thử thách nào. Bấm Quản lý để bắt đầu, ví dụ "30 ngày không trà sữa".</value></data>
+  <data name="moments.more" xml:space="preserve"><value>+{0} ảnh nữa</value></data>
 </root>

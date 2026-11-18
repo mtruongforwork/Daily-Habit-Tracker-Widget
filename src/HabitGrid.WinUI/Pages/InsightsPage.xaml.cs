@@ -14,12 +14,13 @@ using Microsoft.UI.Xaml.Navigation;
 namespace HabitGrid.WinUI.Pages;
 
 /// <summary>
-/// Trang Insights (SPEC-V2-07): ô số liệu, gợi ý tự động, xu hướng tuần, theo thứ, theo giờ, mood, từng thói quen.
+/// Trang Insights (SPEC-V2-07; bố cục v3 4 tầng Bento): (1) ô số liệu + gợi ý + tâm trạng, (2) xu hướng tuần (biểu đồ vùng) + theo thứ + theo giờ,
+/// (3) từng thói quen + so với tháng trước | so sánh hai thói quen + đi cùng nhau, (4) lịch cả năm.
 /// Free xem 30 ngày; 90 ngày / toàn bộ / xuất CSV thuộc Plus (bấm vào thì mở paywall).
 /// </summary>
 public sealed partial class InsightsPage : Page
 {
-    private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(36, 28, 36, 32), MaxWidth = 1100, HorizontalAlignment = HorizontalAlignment.Stretch };
+    private readonly StackPanel _root = new() { Spacing = 18, Padding = new Thickness(32, 24, 32, 32) };
 
     public InsightsPage()
     {
@@ -81,25 +82,23 @@ public sealed partial class InsightsPage : Page
             return;
         }
 
-        _root.Children.Add(BuildTiles(report));
-        _root.Children.Add(BuildAutoInsights());
+        var grid = new HabitGrid.WinUI.Controls.BentoGrid();
 
-        var charts = new Grid { ColumnSpacing = 12 };
-        charts.ColumnDefinitions.Add(new ColumnDefinition());
-        charts.ColumnDefinitions.Add(new ColumnDefinition());
-        var weekdays = Card(Ui.T("insights.weekdays"), Bars(
-            report.Weekdays.Select(w => (Ui.CurrentCulture.DateTimeFormat.GetAbbreviatedDayName(w.Day), w.Rate)).ToList(), 120, showValues: true));
-        var hours = Card(Ui.T("insights.hours"), HourBars(report.Hours));
-        charts.Children.Add(weekdays);
-        Grid.SetColumn(hours, 1);
-        charts.Children.Add(hours);
+        // Tầng 1: số liệu (2) + gợi ý (1) + tâm trạng (1).
+        grid.Add(BuildTiles(report), columns: 2);
+        grid.Add(BuildAutoInsights(), columns: 1);
+        grid.Add(BuildMood(report.Mood), columns: 1);
 
-        _root.Children.Add(Card(Ui.T("insights.trend"), Bars(
-            report.Weeks.TakeLast(26).Select(w => (w.WeekStart.ToString("dd/MM", Ui.CurrentCulture), w.Rate)).ToList(), 120, showValues: false)));
-        _root.Children.Add(charts);
-        _root.Children.Add(BuildMood(report.Mood));
-        _root.Children.Add(BuildHabits(report));
-        _root.Children.Add(BuildAdvanced());
+        // Tầng 2: xu hướng tuần (2) + theo thứ (1) + theo giờ (1).
+        grid.Add(Card(Ui.T("insights.trend"), new HabitGrid.WinUI.Controls.AreaChart(
+            report.Weeks.TakeLast(26).Select(w => (w.WeekStart.ToString("dd/MM", Ui.CurrentCulture), w.Rate)).ToList())), columns: 2);
+        grid.Add(Card(Ui.T("insights.weekdays"), Bars(
+            report.Weekdays.Select(w => (Ui.CurrentCulture.DateTimeFormat.GetAbbreviatedDayName(w.Day), w.Rate)).ToList(), 120, showValues: true)), columns: 1);
+        grid.Add(Card(Ui.T("insights.hours"), HourBars(report.Hours)), columns: 1);
+
+        // Tầng 3 + 4: phần nâng cao (Plus) xếp cạnh danh sách thói quen; lịch cả năm trải 4 cột.
+        AddAdvanced(grid, BuildHabits(report));
+        _root.Children.Add(grid);
     }
 
     private UIElement BuildRangeChips()
@@ -135,9 +134,14 @@ public sealed partial class InsightsPage : Page
         return row;
     }
 
+    /// <summary>Bốn ô số liệu xếp 2 × 2 trong một ô Bento rộng 2 cột; ô tỷ lệ hoàn thành có thêm đường xu hướng nhỏ (sparkline) theo tuần.</summary>
     private UIElement BuildTiles(InsightsReport report)
     {
-        var grid = new Grid { ColumnSpacing = 12 };
+        var grid = new Grid { ColumnSpacing = 12, RowSpacing = 12 };
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+        grid.RowDefinitions.Add(new RowDefinition());
+        grid.RowDefinitions.Add(new RowDefinition());
         var tiles = new (string Label, string Value)[]
         {
             (Ui.T("insights.rate"), report.OverallRate is { } r ? $"{Math.Round(r * 100)}%" : "—"),
@@ -148,13 +152,21 @@ public sealed partial class InsightsPage : Page
 
         for (var i = 0; i < tiles.Length; i++)
         {
-            grid.ColumnDefinitions.Add(new ColumnDefinition());
             var stack = new StackPanel { Spacing = 2 };
-            stack.Children.Add(new TextBlock { Text = tiles[i].Label, Style = Res("BodySecondaryTextStyle") });
+            stack.Children.Add(new TextBlock { Text = tiles[i].Label, Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
             stack.Children.Add(new TextBlock { Text = tiles[i].Value, Style = Res("TitleDisplayTextStyle") });
-            var border = new Border { Style = Res("CardBorder"), Child = stack };
+
+            if (i == 0 && report.Weeks.Count(w => w.Rate is not null) >= 2)
+            {
+                var spark = new HabitGrid.WinUI.Controls.AreaChart(report.Weeks.TakeLast(12).Select(w => (string.Empty, w.Rate)).ToList(), height: 34);
+                spark.Margin = new Thickness(0, 4, 0, 0);
+                stack.Children.Add(spark);
+            }
+
+            var border = new Border { Style = Res("GlassCard"), Child = stack };
             AutomationProperties.SetName(border, $"{tiles[i].Label}: {tiles[i].Value}");
-            Grid.SetColumn(border, i);
+            Grid.SetColumn(border, i % 2);
+            Grid.SetRow(border, i / 2);
             grid.Children.Add(border);
         }
 
@@ -225,7 +237,7 @@ public sealed partial class InsightsPage : Page
             var line = new Grid { ColumnSpacing = 12 };
             line.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
             line.ColumnDefinitions.Add(new ColumnDefinition());
-            line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
+            line.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(0.6, GridUnitType.Star), MaxWidth = 180 });
 
             line.Children.Add(new TextBlock { Text = Ui.IconText(row.Icon), FontSize = 24, VerticalAlignment = VerticalAlignment.Center });
 
@@ -298,7 +310,7 @@ public sealed partial class InsightsPage : Page
         var stack = new StackPanel { Spacing = 12 };
         stack.Children.Add(new TextBlock { Text = title.ToUpperInvariant(), Style = Res("SectionHeader"), Margin = new Thickness(0) });
         stack.Children.Add(content);
-        return new Border { Style = Res("CardBorder"), Child = stack };
+        return new Border { Style = Res("GlassCard"), Child = stack };
     }
 
     /// <summary>Biểu đồ cột đơn giản (tỷ lệ 0–1), cột null hiện mờ. Mỗi cột có nhãn đọc được cho trình đọc màn hình.</summary>
@@ -322,19 +334,28 @@ public sealed partial class InsightsPage : Page
             stack.Children.Add(new Border
             {
                 Height = Math.Max(3, (value ?? 0) * height),
-                CornerRadius = new CornerRadius(4),
+                MaxWidth = 22,
+                CornerRadius = new CornerRadius(6),
                 Background = value is null ? (Brush)Application.Current.Resources["HeatEmptyBrush"] : (Brush)Application.Current.Resources["AccentGradientBrush"]
             });
             AutomationProperties.SetName(stack, value is { } pv ? $"{label}: {Math.Round(pv * 100)}%" : label);
             Grid.SetColumn(stack, i);
             grid.Children.Add(stack);
 
-            // Nhiều cột thì chỉ ghi nhãn cách quãng để không chồng chữ.
-            if (values.Count <= 14 || i % 4 == 0)
+            // Nhiều cột (24 giờ) thì chỉ ghi nhãn cách 6 cột, mỗi nhãn trải qua 6 cột để chữ không bị cắt khi khối hẹp.
+            const int spread = 6;
+
+            if (values.Count <= 14 || i % spread == 0)
             {
-                var caption = new TextBlock { Text = label, FontSize = 10, HorizontalAlignment = HorizontalAlignment.Center, Foreground = (Brush)Application.Current.Resources["TextMutedBrush"] };
+                var caption = new TextBlock { Text = label, FontSize = 10, HorizontalAlignment = values.Count <= 14 ? HorizontalAlignment.Center : HorizontalAlignment.Left, Foreground = (Brush)Application.Current.Resources["TextMutedBrush"], TextWrapping = TextWrapping.NoWrap };
                 Grid.SetRow(caption, 1);
                 Grid.SetColumn(caption, i);
+
+                if (values.Count > 14)
+                {
+                    Grid.SetColumnSpan(caption, Math.Min(spread, values.Count - i));
+                }
+
                 grid.Children.Add(caption);
             }
         }

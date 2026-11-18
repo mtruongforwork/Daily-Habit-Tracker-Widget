@@ -7,12 +7,10 @@
     xmlns:vm="using:HabitGrid.Presentation.ViewModels"
     NavigationCacheMode="Required">
 
-    <Grid Padding="36,28,36,16" RowDefinitions="Auto,Auto,*,Auto">
+    <Grid Padding="32,24,32,8" RowDefinitions="Auto,Auto,*,Auto">
         <Grid ColumnDefinitions="*,Auto">
             <TextBlock x:Name="TitleText" Style="{StaticResource TitleDisplayTextStyle}" VerticalAlignment="Center" />
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10">
-                <Button x:Name="ChallengeButton" Click="OnChallengeClick" Style="{StaticResource GhostButtonStyle}" />
-                <Button x:Name="RoutineButton" Click="OnRoutineClick" Style="{StaticResource GhostButtonStyle}" />
                 <Button x:Name="AddButton" Click="OnAddClick" Style="{StaticResource GradientButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE710;" FontSize="14" />
@@ -27,28 +25,38 @@
             <ToggleButton x:Name="ArchivedChip" Style="{StaticResource ChipStyle}" Click="OnArchivedChipClick" />
         </StackPanel>
 
-        <GridView Grid.Row="2" x:Name="List" Margin="-6,12,-6,0" ItemsSource="{x:Bind ViewModel.Items}"
+        <!--
+            v3: lưới thẻ thói quen ở trên, ngay bên dưới là hai khối Bento hiện thẳng Routine và Thử thách đang mở
+            (tương tác tại chỗ, không cần mở hộp thoại; nút "Quản lý" vẫn mở hộp thoại cũ). Cả trang cuộn chung một thanh.
+        -->
+        <ScrollViewer Grid.Row="2" x:Name="Scroll" VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
+            <StackPanel Spacing="18" Padding="0,0,0,24">
+                <GridView x:Name="List" Margin="-6,0,-6,0" ItemsSource="{x:Bind ViewModel.Items}"
+                  ScrollViewer.VerticalScrollMode="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"
                   CanReorderItems="True" AllowDrop="True" SelectionMode="None" IsItemClickEnabled="False"
                   DragItemsCompleted="OnDragItemsCompleted">
-            <GridView.ItemContainerStyle>
-                <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
-                    <Setter Property="Margin" Value="6" />
-                    <Setter Property="Padding" Value="0" />
-                    <Setter Property="IsTabStop" Value="False" />
-                </Style>
-            </GridView.ItemContainerStyle>
-            <GridView.ItemTemplate>
-                <DataTemplate x:DataType="vm:HabitListItem">
-                    <controls:HabitCollectionCard Item="{x:Bind}" Width="272" ActionRequested="OnCardAction" />
-                </DataTemplate>
-            </GridView.ItemTemplate>
-        </GridView>
+                    <GridView.ItemContainerStyle>
+                        <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                            <Setter Property="Margin" Value="6" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="IsTabStop" Value="False" />
+                        </Style>
+                    </GridView.ItemContainerStyle>
+                    <GridView.ItemTemplate>
+                        <DataTemplate x:DataType="vm:HabitListItem">
+                            <controls:HabitCollectionCard Item="{x:Bind}" Width="272" ActionRequested="OnCardAction" />
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
 
-        <StackPanel x:Name="EmptyPanel" Grid.Row="2" Visibility="Collapsed" HorizontalAlignment="Center"
-                    VerticalAlignment="Center" Spacing="10">
-            <TextBlock Text="🌱" FontSize="56" HorizontalAlignment="Center" />
-            <TextBlock x:Name="EmptyText" Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" />
-        </StackPanel>
+                <StackPanel x:Name="EmptyPanel" Visibility="Collapsed" HorizontalAlignment="Center"
+                            Margin="0,24,0,24" Spacing="10">
+                    <TextBlock Text="🌱" FontSize="56" HorizontalAlignment="Center" />
+                    <TextBlock x:Name="EmptyText" Foreground="{ThemeResource TextFillColorSecondaryBrush}" HorizontalAlignment="Center" />
+                </StackPanel>
+                <controls:BentoGrid x:Name="Extras" />
+            </StackPanel>
+        </ScrollViewer>
 
         <InfoBar Grid.Row="3" x:Name="UndoBar" Severity="Informational" IsClosable="True" IsOpen="False"
                  HorizontalAlignment="Center" MaxWidth="460" CornerRadius="19" Margin="16,0,16,16">

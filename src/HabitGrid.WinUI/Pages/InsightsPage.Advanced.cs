@@ -23,13 +23,37 @@ public sealed partial class InsightsPage
     private Guid? _compareA;
     private Guid? _compareB;
 
-    /// <summary>Phần nâng cao: Plus thấy đủ; Free thấy thẻ giới thiệu, bấm "Mở khóa" mới mở paywall.</summary>
+    /// <summary>
+    /// Tầng 3 + 4 của lưới Insights. Cột trái: từng thói quen + so với tháng trước; cột phải: so sánh hai thói quen + thói quen đi cùng nhau;
+    /// cuối cùng là lịch cả năm trải 4 cột. Free: cột phải là thẻ giới thiệu, bấm "Mở khóa" mới mở paywall.
+    /// </summary>
+    private void AddAdvanced(HabitGrid.WinUI.Controls.BentoGrid grid, UIElement habits)
+    {
+        var left = new StackPanel { Spacing = 16 };
+        left.Children.Add(habits);
+
+        if (ViewModel.Advanced is not { } data)
+        {
+            grid.Add(left, columns: 2);
+            grid.Add(BuildAdvanced(), columns: 2);
+            return;
+        }
+
+        left.Children.Add(BuildMonths(data.Months));
+        var right = new StackPanel { Spacing = 16 };
+        right.Children.Add(BuildCompare());
+        right.Children.Add(BuildCorrelations(data.Correlations));
+        grid.Add(left, columns: 2);
+        grid.Add(right, columns: 2);
+        grid.Add(BuildYear(data.YearHeatmap), columns: 4);
+    }
+
+    /// <summary>Thẻ giới thiệu phần nâng cao cho gói Free.</summary>
     private UIElement BuildAdvanced()
     {
         var stack = new StackPanel { Spacing = 16 };
-        stack.Children.Add(new TextBlock { Text = Ui.T("adv.title").ToUpperInvariant(), Style = Res("SectionHeader"), Margin = new Thickness(4, 12, 0, 0) });
 
-        if (ViewModel.Advanced is not { } data)
+        if (ViewModel.Advanced is null)
         {
             var teaser = new StackPanel { Spacing = 8 };
             teaser.Children.Add(new TextBlock { Text = "🔒 " + Ui.T("adv.locked.title"), Style = Res("CardTitleTextStyle") });
@@ -44,14 +68,9 @@ public sealed partial class InsightsPage
                 }
             };
             teaser.Children.Add(unlock);
-            stack.Children.Add(new Border { Style = Res("CardBorder"), Child = teaser });
-            return stack;
+            stack.Children.Add(new Border { Style = Res("GlassCard"), Child = teaser });
         }
 
-        stack.Children.Add(BuildMonths(data.Months));
-        stack.Children.Add(BuildCorrelations(data.Correlations));
-        stack.Children.Add(BuildCompare());
-        stack.Children.Add(BuildYear(data.YearHeatmap));
         return stack;
     }
 
@@ -237,7 +256,8 @@ public sealed partial class InsightsPage
     {
         var scroll = new ScrollViewer
         {
-            Content = new HeatmapGrid { Data = data, ColorHue = "#8B5CF6", CellSize = 13, IsInteractive = true },
+            // Ô to hơn (16) và căn giữa: lưới cả năm lấp chiều rộng 4 cột thay vì dồn sang trái.
+            Content = new HeatmapGrid { Data = data, ColorHue = "#8B5CF6", CellSize = 16, IsInteractive = true, HorizontalAlignment = HorizontalAlignment.Center },
             HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
             VerticalScrollBarVisibility = ScrollBarVisibility.Disabled,
             HorizontalScrollMode = ScrollMode.Enabled
