@@ -6,6 +6,7 @@ using HabitGrid.Presentation.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Automation;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 
@@ -14,7 +15,12 @@ namespace HabitGrid.WinUI.Pages;
 /// <summary>Trang Buddy: linh vật tiến hóa theo level, thanh XP, token freeze và lưới huy hiệu (có huy hiệu bí mật ẩn điều kiện).</summary>
 public sealed partial class BuddyPage : Page
 {
-    private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(36, 28, 36, 32), MaxWidth = 1040, HorizontalAlignment = HorizontalAlignment.Center };
+    /// <summary>Bề rộng từ đó dùng bố cục "phòng thay đồ" 2 nửa (sân khấu cố định bên trái).</summary>
+    private const double SplitFrom = 1000;
+
+    private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(32, 24, 32, 32) };
+    private AccessorySlot _slot = AccessorySlot.Head;
+    private bool? _split;
 
     public BuddyPage()
     {
@@ -22,6 +28,15 @@ public sealed partial class BuddyPage : Page
         InitializeComponent();
         NavigationCacheMode = NavigationCacheMode.Disabled;
         Scroll.Content = _root;
+
+        // Đổi giữa 2 nửa và 1 cột khi qua mốc bề rộng.
+        SizeChanged += (_, e) =>
+        {
+            if (_split is { } split && split != (e.NewSize.Width >= SplitFrom))
+            {
+                Build();
+            }
+        };
     }
 
     public BuddyViewModel ViewModel { get; }
@@ -51,57 +66,108 @@ public sealed partial class BuddyPage : Page
         }
     }
 
+    /// <summary>
+    /// Bố cục "phòng thay đồ tương tác" (v3): cửa sổ rộng thì sân khấu Mochi cố định bên trái (1.5 phần), bên phải (2.5 phần) cuộn riêng
+    /// gồm tủ đồ theo tab Đầu / Mặt / Cổ và lưới huy hiệu, nên đổi đồ vẫn luôn thấy Mochi. Cửa sổ hẹp thì xếp một cột như cũ.
+    /// </summary>
     private void Build()
     {
         _root.Children.Clear();
+        var split = ActualWidth == 0 || ActualWidth >= SplitFrom;
+        _split = split;
+        Scroll.VerticalScrollMode = split ? ScrollMode.Disabled : ScrollMode.Enabled;
+        Scroll.VerticalScrollBarVisibility = split ? ScrollBarVisibility.Disabled : ScrollBarVisibility.Auto;
         _root.Children.Add(new TextBlock { Text = Ui.T("buddy.title"), Style = Res("TitleDisplayTextStyle") });
-        _root.Children.Add(BuildHero());
-        _root.Children.Add(BuildWardrobe());
 
-        var header = new TextBlock
+        var right = new StackPanel { Spacing = 16 };
+        right.Children.Add(BuildWardrobe());
+        right.Children.Add(BuildBadges());
+
+        if (!split)
+        {
+            _root.Children.Add(BuildHero(vertical: false));
+            _root.Children.Add(right);
+            return;
+        }
+
+        var body = new Grid { ColumnSpacing = 20 };
+        body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1.5, GridUnitType.Star) });
+        body.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2.5, GridUnitType.Star) });
+        body.Children.Add(BuildHero(vertical: true));
+        var scroller = new ScrollViewer { Content = right, VerticalScrollBarVisibility = ScrollBarVisibility.Auto, Padding = new Thickness(0, 0, 12, 0) };
+        Grid.SetColumn(scroller, 1);
+        body.Children.Add(scroller);
+
+        // Hai nửa cao bằng phần còn lại của cửa sổ (trừ tiêu đề): sân khấu đứng yên, nửa phải cuộn.
+        body.Height = Math.Max(420, ActualHeight - 120);
+        _root.Children.Add(body);
+    }
+
+    private FrameworkElement BuildBadges()
+    {
+        var stack = new StackPanel { Spacing = 12 };
+        stack.Children.Add(new TextBlock
         {
             Text = $"{Ui.T("buddy.badges").ToUpperInvariant()} · {Ui.Loc.Format("buddy.badges.count", ViewModel.UnlockedCount, ViewModel.TotalCount)}",
             Style = Res("SectionHeader"),
-            Margin = new Thickness(4, 12, 0, 0)
-        };
-        _root.Children.Add(header);
+            Margin = new Thickness(0)
+        });
 
         var repeater = new ItemsRepeater
         {
-            Layout = new UniformGridLayout { MinItemWidth = 230, MinColumnSpacing = 12, MinRowSpacing = 12, ItemsStretch = UniformGridLayoutItemsStretch.Fill }
+            Layout = new UniformGridLayout { MinItemWidth = 220, MinColumnSpacing = 12, MinRowSpacing = 12, ItemsStretch = UniformGridLayoutItemsStretch.Fill }
         };
-        var tiles = ViewModel.Badges
+        repeater.ItemsSource = ViewModel.Badges
             .OrderByDescending(b => b.Unlocked)
             .ThenBy(b => b.Hidden)
             .Select(BuildBadge)
             .ToList();
-        repeater.ItemsSource = tiles;
-        _root.Children.Add(repeater);
+        stack.Children.Add(repeater);
+        return new Border { Style = Res("GlassCard"), Child = stack };
     }
 
-    private UIElement BuildHero()
+    private UIElement BuildHero(bool vertical)
     {
         var stops = HabitGradient.From(ViewModel.Color);
         var hero = new Grid { CornerRadius = new CornerRadius(32), MinHeight = 200 };
         hero.Children.Add(new Border { CornerRadius = new CornerRadius(32), Background = Ui.GradientBrush(stops) });
         hero.Children.Add(new Border { CornerRadius = new CornerRadius(32), Background = new SolidColorBrush(Microsoft.UI.Colors.Black), Opacity = stops.ScrimOpacity });
 
-        var content = new Grid { Padding = new Thickness(28, 22, 28, 22), ColumnSpacing = 24 };
-        content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        content.ColumnDefinitions.Add(new ColumnDefinition());
+        if (vertical)
+        {
+            // Đèn sân khấu: quầng sáng trắng mờ sau Mochi.
+            var spot = new RadialGradientBrush { Center = new Windows.Foundation.Point(0.5, 0.32), RadiusX = 0.55, RadiusY = 0.4, GradientOrigin = new Windows.Foundation.Point(0.5, 0.32) };
+            spot.GradientStops.Add(new GradientStop { Color = Windows.UI.Color.FromArgb(0x66, 255, 255, 255), Offset = 0 });
+            spot.GradientStops.Add(new GradientStop { Color = Windows.UI.Color.FromArgb(0x00, 255, 255, 255), Offset = 1 });
+            hero.Children.Add(new Border { CornerRadius = new CornerRadius(32), Background = spot });
+        }
 
-        var avatar = new Grid { Width = 140, Height = 150, VerticalAlignment = VerticalAlignment.Center };
-        avatar.Children.Add(new TextBlock { Text = StageEmoji(ViewModel.Stage), FontSize = 92, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
+        var content = new Grid { Padding = new Thickness(28, 22, 28, 22), ColumnSpacing = 24, RowSpacing = 16, VerticalAlignment = VerticalAlignment.Center };
+
+        if (vertical)
+        {
+            content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            content.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        }
+        else
+        {
+            content.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            content.ColumnDefinitions.Add(new ColumnDefinition());
+        }
+
+        var scale = vertical ? 1.5 : 1;
+        var avatar = new Grid { Width = 140 * scale, Height = 150 * scale, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        avatar.Children.Add(new TextBlock { Text = StageEmoji(ViewModel.Stage), FontSize = 92 * scale, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
 
         foreach (var (slot, accessory) in _wardrobe.Worn)
         {
             avatar.Children.Add(new TextBlock
             {
                 Text = accessory.Emoji,
-                FontSize = slot == AccessorySlot.Head ? 52 : 40,
+                FontSize = (slot == AccessorySlot.Head ? 52 : 40) * scale,
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = slot switch { AccessorySlot.Head => VerticalAlignment.Top, AccessorySlot.Face => VerticalAlignment.Center, _ => VerticalAlignment.Bottom },
-                Margin = slot switch { AccessorySlot.Head => new Thickness(0, -14, 0, 0), AccessorySlot.Face => new Thickness(0, 14, 0, 0), _ => new Thickness(0, 0, 0, -6) }
+                Margin = slot switch { AccessorySlot.Head => new Thickness(0, -14 * scale, 0, 0), AccessorySlot.Face => new Thickness(0, 14 * scale, 0, 0), _ => new Thickness(0, 0, 0, -6 * scale) }
             });
         }
 
@@ -110,12 +176,13 @@ public sealed partial class BuddyPage : Page
         content.Children.Add(avatar);
 
         var info = new StackPanel { Spacing = 6, VerticalAlignment = VerticalAlignment.Center };
-        info.Children.Add(new TextBlock { Text = ViewModel.Name, FontFamily = Font("DisplayFont"), FontSize = 28, Foreground = White() });
+        info.Children.Add(new TextBlock { Text = ViewModel.Name, FontFamily = Font("DisplayFont"), FontSize = 28, Foreground = White(), HorizontalAlignment = vertical ? HorizontalAlignment.Center : HorizontalAlignment.Left }); 
         info.Children.Add(new TextBlock
         {
             Text = $"{Ui.Loc.Format("buddy.level", ViewModel.Level)} · {Ui.T("stage." + ViewModel.Stage.ToString().ToLowerInvariant())}",
             FontSize = 16,
-            Foreground = White(230)
+            Foreground = White(230),
+            HorizontalAlignment = vertical ? HorizontalAlignment.Center : HorizontalAlignment.Left
         });
 
         var track = new Grid { Height = 10, CornerRadius = new CornerRadius(5), Background = new SolidColorBrush(Windows.UI.Color.FromArgb(70, 255, 255, 255)), Margin = new Thickness(0, 6, 0, 0) };
@@ -132,12 +199,20 @@ public sealed partial class BuddyPage : Page
             Foreground = White(220)
         });
 
-        var chips = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10, Margin = new Thickness(0, 8, 0, 0) };
+        var chips = new HabitGrid.WinUI.Controls.WrapPanel { HorizontalSpacing = 10, VerticalSpacing = 8, Margin = new Thickness(0, 8, 0, 0), HorizontalAlignment = vertical ? HorizontalAlignment.Center : HorizontalAlignment.Left };
         chips.Children.Add(Pill("❄ " + Ui.Loc.Format("buddy.freeze", ViewModel.FreezeTokens)));
         chips.Children.Add(Pill("🔥 " + Ui.Loc.Format("buddy.streak", ViewModel.OverallStreak)));
         info.Children.Add(chips);
 
-        Grid.SetColumn(info, 1);
+        if (vertical)
+        {
+            Grid.SetRow(info, 1);
+        }
+        else
+        {
+            Grid.SetColumn(info, 1);
+        }
+
         content.Children.Add(info);
         hero.Children.Add(content);
         return hero;
@@ -146,23 +221,39 @@ public sealed partial class BuddyPage : Page
     /// <summary>Tủ phụ kiện (P6): bấm đeo/tháo; món chưa mở ghi rõ điều kiện; món Plus bấm vào thì mở paywall.</summary>
     private UIElement BuildWardrobe()
     {
-        var stack = new StackPanel { Spacing = 10 };
-        stack.Children.Add(new TextBlock { Text = Ui.T("wardrobe.title").ToUpperInvariant(), Style = Res("SectionHeader"), Margin = new Thickness(4, 12, 0, 0) });
+        var stack = new StackPanel { Spacing = 12 };
+        stack.Children.Add(new TextBlock { Text = Ui.T("wardrobe.title").ToUpperInvariant(), Style = Res("SectionHeader"), Margin = new Thickness(0) });
         stack.Children.Add(new TextBlock { Text = Ui.T("wardrobe.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
 
-        foreach (var slot in Enum.GetValues<AccessorySlot>())
+        // Thanh tab kiểu segmented control: Đầu (7) | Mặt (3) | Cổ (7); mỗi tab một lưới tự xuống dòng (không còn thanh cuộn ngang).
+        var tabs = new Grid { ColumnSpacing = 4, Padding = new Thickness(4), CornerRadius = new CornerRadius(14), Background = (Brush)Application.Current.Resources["SurfaceBrush"] };
+        var slots = Enum.GetValues<AccessorySlot>();
+
+        for (var i = 0; i < slots.Length; i++)
         {
-            stack.Children.Add(new TextBlock { Text = Ui.T("wardrobe.slot." + slot), FontSize = 13, Foreground = (Brush)Application.Current.Resources["TextMutedBrush"] });
-            // Lưới tự xuống dòng thay cho hàng cuộn ngang (lỗi thanh cuộn ngang và cắt chữ "Hoa tulip" ở kệ phụ kiện).
-            var tiles = _wardrobe.Items.Where(i => i.Accessory.Slot == slot).Select(BuildAccessoryTile).ToList();
-            stack.Children.Add(new ItemsRepeater
+            var slot = slots[i];
+            tabs.ColumnDefinitions.Add(new ColumnDefinition());
+            var count = _wardrobe.Items.Count(x => x.Accessory.Slot == slot);
+            var label = $"{Ui.T("wardrobe.slot." + slot)} ({count})";
+            var tab = new ToggleButton { Style = Res("ChipStyle"), Content = label, IsChecked = slot == _slot, HorizontalAlignment = HorizontalAlignment.Stretch };
+            AutomationProperties.SetName(tab, label);
+            tab.Click += (_, _) =>
             {
-                ItemsSource = tiles,
-                Layout = new UniformGridLayout { MinItemWidth = 124, MinItemHeight = 136, MinColumnSpacing = 10, MinRowSpacing = 10, ItemsStretch = UniformGridLayoutItemsStretch.Fill }
-            });
+                _slot = slot;
+                Build();
+            };
+            Grid.SetColumn(tab, i);
+            tabs.Children.Add(tab);
         }
 
-        return stack;
+        stack.Children.Add(tabs);
+        stack.Children.Add(new ItemsRepeater
+        {
+            ItemsSource = _wardrobe.Items.Where(i => i.Accessory.Slot == _slot).Select(BuildAccessoryTile).ToList(),
+            Layout = new UniformGridLayout { MinItemWidth = 124, MinItemHeight = 136, MinColumnSpacing = 10, MinRowSpacing = 10, ItemsStretch = UniformGridLayoutItemsStretch.Fill, MaximumRowsOrColumns = 4 }
+        });
+
+        return new Border { Style = Res("GlassCard"), Child = stack };
     }
 
     private UIElement BuildAccessoryTile(WardrobeItem item)
