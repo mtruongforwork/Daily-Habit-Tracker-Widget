@@ -39,6 +39,10 @@ public static class HostText
 
     public static string Today => T("Hôm nay", "Today", "今日", "오늘");
 
+    public static string GoalOfDayBadge => T("🎯 Trọng tâm ×2", "🎯 Goal ×2", "🎯 今日の目標 ×2", "🎯 핵심 목표 ×2");
+
+    public static string QuickTodoHeader => T("Việc nhanh", "Quick To-Dos", "クイックTo-Do", "빠른 할 일");
+
     public static string AllDone => T("Xong hết rồi! 🎉", "All done! 🎉", "すべて完了！ 🎉", "모두 완료! 🎉");
 
     public static string NothingDue => T("Hôm nay không có gì cần làm 😴", "Nothing due today 😴", "今日の予定はありません 😴", "오늘 할 일이 없어요 😴");

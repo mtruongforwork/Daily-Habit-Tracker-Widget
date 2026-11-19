@@ -1,9 +1,11 @@
 using System.ComponentModel;
+using HabitGrid.Core.Domain;
 using HabitGrid.Presentation.Services;
 using HabitGrid.WinUI.Controls;
 using HabitGrid.Presentation.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 
 namespace HabitGrid.WinUI.Pages;
@@ -124,7 +126,118 @@ public sealed partial class HabitsPage : Page
     private void UpdateEmpty()
     {
         EmptyPanel.Visibility = ViewModel.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
-        List.Visibility = ViewModel.IsEmpty ? Visibility.Collapsed : Visibility.Visible;
+        var showMatrix = _matrixView && !ViewModel.IsEmpty && !ViewModel.ShowArchived;
+        List.Visibility = ViewModel.IsEmpty || showMatrix ? Visibility.Collapsed : Visibility.Visible;
+        MatrixCard.Visibility = showMatrix ? Visibility.Visible : Visibility.Collapsed;
+        if (showMatrix)
+        {
+            _ = RebuildMatrixAsync();
+        }
+    }
+
+    private bool _matrixView;
+
+    private void OnCardsViewClick(object sender, RoutedEventArgs e)
+    {
+        _matrixView = false;
+        UpdateChips();
+        UpdateEmpty();
+    }
+
+    private void OnMatrixViewClick(object sender, RoutedEventArgs e)
+    {
+        _matrixView = true;
+        UpdateChips();
+        UpdateEmpty();
+    }
+
+    private async Task RebuildMatrixAsync()
+    {
+        try
+        {
+            MatrixHost.Children.Clear();
+            var entitlements = App.Host.Get<IEntitlements>();
+            var days = entitlements.IsPlus ? MatrixBoardBuilder.PlusDays : MatrixBoardBuilder.FreeDays;
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var habits = await App.Host.Get<IHabitRepository>().GetAllActiveAsync();
+            var logRepo = App.Host.Get<IDayLogRepository>();
+            var checkIn = App.Host.Get<CheckInService>();
+
+            var header = new Grid { ColumnSpacing = 4 };
+            header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
+            for (var i = 0; i < days; i++)
+            {
+                header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                var d = today.AddDays(-(days - 1 - i));
+                var lbl = new TextBlock
+                {
+                    Text = d.Day.ToString(Ui.CurrentCulture),
+                    FontSize = 11,
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Foreground = (Brush)Application.Current.Resources[d == today ? "AccentBrandBrush" : "TextMutedBrush"]
+                };
+                Grid.SetColumn(lbl, i + 1);
+                header.Children.Add(lbl);
+            }
+            MatrixHost.Children.Add(header);
+
+            foreach (var habit in habits)
+            {
+                var logs = await logRepo.GetAllForHabitAsync(habit.Id);
+                var cells = MatrixBoardBuilder.BuildRow(habit, logs, today, days);
+                var row = new Grid { ColumnSpacing = 4 };
+                row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
+
+                var nameText = new TextBlock
+                {
+                    Text = $"{Ui.IconText(habit.Icon.Value)}  {habit.Name}",
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    VerticalAlignment = VerticalAlignment.Center
+                };
+                row.Children.Add(nameText);
+
+                var baseColor = Ui.ParseColor(habit.ColorHue);
+                var emptyBrush = (Brush)Application.Current.Resources["HeatEmptyBrush"];
+
+                for (var i = 0; i < cells.Count; i++)
+                {
+                    row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+                    var cell = cells[i];
+                    var alpha = cell.Intensity > 0 ? (byte)Math.Clamp((int)Math.Round(cell.Intensity * 255), 50, 255) : (byte)0;
+                    var bg = alpha > 0
+                        ? new SolidColorBrush(Windows.UI.Color.FromArgb(alpha, baseColor.R, baseColor.G, baseColor.B))
+                        : emptyBrush;
+                    var btn = new Button
+                    {
+                        Height = 26,
+                        MinWidth = 0,
+                        Padding = new Thickness(0),
+                        HorizontalAlignment = HorizontalAlignment.Stretch,
+                        CornerRadius = new CornerRadius(6),
+                        Background = bg,
+                        BorderThickness = new Thickness(cell.Day == today ? 1 : 0),
+                        BorderBrush = (Brush)Application.Current.Resources["StrokeHighlightBrush"]
+                    };
+                    Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(btn, $"{habit.Name} {cell.Day:dd/MM}");
+                    var targetDay = cell.Day;
+                    var habitId = habit.Id;
+                    btn.Click += async (_, _) =>
+                    {
+                        await checkIn.ToggleAsync(habitId, targetDay);
+                        await ViewModel.LoadAsync();
+                        await RebuildMatrixAsync();
+                    };
+                    Grid.SetColumn(btn, i + 1);
+                    row.Children.Add(btn);
+                }
+
+                MatrixHost.Children.Add(row);
+            }
+        }
+        catch (Exception ex)
+        {
+            Log(ex, "Dựng bảng ma trận lỗi");
+        }
     }
 
     private async void OnAddClick(object sender, RoutedEventArgs e)
@@ -173,6 +286,10 @@ public sealed partial class HabitsPage : Page
     private void UpdateChips()
     {
         ActiveChip.Content = Ui.T("habits.filter.active");
+        CardsViewChip.Content = Ui.T("habits.view.cards");
+        MatrixViewChip.Content = Ui.T("habits.view.matrix");
+        CardsViewChip.IsChecked = !_matrixView;
+        MatrixViewChip.IsChecked = _matrixView;
         ArchivedChip.Content = ViewModel.ArchivedCount > 0
             ? $"{Ui.T("habits.filter.archived")} · {ViewModel.ArchivedCount}"
             : Ui.T("habits.filter.archived");

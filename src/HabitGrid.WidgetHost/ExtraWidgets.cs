@@ -1202,4 +1202,11 @@ public sealed class MultiGridWidgetWindow : ExtraWidgetWindow
 public sealed record FocusSnapshot(string Display, double Fraction, string? Habit, bool Paused, bool IsBreak, string Clock = "");
 
 /// <summary>Dữ liệu của widget gộp: Buddy, danh sách Hôm nay (check được), Mục tiêu và lưới thói quen (hai mục sau chỉ có khi Plus).</summary>
-public sealed record HubData(BuddyWidgetData Buddy, IReadOnlyList<QuickItem> Today, GoalsWidgetData? Goals, MultiGridData? Grid, WidgetStatsData? Stats = null);
+public sealed record HubData(
+    BuddyWidgetData Buddy,
+    IReadOnlyList<QuickItem> Today,
+    GoalsWidgetData? Goals,
+    MultiGridData? Grid,
+    WidgetStatsData? Stats = null,
+    Guid? GoalOfDayHabitId = null,
+    IReadOnlyList<HabitGrid.Core.Domain.QuickTodo>? QuickTodos = null);

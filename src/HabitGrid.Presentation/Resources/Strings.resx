@@ -847,4 +847,56 @@
   <data name="plus.group.share" xml:space="preserve"><value>Khoảnh khắc &amp; chia sẻ</value></data>
   <data name="settings.lang.ja" xml:space="preserve"><value>日本語</value></data>
   <data name="settings.lang.ko" xml:space="preserve"><value>한국어</value></data>
+  <data name="editor.kind.dual" xml:space="preserve"><value>2 chiều (+ / −)</value></data>
+  <data name="editor.skipWeekends" xml:space="preserve"><value>Nghỉ cuối tuần (T7–CN)</value></data>
+  <data name="editor.area" xml:space="preserve"><value>Lĩnh vực</value></data>
+  <data name="editor.area.none" xml:space="preserve"><value>Không phân loại</value></data>
+  <data name="area.err.limit" xml:space="preserve"><value>Gói Free tối đa 3 lĩnh vực. Nâng cấp Plus để thêm.</value></data>
+  <data name="today.goalOfDay" xml:space="preserve"><value>Mục tiêu trọng tâm (×2 XP)</value></data>
+  <data name="today.neverMissTwice" xml:space="preserve"><value>Đừng lỡ 2 ngày liên tiếp</value></data>
+  <data name="today.gentleRepair" xml:space="preserve"><value>Sửa chuỗi</value></data>
+  <data name="today.quickTodo.title" xml:space="preserve"><value>Việc nhanh hôm nay</value></data>
+  <data name="today.quickTodo.placeholder" xml:space="preserve"><value>Thêm việc làm 1 lần…</value></data>
+  <data name="rewards.title" xml:space="preserve"><value>Phần thưởng</value></data>
+  <data name="rewards.coins" xml:space="preserve"><value>{0} xu</value></data>
+  <data name="rewards.add" xml:space="preserve"><value>Tạo phần thưởng</value></data>
+  <data name="rewards.redeem" xml:space="preserve"><value>Đổi</value></data>
+  <data name="rewards.insufficient" xml:space="preserve"><value>Chưa đủ xu</value></data>
+  <data name="rewards.limit" xml:space="preserve"><value>Gói Free tối đa 3 phần thưởng. Nâng cấp Plus để thêm.</value></data>
+  <data name="habits.view.cards" xml:space="preserve"><value>Thẻ</value></data>
+  <data name="habits.view.matrix" xml:space="preserve"><value>Ma trận</value></data>
+  <data name="detail.timeline" xml:space="preserve"><value>Dòng thời gian chuỗi</value></data>
+  <data name="detail.timeline.empty" xml:space="preserve"><value>Chưa có chuỗi hoàn thành nào.</value></data>
+  <data name="buddy.room.weather" xml:space="preserve"><value>Phòng Mochi</value></data>
+  <data name="settings.sound" xml:space="preserve"><value>Âm thanh check-in</value></data>
+  <data name="settings.sound.hint" xml:space="preserve"><value>Phát tiếng pop &amp; chuông nhẹ khi hoàn thành thói quen.</value></data>
+  <data name="today.inline.focus" xml:space="preserve"><value>▶ Focus</value></data>
+  <data name="mochi.tap.hint" xml:space="preserve"><value>Chạm để vuốt ve Mochi</value></data>
+  <data name="mochi.talk.start" xml:space="preserve"><value>Chào buổi mới! Bắt đầu một thói quen nhỏ nhé.</value></data>
+  <data name="mochi.talk.mid" xml:space="preserve"><value>Đang vào guồng rồi đó! Tiếp tục nhẹ nhàng thôi.</value></data>
+  <data name="mochi.talk.almost" xml:space="preserve"><value>Sắp xong hết rồi, Mochi cổ vũ bạn!</value></data>
+  <data name="mochi.talk.perfect" xml:space="preserve"><value>100% Perfect Day! Bạn làm tuyệt lắm!</value></data>
+  <data name="mochi.talk.pet1" xml:space="preserve"><value>Hihi, thích quá! Cảm ơn bạn nha~</value></data>
+  <data name="mochi.talk.pet2" xml:space="preserve"><value>Mochi nạp thêm năng lượng rồi đây!</value></data>
+  <data name="mochi.talk.cozy" xml:space="preserve"><value>Trời tối rồi, làm nốt việc nhẹ rồi nghỉ ngơi nhé.</value></data>
+  <data name="mochi.discovery.title" xml:space="preserve"><value>Khám phá nhỏ hôm nay</value></data>
+  <data name="mochi.discovery.body" xml:space="preserve"><value>Mochi tìm thấy một viên đá lấp lánh dưới ánh trăng (+100% ngày hoàn hảo)!</value></data>
+  <data name="journal.prompts.title" xml:space="preserve"><value>Gợi ý viết nhanh</value></data>
+  <data name="journal.prompt.cat.gratitude" xml:space="preserve"><value>Biết ơn</value></data>
+  <data name="journal.prompt.gratitude" xml:space="preserve"><value>Hôm nay có điều nhỏ bé nào khiến bạn thấy biết ơn?</value></data>
+  <data name="journal.prompt.cat.win" xml:space="preserve"><value>Thành tựu</value></data>
+  <data name="journal.prompt.win" xml:space="preserve"><value>Khoảnh khắc bạn tự hào nhất hôm nay là gì?</value></data>
+  <data name="journal.prompt.cat.lesson" xml:space="preserve"><value>Bài học</value></data>
+  <data name="journal.prompt.lesson" xml:space="preserve"><value>Điều gì làm bạn chững lại và bạn học được gì từ nó?</value></data>
+  <data name="journal.prompt.cat.energy" xml:space="preserve"><value>Năng lượng</value></data>
+  <data name="journal.prompt.energy" xml:space="preserve"><value>Thói quen nào giúp bạn nạp lại năng lượng nhiều nhất?</value></data>
+  <data name="journal.prompt.cat.tomorrow" xml:space="preserve"><value>Ngày mai</value></data>
+  <data name="journal.prompt.tomorrow" xml:space="preserve"><value>Một việc duy nhất bạn muốn ưu tiên vào ngày mai?</value></data>
+  <data name="today.stack.suggest" xml:space="preserve"><value>Sau khi xong "{0}" → gợi ý làm "{1}"</value></data>
+  <data name="today.stack.doNow" xml:space="preserve"><value>Làm ngay</value></data>
+  <data name="today.stack.button" xml:space="preserve"><value>Ghép thói quen</value></data>
+  <data name="today.stack.dialogTitle" xml:space="preserve"><value>Ghép chuỗi thói quen (Habit Stacking)</value></data>
+  <data name="today.stack.after" xml:space="preserve"><value>Sau khi hoàn thành</value></data>
+  <data name="today.stack.then" xml:space="preserve"><value>Gợi ý làm tiếp</value></data>
+  <data name="today.stack.saved" xml:space="preserve"><value>Đã lưu quy tắc ghép thói quen.</value></data>
 </root>

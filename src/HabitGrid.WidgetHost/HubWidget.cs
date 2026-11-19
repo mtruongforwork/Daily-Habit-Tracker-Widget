@@ -47,6 +47,9 @@ public sealed partial class HubWidgetWindow : ExtraWidgetWindow
     /// <summary>Gọi khi người dùng bấm −/+ trên thói quen đếm.</summary>
     public Func<QuickItem, int, Task>? OnAdjust { get; set; }
 
+    /// <summary>Gọi khi người dùng bấm toggle một Quick To-Do.</summary>
+    public Func<HabitGrid.Core.Domain.QuickTodo, Task>? OnToggleQuickTodo { get; set; }
+
     public Func<DateTime> Now { get; set; } = () => DateTime.Now;
 
     /// <summary>Các mục đang hiển thị (để kiểm tra phân gói).</summary>

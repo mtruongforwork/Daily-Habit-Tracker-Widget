@@ -13,7 +13,10 @@ public enum HabitKind
     Duration = 2,
 
     /// <summary>Thói quen cần bỏ: giá trị là số lần lỡ, 0 = giữ được.</summary>
-    Quit = 3
+    Quit = 3,
+
+    /// <summary>Thói quen 2 chiều (+ / −): làm tốt cộng điểm, lỡ trừ nhẹ.</summary>
+    Dual = 4
 }
 
 /// <summary>Trạng thái của một ngày. Phần lớn được suy ra từ giá trị, trừ Skipped/Frozen do người dùng đặt.</summary>

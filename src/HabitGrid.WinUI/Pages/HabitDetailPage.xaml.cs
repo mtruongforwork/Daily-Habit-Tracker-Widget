@@ -120,6 +120,58 @@ public sealed partial class HabitDetailPage : Page
             (Ui.CurrentCulture.DateTimeFormat.GetAbbreviatedDayName(w.Day), w.Percent)).ToList(), habit.ColorHue);
         BuildJournal();
         BuildMoments();
+        BuildTimeline(habit.ColorHue);
+    }
+
+    private void BuildTimeline(string colorHue)
+    {
+        TimelineTitle.Text = Ui.T("detail.timeline");
+        TimelineList.Children.Clear();
+        var runs = ViewModel.StreakTimeline;
+        TimelineEmpty.Text = Ui.T("detail.timeline.empty");
+        TimelineEmpty.Visibility = runs.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+
+        if (runs.Count == 0)
+        {
+            return;
+        }
+
+        var maxLen = Math.Max(1, runs.Max(r => r.Length));
+        var fillBrush = Ui.GradientBrush(HabitGradient.From(colorHue));
+
+        foreach (var run in runs)
+        {
+            var row = new Grid { ColumnSpacing = 12 };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(165) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            row.Children.Add(new TextBlock
+            {
+                Text = $"{run.StartDay:dd/MM} – {run.EndDay:dd/MM}",
+                Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"],
+                VerticalAlignment = VerticalAlignment.Center
+            });
+
+            var track = new Grid { Height = 12, CornerRadius = new CornerRadius(6), Background = (Brush)Application.Current.Resources["HeatEmptyBrush"], VerticalAlignment = VerticalAlignment.Center };
+            var ratio = Math.Max(0.08, (double)run.Length / maxLen);
+            var bar = new Border { CornerRadius = new CornerRadius(6), Background = fillBrush, HorizontalAlignment = HorizontalAlignment.Left };
+            track.Children.Add(bar);
+            track.SizeChanged += (_, e) => bar.Width = e.NewSize.Width * ratio;
+            Grid.SetColumn(track, 1);
+            row.Children.Add(track);
+
+            var badge = new TextBlock
+            {
+                Text = Ui.Loc.Format("streak.days", run.Length),
+                FontSize = 12,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Grid.SetColumn(badge, 2);
+            row.Children.Add(badge);
+
+            TimelineList.Children.Add(row);
+        }
     }
 
     /// <summary>Chọn cỡ ô sao cho 52 tuần vừa khung; quá hẹp thì để cuộn ngang.</summary>

@@ -141,6 +141,81 @@ public sealed class MigrationV3Schema : IMigration
     }
 }
 
+/// <summary>Lược đồ v4.0 Sprint 1: thêm cột skip_weekends/area_id cho habits và các bảng habit_areas, quick_todos, custom_rewards, reward_redemptions.</summary>
+public sealed class MigrationV5V4Features : IMigration
+{
+    public const int SchemaVersion = 5;
+
+    public int Version => SchemaVersion;
+
+    public void Up(SqliteConnection connection, SqliteTransaction transaction)
+    {
+        AddColumnIfMissing(connection, transaction, "habits", "skip_weekends", "INTEGER NOT NULL DEFAULT 0");
+        AddColumnIfMissing(connection, transaction, "habits", "area_id", "TEXT NULL");
+
+        using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = """
+            CREATE TABLE IF NOT EXISTS habit_areas (
+                id         TEXT PRIMARY KEY,
+                name       TEXT NOT NULL,
+                emoji      TEXT NOT NULL,
+                color_hex  TEXT NOT NULL,
+                sort_key   TEXT NOT NULL DEFAULT 'V'
+            );
+
+            CREATE TABLE IF NOT EXISTS quick_todos (
+                id           TEXT PRIMARY KEY,
+                title        TEXT NOT NULL,
+                day          TEXT NOT NULL,
+                is_done      INTEGER NOT NULL DEFAULT 0,
+                created_at   TEXT NOT NULL,
+                completed_at TEXT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_quick_todos_day ON quick_todos(day);
+
+            CREATE TABLE IF NOT EXISTS custom_rewards (
+                id         TEXT PRIMARY KEY,
+                title      TEXT NOT NULL,
+                emoji      TEXT NOT NULL,
+                cost_coins INTEGER NOT NULL,
+                note       TEXT NULL,
+                created_at TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS reward_redemptions (
+                id           TEXT PRIMARY KEY,
+                reward_id    TEXT NOT NULL,
+                reward_title TEXT NOT NULL,
+                cost_coins   INTEGER NOT NULL,
+                redeemed_at  TEXT NOT NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_reward_redemptions_at ON reward_redemptions(redeemed_at);
+            """;
+        command.ExecuteNonQuery();
+    }
+
+    private static void AddColumnIfMissing(SqliteConnection connection, SqliteTransaction transaction, string table, string column, string definition)
+    {
+        using var check = connection.CreateCommand();
+        check.Transaction = transaction;
+        check.CommandText = $"PRAGMA table_info({table});";
+        using var reader = check.ExecuteReader();
+        while (reader.Read())
+        {
+            if (string.Equals(reader.GetString(1), column, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+        }
+
+        using var alter = connection.CreateCommand();
+        alter.Transaction = transaction;
+        alter.CommandText = $"ALTER TABLE {table} ADD COLUMN {column} {definition};";
+        alter.ExecuteNonQuery();
+    }
+}
+
 /// <summary>Tạo và khởi tạo CSDL v3.</summary>
 public static class HabitGridV3
 {
@@ -179,6 +254,6 @@ public static class HabitGridV3
     public static void Migrate(HabitGridDatabase database)
     {
         ArgumentNullException.ThrowIfNull(database);
-        new MigrationRunner(database, [new MigrationV3Schema(), new MigrationV4Journal()]).ApplyMigrations();
+        new MigrationRunner(database, [new MigrationV3Schema(), new MigrationV4Journal(), new MigrationV5V4Features()]).ApplyMigrations();
     }
 }

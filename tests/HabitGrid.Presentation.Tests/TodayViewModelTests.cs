@@ -288,6 +288,48 @@ public class TodayViewModelTests
         vm.CanUndo.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task DualHabit_CheckIn_IncrementsAndCompletes()
+    {
+        using var f = new AppFixture();
+        await f.AddAsync("Dual", kind: HabitKind.Dual);
+        var vm = f.NewToday();
+        await vm.LoadAsync();
+        var item = vm.Groups.Single().Items.Single();
+
+        await vm.CheckInAsync(item);
+        item.Value.Should().Be(1);
+        item.IsDone.Should().BeTrue();
+
+        await vm.CheckInAsync(item);
+        item.Value.Should().Be(2);
+
+        await vm.DecrementAsync(item);
+        item.Value.Should().Be(1);
+        item.IsDone.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task HabitStackRule_SuggestsNextHabit_WhenTriggerCompletes()
+    {
+        using var f = new AppFixture();
+        var a = await f.AddAsync("Drink Water");
+        var b = await f.AddAsync("Meditate");
+        var vm = new TodayViewModel(f.Habits, f.Logs, f.Days) { Settings = f.Settings };
+        await vm.LoadAsync();
+        await vm.SaveStackRuleAsync(a.Id, b.Id);
+
+        var itemA = vm.Groups.SelectMany(g => g.Items).Single(i => i.Id == a.Id);
+        await vm.CheckInAsync(itemA);
+
+        vm.ActiveStackSuggestion.Should().NotBeNull();
+        vm.ActiveStackSuggestion!.Trigger.Id.Should().Be(a.Id);
+        vm.ActiveStackSuggestion.Next.Id.Should().Be(b.Id);
+
+        vm.DismissStackSuggestion();
+        vm.ActiveStackSuggestion.Should().BeNull();
+    }
+
     private static async Task WaitUntilAsync(Func<bool> condition)
     {
         for (var i = 0; i < 100 && !condition(); i++)

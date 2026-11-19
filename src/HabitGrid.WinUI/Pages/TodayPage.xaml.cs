@@ -138,6 +138,9 @@ public sealed partial class TodayPage : Page
         DateText.Visibility = ViewModel.IsViewingPast ? Visibility.Collapsed : Visibility.Visible;
         CustomizeButtonText.Text = Ui.T("dashboard.customize");
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(CustomizeButton, CustomizeButtonText.Text);
+        StackButtonText.Text = Ui.T("today.stack.button");
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(StackButton, StackButtonText.Text);
+        StackDoNowButton.Content = Ui.T("today.stack.doNow");
         BackToTodayButton.Content = Ui.T("today.backToToday");
         BackToTodayButton.Visibility = ViewModel.IsViewingPast ? Visibility.Visible : Visibility.Collapsed;
         EmptyTitle.Text = Ui.T("today.empty.title");
@@ -180,6 +183,9 @@ public sealed partial class TodayPage : Page
             case nameof(TodayViewModel.LastAction):
                 UpdateUndo();
                 break;
+            case nameof(TodayViewModel.ActiveStackSuggestion):
+                UpdateStackSuggestion();
+                break;
             case nameof(TodayViewModel.ErrorMessage):
                 ShowError();
                 break;
@@ -195,6 +201,7 @@ public sealed partial class TodayPage : Page
         if (ViewModel.AllDone && !_wasAllDone && !ViewModel.IsViewingPast)
         {
             Confetti.Burst(new Windows.Foundation.Point(ActualWidth * 0.35, 220));
+            _ = HabitGrid.WinUI.Controls.AppSound.PlayAsync(HabitGrid.Core.Domain.SoundToneKind.PerfectDayChime);
         }
 
         _wasAllDone = ViewModel.AllDone;
@@ -251,6 +258,90 @@ public sealed partial class TodayPage : Page
 
     private async void OnUndoClick(object sender, RoutedEventArgs e) =>
         await Guard(ViewModel.UndoAsync);
+
+    private void UpdateStackSuggestion()
+    {
+        if (ViewModel.ActiveStackSuggestion is { } suggestion)
+        {
+            StackBar.Message = Ui.Loc.Format("today.stack.suggest", suggestion.Trigger.Name, suggestion.Next.Name);
+            StackBar.IsOpen = true;
+        }
+        else
+        {
+            StackBar.IsOpen = false;
+        }
+    }
+
+    private async void OnStackDoNowClick(object sender, RoutedEventArgs e) =>
+        await Guard(async () =>
+        {
+            if (ViewModel.ActiveStackSuggestion is { } suggestion)
+            {
+                var target = ViewModel.Groups.SelectMany(g => g.Items).FirstOrDefault(i => i.Id == suggestion.Next.Id);
+                ViewModel.DismissStackSuggestion();
+                if (target is not null)
+                {
+                    await ViewModel.CheckInAsync(target);
+                }
+            }
+        });
+
+    private async void OnStackClick(object sender, RoutedEventArgs e) =>
+        await Guard(async () =>
+        {
+            var plus = App.Host.Get<PlusService>();
+            if (!plus.Status.IsPlus)
+            {
+                if (!await HabitGrid.WinUI.Plus.PaywallDialog.ShowAsync(XamlRoot, PaywallSource.Settings))
+                {
+                    return;
+                }
+            }
+
+            var items = ViewModel.Groups.SelectMany(g => g.Items).ToList();
+            if (items.Count < 2)
+            {
+                return;
+            }
+
+            var afterCombo = new ComboBox
+            {
+                Header = Ui.T("today.stack.after"),
+                ItemsSource = items,
+                DisplayMemberPath = nameof(HabitTodayItem.Name),
+                SelectedIndex = 0,
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+            var thenCombo = new ComboBox
+            {
+                Header = Ui.T("today.stack.then"),
+                ItemsSource = items,
+                DisplayMemberPath = nameof(HabitTodayItem.Name),
+                SelectedIndex = 1,
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+            var panel = new StackPanel { Spacing = 12 };
+            panel.Children.Add(afterCombo);
+            panel.Children.Add(thenCombo);
+
+            var dialog = new ContentDialog
+            {
+                XamlRoot = XamlRoot,
+                Title = Ui.T("today.stack.dialogTitle"),
+                Content = panel,
+                PrimaryButtonText = Ui.T("common.save"),
+                CloseButtonText = Ui.T("common.cancel"),
+                DefaultButton = ContentDialogButton.Primary
+            };
+
+            if (await dialog.ShowAsync() == ContentDialogResult.Primary &&
+                afterCombo.SelectedItem is HabitTodayItem trigger &&
+                thenCombo.SelectedItem is HabitTodayItem next &&
+                trigger.Id != next.Id)
+            {
+                await ViewModel.SaveStackRuleAsync(trigger.Id, next.Id);
+            }
+        });
 
     private async void OnAddClick(object sender, RoutedEventArgs e) =>
         await Guard(async () =>

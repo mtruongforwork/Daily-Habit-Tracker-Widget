@@ -354,7 +354,7 @@ public static class LegacyImporter
             command.CommandText = $"""
                 SELECT (SELECT COUNT(*) FROM habits) + (SELECT COUNT(*) FROM day_logs)
                      + (SELECT COUNT(*) FROM sync_state WHERE key = '{ImportMarkerKey}')
-                     + (SELECT COUNT(*) FROM schema_info WHERE version NOT IN ({MigrationV3Schema.SchemaVersion}, {MigrationV4Journal.SchemaVersion}));
+                     + (SELECT COUNT(*) FROM schema_info WHERE version NOT IN ({MigrationV3Schema.SchemaVersion}, {MigrationV4Journal.SchemaVersion}, {MigrationV5V4Features.SchemaVersion}));
                 """;
             return Convert.ToInt32(await command.ExecuteScalarAsync()) == 0;
         }

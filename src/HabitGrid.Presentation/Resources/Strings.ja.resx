@@ -847,4 +847,56 @@
   <data name="plus.group.share" xml:space="preserve"><value>モーメント &amp; シェア</value></data>
   <data name="settings.lang.ja" xml:space="preserve"><value>日本語</value></data>
   <data name="settings.lang.ko" xml:space="preserve"><value>한국어</value></data>
+  <data name="editor.kind.dual" xml:space="preserve"><value>デュアル (+ / −)</value></data>
+  <data name="editor.skipWeekends" xml:space="preserve"><value>週末休み (土日)</value></data>
+  <data name="editor.area" xml:space="preserve"><value>エリア</value></data>
+  <data name="editor.area.none" xml:space="preserve"><value>なし</value></data>
+  <data name="area.err.limit" xml:space="preserve"><value>無料プランではエリアは3つまでです。Plusで無制限になります。</value></data>
+  <data name="today.goalOfDay" xml:space="preserve"><value>今日の目標 (×2 XP)</value></data>
+  <data name="today.neverMissTwice" xml:space="preserve"><value>2日連続で休まない</value></data>
+  <data name="today.gentleRepair" xml:space="preserve"><value>連続記録を修復</value></data>
+  <data name="today.quickTodo.title" xml:space="preserve"><value>今日のクイックTo-Do</value></data>
+  <data name="today.quickTodo.placeholder" xml:space="preserve"><value>1回限りのタスクを追加…</value></data>
+  <data name="rewards.title" xml:space="preserve"><value>ご褒美</value></data>
+  <data name="rewards.coins" xml:space="preserve"><value>{0} コイン</value></data>
+  <data name="rewards.add" xml:space="preserve"><value>ご褒美を作成</value></data>
+  <data name="rewards.redeem" xml:space="preserve"><value>交換</value></data>
+  <data name="rewards.insufficient" xml:space="preserve"><value>コインが足りません</value></data>
+  <data name="rewards.limit" xml:space="preserve"><value>無料プランではご褒美は3つまでです。Plusで無制限になります。</value></data>
+  <data name="habits.view.cards" xml:space="preserve"><value>カード</value></data>
+  <data name="habits.view.matrix" xml:space="preserve"><value>マトリックス</value></data>
+  <data name="detail.timeline" xml:space="preserve"><value>連続記録タイムライン</value></data>
+  <data name="detail.timeline.empty" xml:space="preserve"><value>まだ連続記録がありません。</value></data>
+  <data name="buddy.room.weather" xml:space="preserve"><value>Mochiの部屋</value></data>
+  <data name="settings.sound" xml:space="preserve"><value>チェックイン音</value></data>
+  <data name="settings.sound.hint" xml:space="preserve"><value>習慣を達成したときにやさしいポップ音とチャイムを鳴らします。</value></data>
+  <data name="today.inline.focus" xml:space="preserve"><value>▶ 集中</value></data>
+  <data name="mochi.tap.hint" xml:space="preserve"><value>タップしてMochiをなでる</value></data>
+  <data name="mochi.talk.start" xml:space="preserve"><value>新しい一日！まずは小さな習慣から始めよう。</value></data>
+  <data name="mochi.talk.mid" xml:space="preserve"><value>いいペースだね！その調子でゆっくり進もう。</value></data>
+  <data name="mochi.talk.almost" xml:space="preserve"><value>あと少し！Mochiが応援しているよ！</value></data>
+  <data name="mochi.talk.perfect" xml:space="preserve"><value>100%パーフェクトデイ！素晴らしい達成だね！</value></data>
+  <data name="mochi.talk.pet1" xml:space="preserve"><value>えへへ、うれしいな！ありがとう〜</value></data>
+  <data name="mochi.talk.pet2" xml:space="preserve"><value>Mochi、元気いっぱいになったよ！</value></data>
+  <data name="mochi.talk.cozy" xml:space="preserve"><value>夜になったね。無理せず休もうね。</value></data>
+  <data name="mochi.discovery.title" xml:space="preserve"><value>今日の小さな発見</value></data>
+  <data name="mochi.discovery.body" xml:space="preserve"><value>Mochiが月明かりで光る小さな石を見つけたよ（100%達成）！</value></data>
+  <data name="journal.prompts.title" xml:space="preserve"><value>振り返りプロンプト</value></data>
+  <data name="journal.prompt.cat.gratitude" xml:space="preserve"><value>感謝</value></data>
+  <data name="journal.prompt.gratitude" xml:space="preserve"><value>今日感謝したい小さなことは何ですか？</value></data>
+  <data name="journal.prompt.cat.win" xml:space="preserve"><value>成果</value></data>
+  <data name="journal.prompt.win" xml:space="preserve"><value>今日いちばん誇らしかった瞬間は？</value></data>
+  <data name="journal.prompt.cat.lesson" xml:space="preserve"><value>学び</value></data>
+  <data name="journal.prompt.lesson" xml:space="preserve"><value>立ち止まったことと、そこから得た学びは？</value></data>
+  <data name="journal.prompt.cat.energy" xml:space="preserve"><value>エネルギー</value></data>
+  <data name="journal.prompt.energy" xml:space="preserve"><value>いちばん元気をくれた習慣はどれですか？</value></data>
+  <data name="journal.prompt.cat.tomorrow" xml:space="preserve"><value>明日</value></data>
+  <data name="journal.prompt.tomorrow" xml:space="preserve"><value>明日最優先にしたい1つのことは？</value></data>
+  <data name="today.stack.suggest" xml:space="preserve"><value>「{0}」のあと → 次は「{1}」がおすすめ</value></data>
+  <data name="today.stack.doNow" xml:space="preserve"><value>今すぐやる</value></data>
+  <data name="today.stack.button" xml:space="preserve"><value>習慣スタック</value></data>
+  <data name="today.stack.dialogTitle" xml:space="preserve"><value>習慣スタッキング設定</value></data>
+  <data name="today.stack.after" xml:space="preserve"><value>完了したあと</value></data>
+  <data name="today.stack.then" xml:space="preserve"><value>次に提案する習慣</value></data>
+  <data name="today.stack.saved" xml:space="preserve"><value>習慣スタックを保存しました。</value></data>
 </root>

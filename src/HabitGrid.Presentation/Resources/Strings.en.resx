@@ -847,4 +847,56 @@
   <data name="plus.group.share" xml:space="preserve"><value>Moments &amp; sharing</value></data>
   <data name="settings.lang.ja" xml:space="preserve"><value>日本語</value></data>
   <data name="settings.lang.ko" xml:space="preserve"><value>한국어</value></data>
+  <data name="editor.kind.dual" xml:space="preserve"><value>Dual (+ / −)</value></data>
+  <data name="editor.skipWeekends" xml:space="preserve"><value>No weekends (Sat–Sun)</value></data>
+  <data name="editor.area" xml:space="preserve"><value>Area</value></data>
+  <data name="editor.area.none" xml:space="preserve"><value>None</value></data>
+  <data name="area.err.limit" xml:space="preserve"><value>Free plan allows up to 3 areas. Upgrade to Plus for more.</value></data>
+  <data name="today.goalOfDay" xml:space="preserve"><value>Goal of the Day (×2 XP)</value></data>
+  <data name="today.neverMissTwice" xml:space="preserve"><value>Never miss twice</value></data>
+  <data name="today.gentleRepair" xml:space="preserve"><value>Repair streak</value></data>
+  <data name="today.quickTodo.title" xml:space="preserve"><value>Quick To-Dos</value></data>
+  <data name="today.quickTodo.placeholder" xml:space="preserve"><value>Add a one-off task…</value></data>
+  <data name="rewards.title" xml:space="preserve"><value>Rewards</value></data>
+  <data name="rewards.coins" xml:space="preserve"><value>{0} coins</value></data>
+  <data name="rewards.add" xml:space="preserve"><value>New reward</value></data>
+  <data name="rewards.redeem" xml:space="preserve"><value>Redeem</value></data>
+  <data name="rewards.insufficient" xml:space="preserve"><value>Not enough coins</value></data>
+  <data name="rewards.limit" xml:space="preserve"><value>Free plan allows up to 3 rewards. Upgrade to Plus.</value></data>
+  <data name="habits.view.cards" xml:space="preserve"><value>Cards</value></data>
+  <data name="habits.view.matrix" xml:space="preserve"><value>Matrix</value></data>
+  <data name="detail.timeline" xml:space="preserve"><value>Streak timeline</value></data>
+  <data name="detail.timeline.empty" xml:space="preserve"><value>No completed streaks yet.</value></data>
+  <data name="buddy.room.weather" xml:space="preserve"><value>Mochi Room</value></data>
+  <data name="settings.sound" xml:space="preserve"><value>Check-in sounds</value></data>
+  <data name="settings.sound.hint" xml:space="preserve"><value>Play a gentle pop &amp; chime when completing habits.</value></data>
+  <data name="today.inline.focus" xml:space="preserve"><value>▶ Focus</value></data>
+  <data name="mochi.tap.hint" xml:space="preserve"><value>Tap to pet Mochi</value></data>
+  <data name="mochi.talk.start" xml:space="preserve"><value>Fresh start! Let's check off one small habit.</value></data>
+  <data name="mochi.talk.mid" xml:space="preserve"><value>Nice rhythm! Keep going at your own pace.</value></data>
+  <data name="mochi.talk.almost" xml:space="preserve"><value>Almost there—Mochi is cheering for you!</value></data>
+  <data name="mochi.talk.perfect" xml:space="preserve"><value>100% Perfect Day! You did amazing!</value></data>
+  <data name="mochi.talk.pet1" xml:space="preserve"><value>Hehe, that feels cozy! Thank you~</value></data>
+  <data name="mochi.talk.pet2" xml:space="preserve"><value>Mochi is all charged up now!</value></data>
+  <data name="mochi.talk.cozy" xml:space="preserve"><value>It's getting late—wrap up gently and rest well.</value></data>
+  <data name="mochi.discovery.title" xml:space="preserve"><value>Today's mini discovery</value></data>
+  <data name="mochi.discovery.body" xml:space="preserve"><value>Mochi found a glowing moonstone (+100% Perfect Day)!</value></data>
+  <data name="journal.prompts.title" xml:space="preserve"><value>Guided prompts</value></data>
+  <data name="journal.prompt.cat.gratitude" xml:space="preserve"><value>Gratitude</value></data>
+  <data name="journal.prompt.gratitude" xml:space="preserve"><value>What small thing are you grateful for today?</value></data>
+  <data name="journal.prompt.cat.win" xml:space="preserve"><value>Win</value></data>
+  <data name="journal.prompt.win" xml:space="preserve"><value>What moment are you most proud of today?</value></data>
+  <data name="journal.prompt.cat.lesson" xml:space="preserve"><value>Lesson</value></data>
+  <data name="journal.prompt.lesson" xml:space="preserve"><value>What slowed you down and what did you learn from it?</value></data>
+  <data name="journal.prompt.cat.energy" xml:space="preserve"><value>Energy</value></data>
+  <data name="journal.prompt.energy" xml:space="preserve"><value>Which habit recharged your energy the most?</value></data>
+  <data name="journal.prompt.cat.tomorrow" xml:space="preserve"><value>Tomorrow</value></data>
+  <data name="journal.prompt.tomorrow" xml:space="preserve"><value>What is the one thing you want to prioritize tomorrow?</value></data>
+  <data name="today.stack.suggest" xml:space="preserve"><value>After "{0}" → try "{1}" next</value></data>
+  <data name="today.stack.doNow" xml:space="preserve"><value>Do it now</value></data>
+  <data name="today.stack.button" xml:space="preserve"><value>Habit Stack</value></data>
+  <data name="today.stack.dialogTitle" xml:space="preserve"><value>Habit Stacking Trigger</value></data>
+  <data name="today.stack.after" xml:space="preserve"><value>After completing</value></data>
+  <data name="today.stack.then" xml:space="preserve"><value>Suggest doing</value></data>
+  <data name="today.stack.saved" xml:space="preserve"><value>Habit stack rule saved.</value></data>
 </root>

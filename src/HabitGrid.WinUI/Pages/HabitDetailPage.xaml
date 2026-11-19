@@ -118,6 +118,15 @@
                         <StackPanel x:Name="JournalList" Spacing="10" />
                     </StackPanel>
                 </Border>
+
+                <!-- Dòng thời gian chuỗi (v4) -->
+                <Border Style="{StaticResource GlassCard}" controls:BentoGrid.Span="8">
+                    <StackPanel Spacing="10">
+                        <TextBlock x:Name="TimelineTitle" Style="{StaticResource SectionHeader}" Margin="0" />
+                        <TextBlock x:Name="TimelineEmpty" Style="{StaticResource BodySecondaryTextStyle}" TextWrapping="Wrap" />
+                        <StackPanel x:Name="TimelineList" Spacing="8" />
+                    </StackPanel>
+                </Border>
             </controls:BentoGrid>
         </StackPanel>
     </ScrollViewer>

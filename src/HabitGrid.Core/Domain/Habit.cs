@@ -67,13 +67,19 @@ public sealed class Habit
 
     public Guid? SharedChallengeId { get; set; }
 
+    /// <summary>Tự động nghỉ T7 và CN (không tính lịch và không làm đứt chuỗi).</summary>
+    public bool SkipWeekends { get; set; }
+
+    /// <summary>Lĩnh vực (Area) phân loại thói quen (tùy chọn).</summary>
+    public Guid? AreaId { get; set; }
+
     [JsonIgnore]
     public bool IsActive => DeletedAt is null && ArchivedAt is null;
 
     [JsonIgnore]
     public bool IsArchived => ArchivedAt is not null && DeletedAt is null;
 
-    /// <summary>Mục tiêu hiệu lực: Boolean và Quit luôn là 1.</summary>
+    /// <summary>Mục tiêu hiệu lực: Boolean, Quit và Dual luôn là 1.</summary>
     [JsonIgnore]
-    public int EffectiveTarget => Kind is HabitKind.Boolean or HabitKind.Quit ? 1 : Math.Max(1, Target.Value);
+    public int EffectiveTarget => Kind is HabitKind.Boolean or HabitKind.Quit or HabitKind.Dual ? 1 : Math.Max(1, Target.Value);
 }

@@ -94,6 +94,7 @@
                     <ToggleSwitch x:Name="MoodSwitch" IsOn="{x:Bind ViewModel.AskMood, Mode=TwoWay}" />
                     <ToggleSwitch x:Name="NotesSwitch" IsOn="{x:Bind ViewModel.AllowNotes, Mode=TwoWay}" />
                     <ToggleSwitch x:Name="FreezeSwitch" IsOn="{x:Bind ViewModel.AllowFreeze, Mode=TwoWay}" />
+                    <ToggleSwitch x:Name="SkipWeekendsSwitch" IsOn="{x:Bind ViewModel.SkipWeekends, Mode=TwoWay}" />
                     <TextBox x:Name="DescriptionBox" MaxLength="200" TextWrapping="Wrap" AcceptsReturn="True" Height="72"
                              Text="{x:Bind ViewModel.Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                     <TextBox x:Name="TagsBox"

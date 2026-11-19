@@ -169,6 +169,24 @@ public sealed class AppHost : IDisposable
         services.AddSingleton<IHabitRepository>(_ => new HabitRepository(database, clock, bus));
         services.AddSingleton<IDayLogRepository>(_ => new DayLogRepository(database, clock, bus));
         services.AddSingleton<IRoutineRepository>(_ => new RoutineRepository(database, clock, bus));
+        services.AddSingleton<IHabitAreaRepository>(_ => new HabitAreaRepository(database, clock, bus));
+        services.AddSingleton<IQuickTodoRepository>(_ => new QuickTodoRepository(database, clock, bus));
+        services.AddSingleton<IRewardRepository>(_ => new RewardRepository(database, clock, bus));
+        services.AddSingleton<RewardService>(sp => new RewardService(
+            sp.GetRequiredService<IRewardRepository>(),
+            sp.GetRequiredService<ISettingsStore>(),
+            sp.GetRequiredService<IEntitlements>()));
+        services.AddSingleton<GoalOfTheDayService>(sp => new GoalOfTheDayService(
+            sp.GetRequiredService<ISettingsStore>()));
+        services.AddSingleton<AreaService>(sp => new AreaService(
+            sp.GetRequiredService<IHabitAreaRepository>(),
+            sp.GetRequiredService<IEntitlements>()));
+        services.AddSingleton<QuickTodoService>(sp => new QuickTodoService(
+            sp.GetRequiredService<IQuickTodoRepository>(),
+            sp.GetRequiredService<RewardService>()));
+        services.AddSingleton<GentleRepairService>(sp => new GentleRepairService(
+            sp.GetRequiredService<IHabitRepository>(),
+            sp.GetRequiredService<IDayLogRepository>()));
         services.AddSingleton<VacationService>(sp => new VacationService(
             sp.GetRequiredService<IHabitRepository>(),
             sp.GetRequiredService<IDayLogRepository>(),

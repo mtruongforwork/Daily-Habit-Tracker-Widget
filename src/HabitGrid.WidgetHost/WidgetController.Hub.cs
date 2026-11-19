@@ -254,12 +254,12 @@ public sealed partial class WidgetController
         var goals = sections.HasFlag(HubSection.Goals) ? await Data().GoalsAsync() : null;
         var grid = sections.HasFlag(HubSection.Grid) ? await Data().MultiGridAsync() : null;
         var stats = await Data().StatsAsync();
-        _hub.Update(new HubData(buddy, _quick.Items, goals, grid, stats));
+        _hub.Update(new HubData(buddy, _quick.Items, goals, grid, stats, _quick.GoalOfDayHabitId, _quick.QuickTodos));
     }
 
     private async Task<HubWidgetWindow> CreateHubAsync()
     {
-        var window = new HubWidgetWindow { Placement = _placement, EditMode = _editApplied, OnToggle = item => ActAsync(item, 0), OnAdjust = ActAsync, FocusProvider = FocusSnapshotNow, OnAddHabit = AddHabitAsync, OnStartFocus = StartFocusFromPanelAsync, OnStopFocus = Focus.StopAsync, OnOpenApp = () => OpenMainApp?.Invoke(), HotKeyText = () => HotKeyDescription };
+        var window = new HubWidgetWindow { Placement = _placement, EditMode = _editApplied, OnToggle = item => ActAsync(item, 0), OnAdjust = ActAsync, OnToggleQuickTodo = ToggleQuickTodoFromHubAsync, FocusProvider = FocusSnapshotNow, OnAddHabit = AddHabitAsync, OnStartFocus = StartFocusFromPanelAsync, OnStopFocus = Focus.StopAsync, OnOpenApp = () => OpenMainApp?.Invoke(), HotKeyText = () => HotKeyDescription };
         window.Show();
         window.StartLiveActivities();
         window.Moved += async (_, _) =>
@@ -302,6 +302,12 @@ public sealed partial class WidgetController
 
     private Task StartFocusFromPanelAsync(int minutes) =>
         Focus.StartAsync(HabitGrid.Core.Domain.Focus.FocusMode.Pomodoro, minutes, null, keepHabit: false);
+
+    private async Task ToggleQuickTodoFromHubAsync(HabitGrid.Core.Domain.QuickTodo todo)
+    {
+        await _quick.ToggleQuickTodoAsync(todo);
+        await RefreshAsync();
+    }
 
     /// <summary>Phiên Focus hiện tại (nếu đang làm hoặc nghỉ) cho đồng hồ trên viên thuốc.</summary>
     private FocusSnapshot? FocusSnapshotNow()

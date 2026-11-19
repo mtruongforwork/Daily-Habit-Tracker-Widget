@@ -26,6 +26,11 @@ public sealed class ScheduleCalculator : IScheduleCalculator
             return false;
         }
 
+        if (habit.SkipWeekends && day.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
+        {
+            return false;
+        }
+
         return habit.Frequency switch
         {
             HabitFrequency.WeekDays w => w.Days.IsInMask(day.DayOfWeek),

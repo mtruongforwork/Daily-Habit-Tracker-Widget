@@ -9,7 +9,7 @@
   <Identity
     Name="HabitGrid.DesktopWidget"
     Publisher="CN=HabitGridDeveloper"
-    Version="1.0.0.0"
+    Version="4.0.0.0"
     ProcessorArchitecture="x64" />
 
   <Properties>

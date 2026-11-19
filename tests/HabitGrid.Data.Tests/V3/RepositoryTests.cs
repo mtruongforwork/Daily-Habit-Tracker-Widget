@@ -21,9 +21,10 @@ public class SchemaTests
         var tables = fixture.Strings("SELECT name FROM sqlite_master WHERE type = 'table';");
         tables.Should().Contain([
             "habits", "reminders", "day_logs", "routines", "profile", "xp_events", "achievements",
-            "widgets", "settings", "sync_outbox", "sync_state", "schema_info", "journal_entries"]);
+            "widgets", "settings", "sync_outbox", "sync_state", "schema_info", "journal_entries",
+            "habit_areas", "quick_todos", "custom_rewards", "reward_redemptions"]);
 
-        fixture.Scalar("SELECT MAX(version) FROM schema_info;").Should().Be(4);
+        fixture.Scalar("SELECT MAX(version) FROM schema_info;").Should().Be(5);
     }
 
     [Fact]

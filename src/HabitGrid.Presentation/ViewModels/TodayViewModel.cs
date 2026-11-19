@@ -188,6 +188,9 @@ public sealed partial class TodayViewModel : ObservableObject, IDisposable
     private UndoEntry? _lastAction;
 
     [ObservableProperty]
+    private HabitStackSuggestion? _activeStackSuggestion;
+
+    [ObservableProperty]
     private string? _errorMessage;
 
     /// <summary>Số ngày liên tiếp có ít nhất một thói quen xong (hôm nay chưa xong thì chuỗi vẫn sống).</summary>
@@ -471,13 +474,60 @@ public sealed partial class TodayViewModel : ObservableObject, IDisposable
         var newValue = item.Kind switch
         {
             HabitKind.Boolean => item.IsDone ? 0 : 1,
-            HabitKind.Count => item.Value + 1,
+            HabitKind.Count or HabitKind.Dual => item.Value + 1,
             HabitKind.Duration => item.IsDone ? 0 : item.Target,
             HabitKind.Quit => item.Value + 1,
             _ => item.Value
         };
 
+        var wasDone = item.IsDone;
         await SetValueAsync(item, newValue);
+
+        if (!IsViewingPast && !wasDone && item.IsDone)
+        {
+            await EvaluateHabitStackAsync(item.Id);
+        }
+    }
+
+    public async Task<IReadOnlyList<HabitStackRule>> GetStackRulesAsync(CancellationToken ct = default)
+    {
+        if (Settings is null)
+        {
+            return [];
+        }
+
+        var raw = await Settings.GetAsync(SettingKeys.HabitStacks, ct);
+        return HabitStackRules.ParseRules(raw);
+    }
+
+    public async Task SaveStackRuleAsync(Guid triggerHabitId, Guid nextHabitId, CancellationToken ct = default)
+    {
+        if (Settings is null || triggerHabitId == Guid.Empty || nextHabitId == Guid.Empty || triggerHabitId == nextHabitId)
+        {
+            return;
+        }
+
+        var current = (await GetStackRulesAsync(ct)).ToList();
+        if (!current.Any(r => r.TriggerHabitId == triggerHabitId && r.NextHabitId == nextHabitId))
+        {
+            current.Add(new HabitStackRule(Guid.NewGuid(), triggerHabitId, nextHabitId));
+            await Settings.SetAsync(SettingKeys.HabitStacks, HabitStackRules.SerializeRules(current), ct);
+        }
+    }
+
+    public void DismissStackSuggestion() => ActiveStackSuggestion = null;
+
+    private async Task EvaluateHabitStackAsync(Guid completedHabitId)
+    {
+        var rules = await GetStackRulesAsync();
+        if (rules.Count == 0)
+        {
+            return;
+        }
+
+        var doneMap = _items.ToDictionary(kv => kv.Key, kv => kv.Value.IsDone);
+        var habitMap = _items.ToDictionary(kv => kv.Key, kv => kv.Value.Habit);
+        ActiveStackSuggestion = HabitStackRules.FindSuggestion(completedHabitId, rules, doneMap, habitMap);
     }
 
     /// <summary>Giảm một đơn vị (menu của loại đếm, hoặc xóa một lần lỡ của loại cần bỏ).</summary>

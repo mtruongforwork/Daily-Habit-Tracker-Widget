@@ -21,6 +21,11 @@ public sealed partial class BuddyPage : Page
     private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(32, 24, 32, 32) };
     private AccessorySlot _slot = AccessorySlot.Head;
     private bool? _split;
+    private int _coins;
+    private IReadOnlyList<CustomReward> _rewards = [];
+    private int _mochiTaps;
+    private double _dayProgress;
+    private bool _isPerfectDay;
 
     public BuddyPage()
     {
@@ -58,6 +63,16 @@ public sealed partial class BuddyPage : Page
         {
             await ViewModel.LoadAsync();
             _wardrobe = await App.Host.Get<BuddyWardrobeService>().GetAsync();
+            var rewardService = App.Host.Get<RewardService>();
+            _coins = await rewardService.GetBalanceAsync();
+            _rewards = await rewardService.GetRewardsAsync();
+            var today = App.Host.Get<TodayViewModel>();
+            if (today.TotalCount == 0)
+            {
+                await today.LoadAsync();
+            }
+            _dayProgress = today.TotalCount > 0 ? (double)today.DoneCount / today.TotalCount : 0;
+            _isPerfectDay = today.AllDone && today.TotalCount > 0;
             Build();
         }
         catch (Exception ex)
@@ -81,6 +96,7 @@ public sealed partial class BuddyPage : Page
 
         var right = new StackPanel { Spacing = 16 };
         right.Children.Add(BuildWardrobe());
+        right.Children.Add(BuildRewardsCard());
         right.Children.Add(BuildBadges());
 
         if (!split)
@@ -101,6 +117,101 @@ public sealed partial class BuddyPage : Page
         // Hai nửa cao bằng phần còn lại của cửa sổ (trừ tiêu đề): sân khấu đứng yên, nửa phải cuộn.
         body.Height = Math.Max(420, ActualHeight - 120);
         _root.Children.Add(body);
+    }
+
+    private FrameworkElement BuildRewardsCard()
+    {
+        var stack = new StackPanel { Spacing = 12 };
+        var header = new Grid();
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        header.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        header.Children.Add(new TextBlock { Text = Ui.T("rewards.title").ToUpperInvariant(), Style = Res("SectionHeader"), Margin = new Thickness(0), VerticalAlignment = VerticalAlignment.Center });
+        var coinText = new TextBlock { Text = "🪙 " + Ui.Loc.Format("rewards.coins", _coins), Style = Res("BodySecondaryTextStyle"), VerticalAlignment = VerticalAlignment.Center };
+        Grid.SetColumn(coinText, 1);
+        header.Children.Add(coinText);
+        stack.Children.Add(header);
+
+        var status = new TextBlock { Style = Res("BodySecondaryTextStyle"), Visibility = Visibility.Collapsed, TextWrapping = TextWrapping.Wrap };
+
+        var addRow = new Grid { ColumnSpacing = 8 };
+        addRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        addRow.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(90) });
+        addRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        var titleBox = new TextBox { PlaceholderText = Ui.T("rewards.add"), MaxLength = 60 };
+        var costBox = new NumberBox { Value = 30, Minimum = RewardWallet.MinCostCoins, Maximum = RewardWallet.MaxCostCoins, SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Compact };
+        var addBtn = new Button { Content = "＋", Style = Res("GradientButtonStyle"), Padding = new Thickness(12, 8, 12, 8) };
+        AutomationProperties.SetName(costBox, Ui.T("rewards.title"));
+        AutomationProperties.SetName(addBtn, Ui.T("rewards.add"));
+        Grid.SetColumn(costBox, 1);
+        Grid.SetColumn(addBtn, 2);
+        addRow.Children.Add(titleBox);
+        addRow.Children.Add(costBox);
+        addRow.Children.Add(addBtn);
+        stack.Children.Add(addRow);
+
+        addBtn.Click += async (_, _) =>
+        {
+            var svc = App.Host.Get<RewardService>();
+            var cost = double.IsNaN(costBox.Value) ? 30 : (int)costBox.Value;
+            var (result, _) = await svc.SaveRewardAsync(null, titleBox.Text, "🎁", cost);
+
+            if (result == RewardResult.LimitReached)
+            {
+                status.Text = Ui.T("rewards.limit");
+                status.Visibility = Visibility.Visible;
+                return;
+            }
+
+            if (result == RewardResult.Ok)
+            {
+                _rewards = await svc.GetRewardsAsync();
+                Build();
+            }
+        };
+
+        foreach (var reward in _rewards)
+        {
+            var row = new Grid { ColumnSpacing = 10 };
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            row.Children.Add(new TextBlock { Text = reward.Emoji, FontSize = 20, VerticalAlignment = VerticalAlignment.Center });
+            var label = new StackPanel { VerticalAlignment = VerticalAlignment.Center };
+            label.Children.Add(new TextBlock { Text = reward.Title, TextTrimming = TextTrimming.CharacterEllipsis });
+            label.Children.Add(new TextBlock { Text = "🪙 " + Ui.Loc.Format("rewards.coins", reward.CostCoins), Style = Res("BodySecondaryTextStyle"), FontSize = 12 });
+            Grid.SetColumn(label, 1);
+            row.Children.Add(label);
+
+            var redeemBtn = new Button
+            {
+                Content = Ui.T("rewards.redeem"),
+                Style = Res("GhostButtonStyle"),
+                IsEnabled = RewardWallet.CanRedeem(_coins, reward.CostCoins)
+            };
+            redeemBtn.Click += async (_, _) =>
+            {
+                var svc = App.Host.Get<RewardService>();
+                var (res, next) = await svc.RedeemAsync(reward.Id);
+                if (res == RewardResult.Ok)
+                {
+                    _coins = next;
+                    Build();
+                }
+                else
+                {
+                    status.Text = Ui.T("rewards.insufficient");
+                    status.Visibility = Visibility.Visible;
+                }
+            };
+            Grid.SetColumn(redeemBtn, 2);
+            row.Children.Add(redeemBtn);
+
+            stack.Children.Add(new Border { Style = Res("CardBorder"), Padding = new Thickness(12, 10, 12, 10), Child = row });
+        }
+
+        stack.Children.Add(status);
+        return new Border { Style = Res("GlassCard"), Child = stack };
     }
 
     private FrameworkElement BuildBadges()
@@ -128,9 +239,14 @@ public sealed partial class BuddyPage : Page
 
     private UIElement BuildHero(bool vertical)
     {
+        var room = MochiRoomTheme.For(TimeOnly.FromDateTime(DateTime.Now));
         var stops = HabitGradient.From(ViewModel.Color);
         var hero = new Grid { CornerRadius = new CornerRadius(32), MinHeight = 200 };
         hero.Children.Add(new Border { CornerRadius = new CornerRadius(32), Background = Ui.GradientBrush(stops) });
+        var roomTint = new LinearGradientBrush { StartPoint = new Windows.Foundation.Point(0, 0), EndPoint = new Windows.Foundation.Point(0, 1) };
+        roomTint.GradientStops.Add(new GradientStop { Color = Ui.ParseColor(room.TopHex), Offset = 0 });
+        roomTint.GradientStops.Add(new GradientStop { Color = Ui.ParseColor(room.BottomHex), Offset = 1 });
+        hero.Children.Add(new Border { CornerRadius = new CornerRadius(32), Background = roomTint, Opacity = 0.28 });
         hero.Children.Add(new Border { CornerRadius = new CornerRadius(32), Background = new SolidColorBrush(Microsoft.UI.Colors.Black), Opacity = stops.ScrimOpacity });
 
         if (vertical)
@@ -156,8 +272,21 @@ public sealed partial class BuddyPage : Page
         }
 
         var scale = vertical ? 1.5 : 1;
-        var avatar = new Grid { Width = 140 * scale, Height = 150 * scale, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        var avatar = new Grid { Width = 140 * scale, Height = 150 * scale, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, IsTabStop = true };
+        ToolTipService.SetToolTip(avatar, Ui.T("mochi.tap.hint"));
         avatar.Children.Add(new TextBlock { Text = StageEmoji(ViewModel.Stage), FontSize = 92 * scale, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
+
+        var isNight = DateTime.Now.Hour >= 20 || DateTime.Now.Hour < 6;
+        var reaction = MochiInteractionEngine.React(_mochiTaps, _dayProgress, _isPerfectDay, isNight);
+        var exprBadge = new Border
+        {
+            CornerRadius = new CornerRadius(14),
+            Padding = new Thickness(7, 3, 7, 3),
+            Background = new SolidColorBrush(Windows.UI.Color.FromArgb(180, 255, 255, 255)),
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Child = new TextBlock { Text = reaction.Emoji, FontSize = 18 }
+        };
 
         foreach (var (slot, accessory) in _wardrobe.Worn)
         {
@@ -170,6 +299,7 @@ public sealed partial class BuddyPage : Page
                 Margin = slot switch { AccessorySlot.Head => new Thickness(0, -14 * scale, 0, 0), AccessorySlot.Face => new Thickness(0, 14 * scale, 0, 0), _ => new Thickness(0, 0, 0, -6 * scale) }
             });
         }
+        avatar.Children.Add(exprBadge);
 
         var worn = _wardrobe.Worn.Count == 0 ? string.Empty : ", " + string.Join(", ", _wardrobe.Worn.Values.Select(a => Ui.T("accessory." + a.Id)));
         AutomationProperties.SetName(avatar, $"{ViewModel.Name}, {Ui.T("stage." + ViewModel.Stage.ToString().ToLowerInvariant())}{worn}");
@@ -184,6 +314,56 @@ public sealed partial class BuddyPage : Page
             Foreground = White(230),
             HorizontalAlignment = vertical ? HorizontalAlignment.Center : HorizontalAlignment.Left
         });
+
+        var bubbleText = new TextBlock { Text = Ui.T(reaction.DialogueKey), FontSize = 13, Foreground = White(245), TextWrapping = TextWrapping.Wrap };
+        var bubble = new Border
+        {
+            CornerRadius = new CornerRadius(14),
+            Padding = new Thickness(12, 8, 12, 8),
+            Background = new SolidColorBrush(Windows.UI.Color.FromArgb(46, 255, 255, 255)),
+            Margin = new Thickness(0, 4, 0, 2),
+            Child = bubbleText
+        };
+        info.Children.Add(bubble);
+
+        if (reaction.IsDiscoveryUnlocked && reaction.DiscoveryKey is { } dKey)
+        {
+            var discovery = new Border
+            {
+                CornerRadius = new CornerRadius(12),
+                Padding = new Thickness(10, 6, 10, 6),
+                Background = new SolidColorBrush(Windows.UI.Color.FromArgb(65, 255, 215, 0)),
+                Child = new TextBlock
+                {
+                    Text = "🌟 " + Ui.T("mochi.discovery.title") + ": " + Ui.T(dKey),
+                    FontSize = 12,
+                    Foreground = White(),
+                    TextWrapping = TextWrapping.Wrap
+                }
+            };
+            info.Children.Add(discovery);
+        }
+
+        void PetMochi()
+        {
+            _mochiTaps++;
+            var next = MochiInteractionEngine.React(_mochiTaps, _dayProgress, _isPerfectDay, isNight);
+            ((TextBlock)exprBadge.Child).Text = next.Emoji;
+            bubbleText.Text = Ui.T(next.DialogueKey);
+            HabitGrid.WinUI.Controls.Motion.SpringPop(avatar, 0.88f);
+            HabitGrid.WinUI.Controls.Motion.SpringPop(bubble, 0.94f);
+            _ = HabitGrid.WinUI.Controls.AppSound.PlayAsync(SoundToneKind.CheckInPop);
+        }
+
+        avatar.Tapped += (_, _) => PetMochi();
+        avatar.KeyDown += (_, e) =>
+        {
+            if (e.Key is Windows.System.VirtualKey.Space or Windows.System.VirtualKey.Enter)
+            {
+                PetMochi();
+                e.Handled = true;
+            }
+        };
 
         var track = new Grid { Height = 10, CornerRadius = new CornerRadius(5), Background = new SolidColorBrush(Windows.UI.Color.FromArgb(70, 255, 255, 255)), Margin = new Thickness(0, 6, 0, 0) };
         var fill = new Border { CornerRadius = new CornerRadius(5), Background = White(), HorizontalAlignment = HorizontalAlignment.Left };
@@ -202,6 +382,7 @@ public sealed partial class BuddyPage : Page
         var chips = new HabitGrid.WinUI.Controls.WrapPanel { HorizontalSpacing = 10, VerticalSpacing = 8, Margin = new Thickness(0, 8, 0, 0), HorizontalAlignment = vertical ? HorizontalAlignment.Center : HorizontalAlignment.Left };
         chips.Children.Add(Pill("❄ " + Ui.Loc.Format("buddy.freeze", ViewModel.FreezeTokens)));
         chips.Children.Add(Pill("🔥 " + Ui.Loc.Format("buddy.streak", ViewModel.OverallStreak)));
+        chips.Children.Add(Pill("🪙 " + Ui.Loc.Format("rewards.coins", _coins)));
         info.Children.Add(chips);
 
         if (vertical)
@@ -304,6 +485,9 @@ public sealed partial class BuddyPage : Page
 
             await App.Host.Get<BuddyWardrobeService>().ToggleAsync(a.Id);
             _wardrobe = await App.Host.Get<BuddyWardrobeService>().GetAsync();
+            var rewardService = App.Host.Get<RewardService>();
+            _coins = await rewardService.GetBalanceAsync();
+            _rewards = await rewardService.GetRewardsAsync();
             Build();
         };
         return button;
