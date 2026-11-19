@@ -23,14 +23,25 @@ public static class SettingKeys
 
     /// <summary>"0" tắt, còn lại (hoặc chưa có) = WidgetHost chạy cùng Windows.</summary>
     public const string WidgetsAutoStart = "widgets.autostart";
+
+    public const string GoalOfDayHabitId = "v4.goalOfDay.habitId";
+    public const string GoalOfDayDate = "v4.goalOfDay.date";
+    public const string CoinsBalance = "v4.wallet.coins";
+    public const string RepairTokens = "v4.streak.repairTokens";
 }
 
 /// <summary>Giới hạn của gói Free (SPEC-V2-10 §1). Plus có hiện thực riêng ở tầng Platform.</summary>
 public sealed class FreeEntitlements : IEntitlements
 {
     public const int FreeMaxActiveHabits = 5;
+    public const int FreeMaxAreas = 3;
+    public const int FreeMaxCustomRewards = 3;
 
     public int MaxActiveHabits => FreeMaxActiveHabits;
+
+    public int MaxAreas => FreeMaxAreas;
+
+    public int MaxCustomRewards => FreeMaxCustomRewards;
 
     public int MaxRemindersPerHabit => HabitValidator.MaxReminders;
 
@@ -44,6 +55,10 @@ public sealed class FreeEntitlements : IEntitlements
 public sealed class UnlimitedEntitlements : IEntitlements
 {
     public int MaxActiveHabits => int.MaxValue;
+
+    public int MaxAreas => int.MaxValue;
+
+    public int MaxCustomRewards => int.MaxValue;
 
     public int MaxRemindersPerHabit => HabitValidator.MaxReminders;
 

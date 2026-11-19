@@ -847,4 +847,20 @@
   <data name="plus.group.share" xml:space="preserve"><value>Khoảnh khắc &amp; chia sẻ</value></data>
   <data name="settings.lang.ja" xml:space="preserve"><value>日本語</value></data>
   <data name="settings.lang.ko" xml:space="preserve"><value>한국어</value></data>
+  <data name="editor.kind.dual" xml:space="preserve"><value>2 chiều (+ / −)</value></data>
+  <data name="editor.skipWeekends" xml:space="preserve"><value>Nghỉ cuối tuần (T7–CN)</value></data>
+  <data name="editor.area" xml:space="preserve"><value>Lĩnh vực</value></data>
+  <data name="editor.area.none" xml:space="preserve"><value>Không phân loại</value></data>
+  <data name="area.err.limit" xml:space="preserve"><value>Gói Free tối đa 3 lĩnh vực. Nâng cấp Plus để thêm.</value></data>
+  <data name="today.goalOfDay" xml:space="preserve"><value>Mục tiêu trọng tâm (×2 XP)</value></data>
+  <data name="today.neverMissTwice" xml:space="preserve"><value>Đừng lỡ 2 ngày liên tiếp</value></data>
+  <data name="today.gentleRepair" xml:space="preserve"><value>Sửa chuỗi</value></data>
+  <data name="today.quickTodo.title" xml:space="preserve"><value>Việc nhanh hôm nay</value></data>
+  <data name="today.quickTodo.placeholder" xml:space="preserve"><value>Thêm việc làm 1 lần…</value></data>
+  <data name="rewards.title" xml:space="preserve"><value>Phần thưởng</value></data>
+  <data name="rewards.coins" xml:space="preserve"><value>{0} xu</value></data>
+  <data name="rewards.add" xml:space="preserve"><value>Tạo phần thưởng</value></data>
+  <data name="rewards.redeem" xml:space="preserve"><value>Đổi</value></data>
+  <data name="rewards.insufficient" xml:space="preserve"><value>Chưa đủ xu</value></data>
+  <data name="rewards.limit" xml:space="preserve"><value>Gói Free tối đa 3 phần thưởng. Nâng cấp Plus để thêm.</value></data>
 </root>

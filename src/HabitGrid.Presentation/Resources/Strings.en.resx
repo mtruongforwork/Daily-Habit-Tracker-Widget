@@ -847,4 +847,20 @@
   <data name="plus.group.share" xml:space="preserve"><value>Moments &amp; sharing</value></data>
   <data name="settings.lang.ja" xml:space="preserve"><value>日本語</value></data>
   <data name="settings.lang.ko" xml:space="preserve"><value>한국어</value></data>
+  <data name="editor.kind.dual" xml:space="preserve"><value>Dual (+ / −)</value></data>
+  <data name="editor.skipWeekends" xml:space="preserve"><value>No weekends (Sat–Sun)</value></data>
+  <data name="editor.area" xml:space="preserve"><value>Area</value></data>
+  <data name="editor.area.none" xml:space="preserve"><value>None</value></data>
+  <data name="area.err.limit" xml:space="preserve"><value>Free plan allows up to 3 areas. Upgrade to Plus for more.</value></data>
+  <data name="today.goalOfDay" xml:space="preserve"><value>Goal of the Day (×2 XP)</value></data>
+  <data name="today.neverMissTwice" xml:space="preserve"><value>Never miss twice</value></data>
+  <data name="today.gentleRepair" xml:space="preserve"><value>Repair streak</value></data>
+  <data name="today.quickTodo.title" xml:space="preserve"><value>Quick To-Dos</value></data>
+  <data name="today.quickTodo.placeholder" xml:space="preserve"><value>Add a one-off task…</value></data>
+  <data name="rewards.title" xml:space="preserve"><value>Rewards</value></data>
+  <data name="rewards.coins" xml:space="preserve"><value>{0} coins</value></data>
+  <data name="rewards.add" xml:space="preserve"><value>New reward</value></data>
+  <data name="rewards.redeem" xml:space="preserve"><value>Redeem</value></data>
+  <data name="rewards.insufficient" xml:space="preserve"><value>Not enough coins</value></data>
+  <data name="rewards.limit" xml:space="preserve"><value>Free plan allows up to 3 rewards. Upgrade to Plus.</value></data>
 </root>

@@ -131,6 +131,12 @@ public sealed partial class HabitEditorViewModel : ObservableObject
     [ObservableProperty]
     private bool _allowFreeze = true;
 
+    [ObservableProperty]
+    private bool _skipWeekends;
+
+    [ObservableProperty]
+    private Guid? _areaId;
+
     /// <summary>Các tag, phân cách bằng dấu phẩy.</summary>
     [ObservableProperty]
     private string _tagsText = string.Empty;
@@ -151,7 +157,7 @@ public sealed partial class HabitEditorViewModel : ObservableObject
         {
             HabitKind.Duration when Target <= 1 => 20,
             HabitKind.Count when Target <= 0 => 1,
-            HabitKind.Boolean or HabitKind.Quit => 1,
+            HabitKind.Boolean or HabitKind.Quit or HabitKind.Dual => 1,
             _ => Target
         };
     }
@@ -178,6 +184,8 @@ public sealed partial class HabitEditorViewModel : ObservableObject
         AskMood = habit.AskMood;
         AllowNotes = habit.AllowNotes;
         AllowFreeze = habit.AllowFreeze;
+        SkipWeekends = habit.SkipWeekends;
+        AreaId = habit.AreaId;
         TagsText = string.Join(", ", habit.Tags);
 
         switch (habit.Frequency)
@@ -230,7 +238,7 @@ public sealed partial class HabitEditorViewModel : ObservableObject
         habit.ColorHue = ColorHue;
         habit.Kind = Kind;
         habit.Target = new HabitTarget(
-            Kind is HabitKind.Boolean or HabitKind.Quit ? 1 : Target,
+            Kind is HabitKind.Boolean or HabitKind.Quit or HabitKind.Dual ? 1 : Target,
             string.IsNullOrWhiteSpace(Unit) ? null : Unit.Trim());
         habit.Frequency = BuildFrequency();
         habit.TimeOfDay = TimeOfDay;
@@ -238,6 +246,8 @@ public sealed partial class HabitEditorViewModel : ObservableObject
         habit.AskMood = AskMood;
         habit.AllowNotes = AllowNotes;
         habit.AllowFreeze = AllowFreeze;
+        habit.SkipWeekends = SkipWeekends;
+        habit.AreaId = AreaId;
         habit.Reminders = Reminders.Select(r => r.ToReminder()).ToList();
         habit.Tags = TagsText
             .Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
@@ -265,6 +275,8 @@ public sealed partial class HabitEditorViewModel : ObservableObject
         AskMood = source.AskMood,
         AllowNotes = source.AllowNotes,
         AllowFreeze = source.AllowFreeze,
+        SkipWeekends = source.SkipWeekends,
+        AreaId = source.AreaId,
         RoutineId = source.RoutineId,
         RoutineOrder = source.RoutineOrder,
         Tags = source.Tags.ToList(),

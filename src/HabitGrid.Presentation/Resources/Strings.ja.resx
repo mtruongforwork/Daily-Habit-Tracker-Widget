@@ -847,4 +847,20 @@
   <data name="plus.group.share" xml:space="preserve"><value>モーメント &amp; シェア</value></data>
   <data name="settings.lang.ja" xml:space="preserve"><value>日本語</value></data>
   <data name="settings.lang.ko" xml:space="preserve"><value>한국어</value></data>
+  <data name="editor.kind.dual" xml:space="preserve"><value>デュアル (+ / −)</value></data>
+  <data name="editor.skipWeekends" xml:space="preserve"><value>週末休み (土日)</value></data>
+  <data name="editor.area" xml:space="preserve"><value>エリア</value></data>
+  <data name="editor.area.none" xml:space="preserve"><value>なし</value></data>
+  <data name="area.err.limit" xml:space="preserve"><value>無料プランではエリアは3つまでです。Plusで無制限になります。</value></data>
+  <data name="today.goalOfDay" xml:space="preserve"><value>今日の目標 (×2 XP)</value></data>
+  <data name="today.neverMissTwice" xml:space="preserve"><value>2日連続で休まない</value></data>
+  <data name="today.gentleRepair" xml:space="preserve"><value>連続記録を修復</value></data>
+  <data name="today.quickTodo.title" xml:space="preserve"><value>今日のクイックTo-Do</value></data>
+  <data name="today.quickTodo.placeholder" xml:space="preserve"><value>1回限りのタスクを追加…</value></data>
+  <data name="rewards.title" xml:space="preserve"><value>ご褒美</value></data>
+  <data name="rewards.coins" xml:space="preserve"><value>{0} コイン</value></data>
+  <data name="rewards.add" xml:space="preserve"><value>ご褒美を作成</value></data>
+  <data name="rewards.redeem" xml:space="preserve"><value>交換</value></data>
+  <data name="rewards.insufficient" xml:space="preserve"><value>コインが足りません</value></data>
+  <data name="rewards.limit" xml:space="preserve"><value>無料プランではご褒美は3つまでです。Plusで無制限になります。</value></data>
 </root>

@@ -11,7 +11,7 @@ public sealed class HabitRepository : RepositoryBase, IHabitRepository
     internal const string Columns = """
         id, name, description, icon, color_hue, kind, target_value, target_unit, frequency_json, time_of_day,
         start_date, ask_mood, allow_notes, allow_freeze, routine_id, routine_order, tags_json, sort_key,
-        archived_at, deleted_at, created_at, updated_at, hlc, shared_challenge_id
+        archived_at, deleted_at, created_at, updated_at, hlc, shared_challenge_id, skip_weekends, area_id
         """;
 
     public HabitRepository(HabitGridDatabase database, IHlcClock clock, IDataChangeBus? bus = null)
@@ -160,7 +160,8 @@ public sealed class HabitRepository : RepositoryBase, IHabitRepository
                 time_of_day = $time_of_day, start_date = $start_date, ask_mood = $ask_mood, allow_notes = $allow_notes,
                 allow_freeze = $allow_freeze, routine_id = $routine_id, routine_order = $routine_order,
                 tags_json = $tags_json, sort_key = $sort_key, archived_at = $archived_at, deleted_at = $deleted_at,
-                updated_at = $updated_at, hlc = $hlc, shared_challenge_id = $shared_challenge_id
+                updated_at = $updated_at, hlc = $hlc, shared_challenge_id = $shared_challenge_id,
+                skip_weekends = $skip_weekends, area_id = $area_id
             WHERE id = $id;
             """))
         {
@@ -288,14 +289,16 @@ public sealed class HabitRepository : RepositoryBase, IHabitRepository
             CreatedAt = Sql.ToTimestamp(r.GetString(20)),
             UpdatedAt = Sql.ToTimestamp(r.GetString(21)),
             Version = Hlc.Parse(r.GetString(22)),
-            SharedChallengeId = r.IsDBNull(23) ? null : Guid.Parse(r.GetString(23))
+            SharedChallengeId = r.IsDBNull(23) ? null : Guid.Parse(r.GetString(23)),
+            SkipWeekends = r.GetInt32(24) != 0,
+            AreaId = r.IsDBNull(25) ? null : Guid.Parse(r.GetString(25))
         };
     }
 
     internal static string Placeholders() =>
         "$id, $name, $description, $icon, $color_hue, $kind, $target_value, $target_unit, $frequency_json, $time_of_day, " +
         "$start_date, $ask_mood, $allow_notes, $allow_freeze, $routine_id, $routine_order, $tags_json, $sort_key, " +
-        "$archived_at, $deleted_at, $created_at, $updated_at, $hlc, $shared_challenge_id";
+        "$archived_at, $deleted_at, $created_at, $updated_at, $hlc, $shared_challenge_id, $skip_weekends, $area_id";
 
     internal static void Bind(SqliteCommand c, Habit h)
     {
@@ -323,5 +326,7 @@ public sealed class HabitRepository : RepositoryBase, IHabitRepository
         c.Parameters.AddWithValue("$updated_at", Sql.ToSqlTimestamp(h.UpdatedAt));
         c.Parameters.AddWithValue("$hlc", h.Version.ToString());
         c.Parameters.AddWithValue("$shared_challenge_id", h.SharedChallengeId is { } sid ? sid.ToString("D") : DBNull.Value);
+        c.Parameters.AddWithValue("$skip_weekends", h.SkipWeekends ? 1 : 0);
+        c.Parameters.AddWithValue("$area_id", h.AreaId is { } aid ? aid.ToString("D") : DBNull.Value);
     }
 }

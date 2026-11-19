@@ -76,7 +76,7 @@ public sealed partial class HabitEditorView : UserControl
             ColorGrid.Items.Add(new Ellipse { Width = 28, Height = 28, Fill = Ui.Brush(hex), Tag = hex, Margin = new Thickness(4) });
         }
 
-        foreach (var key in new[] { "add.kind.boolean", "add.kind.count", "add.kind.duration", "add.kind.quit" })
+        foreach (var key in new[] { "add.kind.boolean", "add.kind.count", "add.kind.duration", "add.kind.quit", "editor.kind.dual" })
         {
             KindRadio.Add(Ui.T(key));
         }
@@ -132,6 +132,7 @@ public sealed partial class HabitEditorView : UserControl
         MoodSwitch.Header = Ui.T("editor.askMood");
         NotesSwitch.Header = Ui.T("editor.allowNotes");
         FreezeSwitch.Header = Ui.T("editor.allowFreeze");
+        SkipWeekendsSwitch.Header = Ui.T("editor.skipWeekends");
         DescriptionBox.Header = Ui.T("editor.description");
         TagsBox.Header = Ui.T("editor.tags");
         TagsBox.PlaceholderText = Ui.T("editor.tags.hint");
