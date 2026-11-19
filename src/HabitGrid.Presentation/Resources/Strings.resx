@@ -881,4 +881,22 @@
   <data name="mochi.talk.cozy" xml:space="preserve"><value>Trời tối rồi, làm nốt việc nhẹ rồi nghỉ ngơi nhé.</value></data>
   <data name="mochi.discovery.title" xml:space="preserve"><value>Khám phá nhỏ hôm nay</value></data>
   <data name="mochi.discovery.body" xml:space="preserve"><value>Mochi tìm thấy một viên đá lấp lánh dưới ánh trăng (+100% ngày hoàn hảo)!</value></data>
+  <data name="journal.prompts.title" xml:space="preserve"><value>Gợi ý viết nhanh</value></data>
+  <data name="journal.prompt.cat.gratitude" xml:space="preserve"><value>Biết ơn</value></data>
+  <data name="journal.prompt.gratitude" xml:space="preserve"><value>Hôm nay có điều nhỏ bé nào khiến bạn thấy biết ơn?</value></data>
+  <data name="journal.prompt.cat.win" xml:space="preserve"><value>Thành tựu</value></data>
+  <data name="journal.prompt.win" xml:space="preserve"><value>Khoảnh khắc bạn tự hào nhất hôm nay là gì?</value></data>
+  <data name="journal.prompt.cat.lesson" xml:space="preserve"><value>Bài học</value></data>
+  <data name="journal.prompt.lesson" xml:space="preserve"><value>Điều gì làm bạn chững lại và bạn học được gì từ nó?</value></data>
+  <data name="journal.prompt.cat.energy" xml:space="preserve"><value>Năng lượng</value></data>
+  <data name="journal.prompt.energy" xml:space="preserve"><value>Thói quen nào giúp bạn nạp lại năng lượng nhiều nhất?</value></data>
+  <data name="journal.prompt.cat.tomorrow" xml:space="preserve"><value>Ngày mai</value></data>
+  <data name="journal.prompt.tomorrow" xml:space="preserve"><value>Một việc duy nhất bạn muốn ưu tiên vào ngày mai?</value></data>
+  <data name="today.stack.suggest" xml:space="preserve"><value>Sau khi xong "{0}" → gợi ý làm "{1}"</value></data>
+  <data name="today.stack.doNow" xml:space="preserve"><value>Làm ngay</value></data>
+  <data name="today.stack.button" xml:space="preserve"><value>Ghép thói quen</value></data>
+  <data name="today.stack.dialogTitle" xml:space="preserve"><value>Ghép chuỗi thói quen (Habit Stacking)</value></data>
+  <data name="today.stack.after" xml:space="preserve"><value>Sau khi hoàn thành</value></data>
+  <data name="today.stack.then" xml:space="preserve"><value>Gợi ý làm tiếp</value></data>
+  <data name="today.stack.saved" xml:space="preserve"><value>Đã lưu quy tắc ghép thói quen.</value></data>
 </root>

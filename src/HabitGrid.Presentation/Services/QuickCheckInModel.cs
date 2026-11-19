@@ -33,17 +33,31 @@ public sealed class QuickCheckInModel
     private List<QuickItem> _items = [];
 
     private readonly ISettingsStore? _settings;
+    private readonly IQuickTodoRepository? _quickTodos;
+    private List<QuickTodo> _todos = [];
 
-    public QuickCheckInModel(IHabitRepository habits, IDayLogRepository logs, IScheduleCalculator? schedule = null, ISettingsStore? settings = null)
+    public QuickCheckInModel(
+        IHabitRepository habits,
+        IDayLogRepository logs,
+        IScheduleCalculator? schedule = null,
+        ISettingsStore? settings = null,
+        IQuickTodoRepository? quickTodos = null)
     {
         _habits = habits ?? throw new ArgumentNullException(nameof(habits));
         _logs = logs ?? throw new ArgumentNullException(nameof(logs));
         _settings = settings;
+        _quickTodos = quickTodos;
         _checkIn = new CheckInService(habits, logs, settings);
         _schedule = schedule ?? new ScheduleCalculator();
     }
 
     public DateOnly Today { get; private set; }
+
+    public Guid? GoalOfDayHabitId { get; private set; }
+
+    public bool IsGoalOfDay(Guid habitId) => GoalOfTheDayRules.IsGoal(GoalOfDayHabitId, habitId);
+
+    public IReadOnlyList<QuickTodo> QuickTodos => _todos;
 
     /// <summary>Mọi thói quen đến hạn hôm nay (trừ loại cần bỏ), theo thứ tự người dùng sắp.</summary>
     public IReadOnlyList<QuickItem> Items => _items;
@@ -71,6 +85,32 @@ public sealed class QuickCheckInModel
         _items = habits
             .Select(h => byHabit.TryGetValue(h.Id, out var log) ? new QuickItem(h, log.Value, log.Status) : new QuickItem(h, 0, DayStatus.None))
             .ToList();
+
+        GoalOfDayHabitId = null;
+        if (_settings is not null)
+        {
+            var goalDate = await _settings.GetAsync(SettingKeys.GoalOfDayDate, ct);
+            var goalIdRaw = await _settings.GetAsync(SettingKeys.GoalOfDayHabitId, ct);
+            if (goalDate == today.ToString("yyyy-MM-dd") && Guid.TryParse(goalIdRaw, out var parsedGoalId))
+            {
+                GoalOfDayHabitId = parsedGoalId;
+            }
+        }
+
+        _todos = _quickTodos is not null
+            ? (await _quickTodos.GetForDayAsync(today, ct)).ToList()
+            : [];
+    }
+
+    public async Task ToggleQuickTodoAsync(QuickTodo todo, CancellationToken ct = default)
+    {
+        if (_quickTodos is null)
+        {
+            return;
+        }
+
+        var nextDone = !todo.IsDone;
+        await _quickTodos.SetDoneAsync(todo.Id, nextDone, nextDone ? DateTime.UtcNow : null, ct);
     }
 
     /// <summary>Lọc theo tên, không phân biệt hoa/thường và dấu; chưa xong lên trên, đã xong/bỏ qua xuống dưới.</summary>

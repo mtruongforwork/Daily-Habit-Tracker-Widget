@@ -29,6 +29,7 @@ public static class SettingKeys
     public const string CoinsBalance = "v4.wallet.coins";
     public const string RepairTokens = "v4.streak.repairTokens";
     public const string SoundEffects = "v4.soundEffects";
+    public const string HabitStacks = "v4.habitStacks";
 }
 
 /// <summary>Giới hạn của gói Free (SPEC-V2-10 §1). Plus có hiện thực riêng ở tầng Platform.</summary>

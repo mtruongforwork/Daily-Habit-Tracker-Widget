@@ -60,7 +60,7 @@ public sealed partial class WidgetController : IDisposable
         _logs = new DayLogRepository(database, clock, bus);
         _settings = new SettingsStore(database);
         _checkIn = new CheckInService(_habits, _logs, _settings);
-        _quick = new QuickCheckInModel(_habits, _logs, settings: _settings);
+        _quick = new QuickCheckInModel(_habits, _logs, settings: _settings, quickTodos: new QuickTodoRepository(database, clock, bus));
         _desktop = new DesktopHostService(_screen);
         _watch = database.OpenConnection();
         _timer.Tick += async (_, _) => await PollAsync();

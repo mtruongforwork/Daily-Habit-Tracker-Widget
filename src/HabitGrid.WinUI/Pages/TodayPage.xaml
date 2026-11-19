@@ -38,6 +38,12 @@
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
                         <Button x:Name="BackToTodayButton" Style="{StaticResource GhostButtonStyle}" Visibility="Collapsed"
                                 Click="OnBackToToday" />
+                        <Button x:Name="StackButton" Style="{StaticResource GhostButtonStyle}" Click="OnStackClick">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <TextBlock Text="⚡" />
+                                <TextBlock x:Name="StackButtonText" />
+                            </StackPanel>
+                        </Button>
                         <Button x:Name="CustomizeButton" Style="{StaticResource GhostButtonStyle}" Click="OnCustomizeClick">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE771;" FontSize="14" />
@@ -108,8 +114,13 @@
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Hoàn tác + lỗi: viên thuốc nổi giữa đáy, rộng tối đa 460 (không trải ngang đè lên các buổi như trước). -->
+        <!-- Hoàn tác + gợi ý ghép thói quen + lỗi: viên thuốc nổi giữa đáy. -->
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center" MaxWidth="460" Margin="16,0,16,20" Spacing="8">
+            <InfoBar x:Name="StackBar" Severity="Informational" IsClosable="True" IsOpen="False" CornerRadius="19">
+                <InfoBar.ActionButton>
+                    <Button x:Name="StackDoNowButton" Click="OnStackDoNowClick" />
+                </InfoBar.ActionButton>
+            </InfoBar>
             <InfoBar x:Name="UndoBar" Severity="Success" IsClosable="True" IsOpen="False" CornerRadius="19">
                 <InfoBar.ActionButton>
                     <Button x:Name="UndoButton" Click="OnUndoClick" />

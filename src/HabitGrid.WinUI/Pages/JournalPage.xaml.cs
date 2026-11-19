@@ -263,6 +263,22 @@ public sealed partial class JournalPage : Page
 
         stack.Children.Add(tools);
 
+        // Guided Reflection Prompts theo ngày
+        var promptLabel = new TextBlock { Text = "✨ " + Ui.T("journal.prompts.title"), Style = Sty("BodySecondaryTextStyle"), FontSize = 12 };
+        stack.Children.Add(promptLabel);
+        var prompts = new HabitGrid.WinUI.Controls.WrapPanel { HorizontalSpacing = 6, VerticalSpacing = 6 };
+        foreach (var prompt in HabitGrid.Core.Domain.JournalPrompts.GetForDay(Model.SelectedDay))
+        {
+            var cat = Ui.T(prompt.CategoryKey);
+            var question = Ui.T(prompt.TextKey);
+            var chip = new Button { Style = Sty("GhostButtonStyle"), Content = cat, Padding = new Thickness(10, 4, 10, 4), FontSize = 12 };
+            ToolTipService.SetToolTip(chip, question);
+            AutomationProperties.SetName(chip, $"{cat}: {question}");
+            chip.Click += (_, _) => InsertAtCaret($"✨ {question}\n");
+            prompts.Children.Add(chip);
+        }
+        stack.Children.Add(prompts);
+
         _loading = true;
         _editor = new TextBox
         {

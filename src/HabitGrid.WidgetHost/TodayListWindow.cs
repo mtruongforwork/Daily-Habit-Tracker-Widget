@@ -106,6 +106,23 @@ public sealed class TodayListWindow : Window
             _rows.Children.Add(BuildRow(item, fore, sub));
         }
 
+        if (_model.QuickTodos.Count > 0)
+        {
+            _rows.Children.Add(new TextBlock
+            {
+                Text = HostText.QuickTodoHeader,
+                Foreground = sub,
+                FontSize = 11,
+                FontWeight = FontWeights.SemiBold,
+                Margin = new Thickness(4, 10, 0, 4)
+            });
+
+            foreach (var todo in _model.QuickTodos)
+            {
+                _rows.Children.Add(BuildTodoRow(todo, fore, sub));
+            }
+        }
+
         if (_model.DueCount > 0 && _model.DoneCount == _model.DueCount)
         {
             _rows.Children.Add(new TextBlock { Text = HostText.AllDone, Foreground = sub, Margin = new Thickness(0, 8, 0, 2), HorizontalAlignment = HorizontalAlignment.Center });
@@ -144,9 +161,10 @@ public sealed class TodayListWindow : Window
         mark.Children.Add(check);
         mark.Children.Add(tick);
 
+        var isGoal = _model.IsGoalOfDay(item.Id);
         var name = new TextBlock
         {
-            Text = item.Name,
+            Text = isGoal ? $"🎯 {item.Name}" : item.Name,
             Foreground = item.IsDone || item.IsSkipped ? sub : fore,
             TextDecorations = item.IsDone ? TextDecorations.Strikethrough : null,
             TextTrimming = TextTrimming.CharacterEllipsis,
@@ -186,6 +204,56 @@ public sealed class TodayListWindow : Window
             e.Handled = true;
             await _onAction(item, -1);
         };
+        return row;
+    }
+
+    private UIElement BuildTodoRow(HabitGrid.Core.Domain.QuickTodo todo, Brush fore, Brush sub)
+    {
+        var box = new Border
+        {
+            Width = 18,
+            Height = 18,
+            CornerRadius = new CornerRadius(5),
+            BorderThickness = new Thickness(1.5),
+            BorderBrush = sub,
+            Background = todo.IsDone ? new SolidColorBrush(Color.FromRgb(139, 92, 246)) : Brushes.Transparent,
+            Child = new TextBlock
+            {
+                Text = todo.IsDone ? "✓" : string.Empty,
+                Foreground = Brushes.White,
+                FontSize = 11,
+                FontWeight = FontWeights.Bold,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            }
+        };
+
+        var title = new TextBlock
+        {
+            Text = todo.Title,
+            Foreground = todo.IsDone ? sub : fore,
+            TextDecorations = todo.IsDone ? TextDecorations.Strikethrough : null,
+            TextTrimming = TextTrimming.CharacterEllipsis,
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(8, 0, 0, 0),
+            FontSize = 13
+        };
+
+        var row = new Grid { Margin = new Thickness(2, 2, 0, 2), Background = Brushes.Transparent, Cursor = Cursors.Hand };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition());
+        Grid.SetColumn(title, 1);
+        row.Children.Add(box);
+        row.Children.Add(title);
+
+        row.MouseLeftButtonUp += async (_, e) =>
+        {
+            e.Handled = true;
+            await _model.ToggleQuickTodoAsync(todo);
+            await _model.LoadAsync(_model.Today);
+            Render();
+        };
+
         return row;
     }
 
