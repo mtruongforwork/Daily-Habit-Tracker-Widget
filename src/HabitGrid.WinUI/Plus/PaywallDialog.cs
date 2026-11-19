@@ -32,7 +32,7 @@ public static class PaywallDialog
             await vm.LoadAsync();
 
             var message = new TextBlock { TextWrapping = TextWrapping.Wrap, Visibility = Visibility.Collapsed, Margin = new Thickness(0, 4, 0, 0) };
-            var panel = new StackPanel { Spacing = 12, MaxWidth = 620 };
+            var panel = new StackPanel { Spacing = 12, Width = 720 };
             var dialog = new ContentDialog
             {
                 XamlRoot = root,
@@ -41,6 +41,9 @@ public static class PaywallDialog
                 SecondaryButtonText = Ui.T("plus.restore"),
                 DefaultButton = ContentDialogButton.None
             };
+
+            // Bento paywall rộng 720: nới giới hạn bề rộng mặc định (548) của ContentDialog.
+            dialog.Resources["ContentDialogMaxWidth"] = 800.0;
 
             // Đầu trang: Buddy cầm vé + lý do mở (nếu chạm giới hạn).
             var head = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 14 };
@@ -70,14 +73,47 @@ public static class PaywallDialog
                 panel.Children.Add(new InfoBar { IsOpen = true, IsClosable = false, Severity = InfoBarSeverity.Informational, Message = reason });
             }
 
-            var benefits = new StackPanel { Spacing = 4 };
-            // Chỉ liệt kê quyền lợi đã thật sự có trong app (không bán thứ chưa làm).
-            foreach (var (emoji, key) in new[] { ("♾️", "plus.benefit.habits"), ("📊", "plus.benefit.insights"), ("🧭", "plus.benefit.advanced"), ("☁️", "plus.benefit.backup"), ("🌈", "plus.benefit.accent"), ("⏱", "plus.benefit.routineTimer"), ("🎩", "plus.benefit.accessories"), ("✨", "plus.benefit.wrapped"), ("🧩", "plus.benefit.widgets"), ("📷", "plus.benefit.moments"), ("🎞", "plus.benefit.share"), ("🖼", "plus.benefit.momentWidget"), ("🎨", "plus.benefit.themes"), ("❄️", "plus.benefit.freeze"), ("💜", "plus.benefit.support") })
+            // Lưới Bento 6 ô quyền lợi (v3, thay danh sách 15 dòng). Mỗi ô gom các quyền lợi cùng nhóm; chỉ liệt kê thứ đã có thật trong app.
+            var groups = new (string Emoji, string Title, string[] Keys)[]
             {
-                benefits.Children.Add(new TextBlock { Text = $"{emoji}  {Ui.T(key)}", TextWrapping = TextWrapping.Wrap });
+                ("♾️", "plus.group.unlimited", ["plus.benefit.habits", "plus.benefit.routineTimer"]),
+                ("📊", "plus.group.insights", ["plus.benefit.insights", "plus.benefit.advanced", "plus.benefit.wrapped"]),
+                ("🎩", "plus.group.mochi", ["plus.benefit.accessories", "plus.benefit.themes", "plus.benefit.accent"]),
+                ("☁️", "plus.group.backup", ["plus.benefit.backup", "plus.benefit.freeze"]),
+                ("🧩", "plus.group.widgets", ["plus.benefit.widgets", "plus.benefit.momentWidget"]),
+                ("🎞", "plus.group.share", ["plus.benefit.share", "plus.benefit.moments"])
+            };
+            var benefits = new Grid { ColumnSpacing = 10, RowSpacing = 10 };
+
+            for (var c = 0; c < 3; c++)
+            {
+                benefits.ColumnDefinitions.Add(new ColumnDefinition());
+            }
+
+            benefits.RowDefinitions.Add(new RowDefinition());
+            benefits.RowDefinitions.Add(new RowDefinition());
+
+            for (var i = 0; i < groups.Length; i++)
+            {
+                var (emoji, title, keys) = groups[i];
+                var tile = new StackPanel { Spacing = 4 };
+                tile.Children.Add(new TextBlock { Text = emoji, FontSize = 24 });
+                tile.Children.Add(new TextBlock { Text = Ui.T(title), Style = (Style)Application.Current.Resources["CardTitleTextStyle"], TextWrapping = TextWrapping.Wrap, TextTrimming = TextTrimming.None });
+
+                foreach (var key in keys)
+                {
+                    tile.Children.Add(new TextBlock { Text = Ui.T(key), Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"], FontSize = 12, TextWrapping = TextWrapping.Wrap });
+                }
+
+                var border = new Border { Style = (Style)Application.Current.Resources["GlassCard"], Padding = new Thickness(14, 12, 14, 12), Child = tile };
+                AutomationProperties.SetName(border, Ui.T(title) + ": " + string.Join(". ", keys.Select(Ui.T)));
+                Grid.SetColumn(border, i % 3);
+                Grid.SetRow(border, i / 3);
+                benefits.Children.Add(border);
             }
 
             panel.Children.Add(benefits);
+            panel.Children.Add(new TextBlock { Text = "💜  " + Ui.T("plus.benefit.support"), Style = (Style)Application.Current.Resources["BodySecondaryTextStyle"], TextWrapping = TextWrapping.Wrap });
 
             // Ba gói, giá đầy đủ.
             var plans = new Grid { ColumnSpacing = 10 };
@@ -192,13 +228,20 @@ public static class PaywallDialog
                 buy.IsEnabled = vm.PurchasesOpen;
             }
         };
-        stack.Children.Add(buy);
+        var cardGrid = new Grid { RowSpacing = 12 };
+        cardGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+        cardGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        Grid.SetRow(stack, 0);
+        Grid.SetRow(buy, 1);
+        cardGrid.Children.Add(stack);
+        cardGrid.Children.Add(buy);
 
         return new Border
         {
             Style = (Style)Application.Current.Resources["CardBorder"],
             Padding = new Thickness(14),
-            Child = stack,
+            VerticalAlignment = VerticalAlignment.Stretch,
+            Child = cardGrid,
             BorderBrush = plan.IsBestValue ? (Brush)Application.Current.Resources["AccentGradientBrush"] : (Brush)Application.Current.Resources["StrokeSubtleBrush"],
             BorderThickness = new Thickness(plan.IsBestValue ? 2 : 1)
         };

@@ -839,4 +839,12 @@
   <data name="moments.more" xml:space="preserve"><value>+{0} ảnh nữa</value></data>
   <data name="share.layout" xml:space="preserve"><value>Bố cục</value></data>
   <data name="share.frames" xml:space="preserve"><value>Khung</value></data>
+  <data name="plus.group.unlimited" xml:space="preserve"><value>Không giới hạn</value></data>
+  <data name="plus.group.insights" xml:space="preserve"><value>Insights &amp; Wrapped</value></data>
+  <data name="plus.group.mochi" xml:space="preserve"><value>Tủ đồ Mochi &amp; giao diện</value></data>
+  <data name="plus.group.backup" xml:space="preserve"><value>Sao lưu cloud</value></data>
+  <data name="plus.group.widgets" xml:space="preserve"><value>Widget desktop</value></data>
+  <data name="plus.group.share" xml:space="preserve"><value>Khoảnh khắc &amp; chia sẻ</value></data>
+  <data name="settings.lang.ja" xml:space="preserve"><value>日本語</value></data>
+  <data name="settings.lang.ko" xml:space="preserve"><value>한국어</value></data>
 </root>
