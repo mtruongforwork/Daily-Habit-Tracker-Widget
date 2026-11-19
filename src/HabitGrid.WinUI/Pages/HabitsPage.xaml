@@ -20,10 +20,16 @@
             </StackPanel>
         </Grid>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,16,0,0">
-            <ToggleButton x:Name="ActiveChip" Style="{StaticResource ChipStyle}" IsChecked="True" Click="OnActiveChipClick" />
-            <ToggleButton x:Name="ArchivedChip" Style="{StaticResource ChipStyle}" Click="OnArchivedChipClick" />
-        </StackPanel>
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,16,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <ToggleButton x:Name="ActiveChip" Style="{StaticResource ChipStyle}" IsChecked="True" Click="OnActiveChipClick" />
+                <ToggleButton x:Name="ArchivedChip" Style="{StaticResource ChipStyle}" Click="OnArchivedChipClick" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                <ToggleButton x:Name="CardsViewChip" Style="{StaticResource ChipStyle}" IsChecked="True" Click="OnCardsViewClick" />
+                <ToggleButton x:Name="MatrixViewChip" Style="{StaticResource ChipStyle}" Click="OnMatrixViewClick" />
+            </StackPanel>
+        </Grid>
 
         <!--
             v3: lưới thẻ thói quen ở trên, ngay bên dưới là hai khối Bento hiện thẳng Routine và Thử thách đang mở
@@ -31,6 +37,9 @@
         -->
         <ScrollViewer Grid.Row="2" x:Name="Scroll" VerticalScrollBarVisibility="Auto" Margin="0,12,0,0">
             <StackPanel Spacing="18" Padding="0,0,0,24">
+                <Border x:Name="MatrixCard" Style="{StaticResource GlassCard}" Visibility="Collapsed">
+                    <StackPanel x:Name="MatrixHost" Spacing="10" />
+                </Border>
                 <GridView x:Name="List" Margin="-6,0,-6,0" ItemsSource="{x:Bind ViewModel.Items}"
                   ScrollViewer.VerticalScrollMode="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled"
                   CanReorderItems="True" AllowDrop="True" SelectionMode="None" IsItemClickEnabled="False"

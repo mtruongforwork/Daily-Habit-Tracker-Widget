@@ -863,4 +863,9 @@
   <data name="rewards.redeem" xml:space="preserve"><value>Đổi</value></data>
   <data name="rewards.insufficient" xml:space="preserve"><value>Chưa đủ xu</value></data>
   <data name="rewards.limit" xml:space="preserve"><value>Gói Free tối đa 3 phần thưởng. Nâng cấp Plus để thêm.</value></data>
+  <data name="habits.view.cards" xml:space="preserve"><value>Thẻ</value></data>
+  <data name="habits.view.matrix" xml:space="preserve"><value>Ma trận</value></data>
+  <data name="detail.timeline" xml:space="preserve"><value>Dòng thời gian chuỗi</value></data>
+  <data name="detail.timeline.empty" xml:space="preserve"><value>Chưa có chuỗi hoàn thành nào.</value></data>
+  <data name="buddy.room.weather" xml:space="preserve"><value>Phòng Mochi</value></data>
 </root>

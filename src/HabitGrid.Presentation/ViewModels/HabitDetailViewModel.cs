@@ -83,6 +83,8 @@ public sealed partial class HabitDetailViewModel : ObservableObject
 
     public ObservableCollection<WeekdayRate> Weekdays { get; } = [];
 
+    public IReadOnlyList<StreakRun> StreakTimeline { get; private set; } = [];
+
     public ObservableCollection<JournalEntry> Journal { get; } = [];
 
     public DateOnly Today => _dayProvider.GetToday();
@@ -115,6 +117,7 @@ public sealed partial class HabitDetailViewModel : ObservableObject
                 .Select(i => (DayOfWeek)(((int)DayOfWeek.Monday + i) % 7))
                 .Select(d => new WeekdayRate(d, byWeekday.TryGetValue(d, out var v) && v is { } x ? (int)Math.Round(x * 100) : null))
                 .ToList();
+            var timeline = StreakTimelineBuilder.BuildTopRuns(habit, logs, today);
             var journal = logs
                 .Where(l => !string.IsNullOrWhiteSpace(l.Note))
                 .OrderByDescending(l => l.Day)
@@ -133,6 +136,7 @@ public sealed partial class HabitDetailViewModel : ObservableObject
                 RateDelta = delta;
                 TotalDone = _stats.TotalDone(logs);
                 Heatmap = heatmap;
+                StreakTimeline = timeline;
                 Replace(Months, months);
                 Replace(Weekdays, weekdays);
                 Replace(Journal, journal);

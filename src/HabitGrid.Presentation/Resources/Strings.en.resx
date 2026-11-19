@@ -863,4 +863,9 @@
   <data name="rewards.redeem" xml:space="preserve"><value>Redeem</value></data>
   <data name="rewards.insufficient" xml:space="preserve"><value>Not enough coins</value></data>
   <data name="rewards.limit" xml:space="preserve"><value>Free plan allows up to 3 rewards. Upgrade to Plus.</value></data>
+  <data name="habits.view.cards" xml:space="preserve"><value>Cards</value></data>
+  <data name="habits.view.matrix" xml:space="preserve"><value>Matrix</value></data>
+  <data name="detail.timeline" xml:space="preserve"><value>Streak timeline</value></data>
+  <data name="detail.timeline.empty" xml:space="preserve"><value>No completed streaks yet.</value></data>
+  <data name="buddy.room.weather" xml:space="preserve"><value>Mochi Room</value></data>
 </root>

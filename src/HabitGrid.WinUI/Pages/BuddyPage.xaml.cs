@@ -229,9 +229,14 @@ public sealed partial class BuddyPage : Page
 
     private UIElement BuildHero(bool vertical)
     {
+        var room = MochiRoomTheme.For(TimeOnly.FromDateTime(DateTime.Now));
         var stops = HabitGradient.From(ViewModel.Color);
         var hero = new Grid { CornerRadius = new CornerRadius(32), MinHeight = 200 };
         hero.Children.Add(new Border { CornerRadius = new CornerRadius(32), Background = Ui.GradientBrush(stops) });
+        var roomTint = new LinearGradientBrush { StartPoint = new Windows.Foundation.Point(0, 0), EndPoint = new Windows.Foundation.Point(0, 1) };
+        roomTint.GradientStops.Add(new GradientStop { Color = Ui.ParseColor(room.TopHex), Offset = 0 });
+        roomTint.GradientStops.Add(new GradientStop { Color = Ui.ParseColor(room.BottomHex), Offset = 1 });
+        hero.Children.Add(new Border { CornerRadius = new CornerRadius(32), Background = roomTint, Opacity = 0.28 });
         hero.Children.Add(new Border { CornerRadius = new CornerRadius(32), Background = new SolidColorBrush(Microsoft.UI.Colors.Black), Opacity = stops.ScrimOpacity });
 
         if (vertical)

@@ -863,4 +863,9 @@
   <data name="rewards.redeem" xml:space="preserve"><value>交換</value></data>
   <data name="rewards.insufficient" xml:space="preserve"><value>コインが足りません</value></data>
   <data name="rewards.limit" xml:space="preserve"><value>無料プランではご褒美は3つまでです。Plusで無制限になります。</value></data>
+  <data name="habits.view.cards" xml:space="preserve"><value>カード</value></data>
+  <data name="habits.view.matrix" xml:space="preserve"><value>マトリックス</value></data>
+  <data name="detail.timeline" xml:space="preserve"><value>連続記録タイムライン</value></data>
+  <data name="detail.timeline.empty" xml:space="preserve"><value>まだ連続記録がありません。</value></data>
+  <data name="buddy.room.weather" xml:space="preserve"><value>Mochiの部屋</value></data>
 </root>
