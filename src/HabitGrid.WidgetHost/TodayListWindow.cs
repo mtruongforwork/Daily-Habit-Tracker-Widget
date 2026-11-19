@@ -98,12 +98,13 @@ public sealed class TodayListWindow : Window
         if (_model.Items.Count == 0)
         {
             _rows.Children.Add(new TextBlock { Text = HostText.NothingDue, Foreground = sub, Margin = new Thickness(0, 12, 0, 6) });
-            return;
         }
-
-        foreach (var item in _model.Filter(null))
+        else
         {
-            _rows.Children.Add(BuildRow(item, fore, sub));
+            foreach (var item in _model.Filter(null))
+            {
+                _rows.Children.Add(BuildRow(item, fore, sub));
+            }
         }
 
         if (_model.QuickTodos.Count > 0)

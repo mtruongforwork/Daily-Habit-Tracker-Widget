@@ -92,7 +92,8 @@ public sealed partial class HubWidgetWindow
                 var rows = VisibleRows(data);
                 var list = rows == 0 ? 28 : rows * (RowHeight + RowGap);
                 var more = data.Today.Count > MaxPanelRows ? 20 : 0;
-                return LabelHeight + 6 + list + more + 8 + AddHeight + 8 + FocusHeight;
+                var todos = data.QuickTodos is { Count: > 0 } qt ? 24 + (Math.Min(qt.Count, 3) * 28) : 0;
+                return LabelHeight + 6 + list + more + todos + 8 + AddHeight + 8 + FocusHeight;
         }
     }
 
@@ -393,7 +394,7 @@ public sealed partial class HubWidgetWindow
 
         foreach (var item in data.Today.Take(MaxPanelRows))
         {
-            list.Children.Add(PanelRow(item, data.Stats));
+            list.Children.Add(PanelRow(item, data.Stats, data.GoalOfDayHabitId));
         }
 
         stack.Children.Add(list);
@@ -403,6 +404,18 @@ public sealed partial class HubWidgetWindow
             var more = Text(HostText.IslandMore(data.Today.Count - MaxPanelRows), 11, opacity: 0.6);
             more.Height = 20;
             stack.Children.Add(more);
+        }
+
+        if (data.QuickTodos is { Count: > 0 } todos)
+        {
+            var header = Text(HostText.QuickTodoHeader, 11, bold: true, opacity: 0.72);
+            header.Margin = new Thickness(2, 6, 0, 4);
+            stack.Children.Add(header);
+
+            foreach (var todo in todos.Take(3))
+            {
+                stack.Children.Add(PanelTodoRow(todo));
+            }
         }
 
         var add = AddRow(refocus);
@@ -415,7 +428,7 @@ public sealed partial class HubWidgetWindow
         return stack;
     }
 
-    private UIElement PanelRow(QuickItem item, WidgetStatsData? stats)
+    private UIElement PanelRow(QuickItem item, WidgetStatsData? stats, Guid? goalOfDayHabitId = null)
     {
         var done = item.IsDone;
         var card = new Border
@@ -457,7 +470,8 @@ public sealed partial class HubWidgetWindow
         grid.Children.Add(circle);
 
         var texts = new StackPanel { VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(10, 0, 8, 0) };
-        var name = Text(item.Name, 13, bold: true, opacity: done || item.IsSkipped ? 0.5 : 1);
+        var isGoal = HabitGrid.Core.Domain.GoalOfTheDayRules.IsGoal(goalOfDayHabitId, item.Id);
+        var name = Text(isGoal ? $"🎯 {item.Name}" : item.Name, 13, bold: true, opacity: done || item.IsSkipped ? 0.5 : 1);
 
         if (done)
         {
@@ -525,6 +539,53 @@ public sealed partial class HubWidgetWindow
 
         card.Child = grid;
         return card;
+    }
+
+    private UIElement PanelTodoRow(HabitGrid.Core.Domain.QuickTodo todo)
+    {
+        var box = new Border
+        {
+            Width = 16,
+            Height = 16,
+            CornerRadius = new CornerRadius(4),
+            BorderThickness = new Thickness(1.5),
+            BorderBrush = new SolidColorBrush(todo.IsDone ? Violet : Color.FromArgb(0x88, 0xFF, 0xFF, 0xFF)),
+            Background = todo.IsDone ? new SolidColorBrush(Violet) : Brushes.Transparent,
+            VerticalAlignment = VerticalAlignment.Center,
+            Child = todo.IsDone ? Text("✓", 10, bold: true) : null
+        };
+        if (box.Child is TextBlock tb)
+        {
+            tb.HorizontalAlignment = HorizontalAlignment.Center;
+            tb.VerticalAlignment = VerticalAlignment.Center;
+        }
+
+        var label = Text(todo.Title, 12, opacity: todo.IsDone ? 0.5 : 0.92);
+        if (todo.IsDone)
+        {
+            label.TextDecorations = TextDecorations.Strikethrough;
+        }
+        label.Margin = new Thickness(8, 0, 0, 0);
+        label.VerticalAlignment = VerticalAlignment.Center;
+
+        var row = new Grid { Height = 24, Margin = new Thickness(2, 2, 2, 2), Background = Brushes.Transparent, Cursor = Cursors.Hand };
+        row.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        row.ColumnDefinitions.Add(new ColumnDefinition());
+        Grid.SetColumn(label, 1);
+        row.Children.Add(box);
+        row.Children.Add(label);
+
+        row.MouseLeftButtonDown += (_, e) => e.Handled = true;
+        row.MouseLeftButtonUp += async (_, e) =>
+        {
+            e.Handled = true;
+            if (OnToggleQuickTodo is { } toggle)
+            {
+                await toggle(todo);
+            }
+        };
+
+        return row;
     }
 
     /// <summary>Thanh tiến độ chia đoạn: mỗi đoạn một lần (tối đa 10 đoạn; mục tiêu lớn hơn thì chia theo tỷ lệ).</summary>

@@ -377,6 +377,7 @@ public sealed class HabitCard : UserControl
                 Motion.SpringPop(_focusBtn, 0.88f);
                 var minutes = Math.Clamp(item.Target > 0 ? item.Target : 25, 5, 60);
                 var model = App.Host.Get<FocusPageModel>();
+                await model.LoadAsync();
                 await model.StartAsync(new FocusChoice(HabitGrid.Core.Domain.Focus.FocusMode.Pomodoro, minutes, 5, item.Id), DateTime.UtcNow);
                 _ = AppSound.PlayAsync(SoundToneKind.Increment);
             }
@@ -463,13 +464,13 @@ public sealed class HabitCard : UserControl
         try
         {
             // Bấm một thẻ chưa xong cũng cho cảm giác "nhấn" ngay cả khi tắt hiệu ứng xong/hủy.
-            if (!item.IsDone && AnimationsEnabled)
+            if (!item.IsDone && !item.IsReadOnly && AnimationsEnabled)
             {
                 Bounce();
                 Motion.Ripple(_root, _lastPointer, Microsoft.UI.Colors.White);
             }
 
-            if (!item.IsDone)
+            if (!item.IsDone && !item.IsReadOnly)
             {
                 _ = AppSound.PlayAsync(item.Kind is HabitKind.Count or HabitKind.Dual
                     ? SoundToneKind.Increment

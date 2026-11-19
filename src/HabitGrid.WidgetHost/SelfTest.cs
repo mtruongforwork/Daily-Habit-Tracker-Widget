@@ -71,6 +71,22 @@ public static class SelfTest
             // 3) Today List: hiển thị cùng số thói quen đến hạn.
             Require(controller.TodayList is { IsVisible: true }, "Widget Today List không hiển thị.");
 
+            // 3b) Goal of the Day + Quick To-Do sync vào TodayList & Hub: gieo dữ liệu và làm mới không lỗi.
+            var todoId = Guid.NewGuid();
+            using (var db = HabitGridV3.Open(dbPath))
+            {
+                var clock = new HlcClock("selftest-v4");
+                var settings = new SettingsStore(db);
+                await settings.SetAsync(SettingKeys.GoalOfDayDate, today.ToString("yyyy-MM-dd"));
+                await settings.SetAsync(SettingKeys.GoalOfDayHabitId, habitId.ToString());
+                var todos = new QuickTodoRepository(db, clock, null);
+                await todos.InsertAsync(new QuickTodo(todoId, "Selftest Quick To-Do", today, false, DateTime.UtcNow));
+            }
+
+            await controller.RefreshAsync();
+            controller.TodayList!.UpdateLayout();
+            Note(dbPath, "v4 goal-of-day + quick-todo sync ok");
+
             // 4) Quick check-in: lọc không dấu rồi Enter check đúng thói quen đó.
             var quick = controller.QuickWindow ?? throw new InvalidOperationException("Không có cửa sổ Quick check-in.");
             var all = quick.SetFilterForTest(string.Empty);

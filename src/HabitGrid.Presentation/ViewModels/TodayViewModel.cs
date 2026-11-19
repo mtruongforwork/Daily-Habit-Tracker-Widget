@@ -474,7 +474,7 @@ public sealed partial class TodayViewModel : ObservableObject, IDisposable
         var newValue = item.Kind switch
         {
             HabitKind.Boolean => item.IsDone ? 0 : 1,
-            HabitKind.Count => item.Value + 1,
+            HabitKind.Count or HabitKind.Dual => item.Value + 1,
             HabitKind.Duration => item.IsDone ? 0 : item.Target,
             HabitKind.Quit => item.Value + 1,
             _ => item.Value
@@ -483,7 +483,7 @@ public sealed partial class TodayViewModel : ObservableObject, IDisposable
         var wasDone = item.IsDone;
         await SetValueAsync(item, newValue);
 
-        if (!wasDone && item.IsDone)
+        if (!IsViewingPast && !wasDone && item.IsDone)
         {
             await EvaluateHabitStackAsync(item.Id);
         }
