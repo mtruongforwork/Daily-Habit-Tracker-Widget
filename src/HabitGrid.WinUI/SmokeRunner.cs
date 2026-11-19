@@ -565,6 +565,13 @@ public static class SmokeRunner
         await File.WriteAllBytesAsync(Path.Combine(Shot.Directory, $"{++_shotNo:00}-share-strip.png"), stripPng);
 
         var dialog = VisualTreeHelper.GetOpenPopupsForXamlRoot(root).Select(p => p.Child).OfType<ContentDialog>().FirstOrDefault();
+
+        // Ảnh cả hộp thoại (bố cục 2 cột) để duyệt giao diện.
+        if (dialog?.Content is UIElement dialogContent)
+        {
+            await SnapElementAsync(dialogContent, "share-dialog");
+        }
+
         dialog?.Hide();
         await showing;
         logger.Info($"SMOKE moments OK (5 photos, share card {png.Length} bytes, strip {stripPng.Length} bytes)");
@@ -818,9 +825,9 @@ public static class SmokeRunner
         var themeService = App.Host.Get<ThemeService>();
         themeService.AccentAllowed = true;
         Require(await themeService.SetAccentAsync("#22C55E", window.Content as FrameworkElement), "Không đặt được màu nhấn.");
-        // P5 phông chữ: lựa chọn được ghi ra file và từ điển phông dựng ở lần mở sau lấy đúng phông.
+        // P5 phông chữ: lựa chọn được ghi ra file và từ điển phông dựng ở lần mở sau lấy đúng phông (kèm chuỗi dự phòng CJK).
         FontResources.WriteChoice("serif");
-        Require(FontResources.ReadChoice() == "serif" && ((Microsoft.UI.Xaml.Media.FontFamily)new FontResources()["DisplayFont"]).Source == "Cambria", "Lựa chọn phông không được áp vào từ điển phông.");
+        Require(FontResources.ReadChoice() == "serif" && ((Microsoft.UI.Xaml.Media.FontFamily)new FontResources()["DisplayFont"]).Source.StartsWith("Cambria", StringComparison.Ordinal), "Lựa chọn phông không được áp vào từ điển phông.");
         FontResources.WriteChoice(HabitGrid.Core.Domain.AppFonts.DefaultId);
         Require(FontResources.ReadChoice() == HabitGrid.Core.Domain.AppFonts.DefaultId, "Chọn phông mặc định không xóa lựa chọn cũ.");
         Require(!await themeService.SetAccentAsync("xyz", window.Content as FrameworkElement), "Mã màu sai mà vẫn được nhận.");
@@ -965,6 +972,11 @@ public static class SmokeRunner
         var buyButtons = FindAll<Button>(dialog).Where(b => ((b.Content as TextBlock)?.Text ?? b.Content as string) == Ui.T("plus.buy")).ToList();
         Require(buyButtons.Count == 3, $"Paywall phải có 3 gói, thấy {buyButtons.Count}.");
         Require(buyButtons.All(b => !b.IsEnabled), "Không có Store mà nút Mua vẫn bấm được.");
+
+        if (dialog.Content is UIElement dialogContent)
+        {
+            await SnapElementAsync(dialogContent, "paywall-dialog");
+        }
 
         dialog.Hide();
         await showing;

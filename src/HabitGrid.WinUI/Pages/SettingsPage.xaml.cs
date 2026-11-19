@@ -19,7 +19,15 @@ namespace HabitGrid.WinUI.Pages;
 public sealed partial class SettingsPage : Page
 {
     private readonly ThemeService _theme = App.Host.Get<ThemeService>();
-    private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(36, 28, 36, 32), MaxWidth = 860, HorizontalAlignment = HorizontalAlignment.Center };
+    private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(32, 24, 32, 32) };
+
+    /// <summary>Ba cột Bento của trang (v3): 0 = Giao diện & cá nhân hóa, 1 = Widget, nhắc nhở & phím tắt, 2 = Plus, sao lưu & hệ thống.</summary>
+    private readonly StackPanel[] _columns = [new() { Spacing = 16 }, new() { Spacing = 16 }, new() { Spacing = 16 }];
+    private int _column;
+    private bool? _threeColumns;
+
+    /// <summary>Bề rộng từ đó dùng 3 cột; hẹp hơn thì xếp một cột theo thứ tự cột 1 → 2 → 3.</summary>
+    private const double ThreeColumnsFrom = 1200;
     private readonly Dictionary<string, Border> _tiles = [];
     private ChipGroup? _modeChips;
     private static readonly ThemeMode[] ModeOrder = [ThemeMode.System, ThemeMode.Light, ThemeMode.Dark];
@@ -28,10 +36,19 @@ public sealed partial class SettingsPage : Page
     private readonly Dictionary<string, TextBlock> _lockLabels = [];
     private int _level = 1;
 
+    private Panel? _layoutHost;
+
     public SettingsPage()
     {
         InitializeComponent();
         Scroll.Content = _root;
+        SizeChanged += (_, e) =>
+        {
+            if (IsLoaded && _threeColumns is { } three && three != (e.NewSize.Width >= ThreeColumnsFrom))
+            {
+                LayoutColumns();
+            }
+        };
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -46,15 +63,26 @@ public sealed partial class SettingsPage : Page
         _root.Children.Clear();
         _tiles.Clear();
 
+        foreach (var column in _columns)
+        {
+            column.Children.Clear();
+        }
+
         _root.Children.Add(new TextBlock { Text = Ui.T("settings.title"), Style = Res("TitleDisplayTextStyle") });
+
+        // Cột 3: Plus, sao lưu, tạm nghỉ, quyền riêng tư (ngôn ngữ, hỗ trợ thêm ở cuối).
+        _column = 2;
         BuildPlusCard();
         BuildBackupCard();
         BuildVacationCard();
         BuildPrivacyCard();
 
+        // Cột 1: giao diện & cá nhân hóa.
+        _column = 0;
+
         // Chủ đề màu
         var themeCard = Card(Ui.T("settings.theme"));
-        var tiles = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 14 };
+        var tiles = new HabitGrid.WinUI.Controls.WrapPanel { HorizontalSpacing = 14, VerticalSpacing = 14 };
 
         foreach (var theme in Themes.All)
         {
@@ -92,7 +120,7 @@ public sealed partial class SettingsPage : Page
         var glassCard = Card(Ui.T("settings.glass"));
         glassCard.Children.Add(new TextBlock { Text = Ui.T("settings.glass.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
         var glassValue = new TextBlock { Text = $"{_theme.GlassStrength}%", Style = Res("BodySecondaryTextStyle"), VerticalAlignment = VerticalAlignment.Center, MinWidth = 44 };
-        var glass = new Slider { Minimum = 0, Maximum = 100, StepFrequency = 5, Value = _theme.GlassStrength, Width = 380, HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center };
+        var glass = new Slider { Minimum = 0, Maximum = 100, StepFrequency = 5, Value = _theme.GlassStrength, MinWidth = 160, HorizontalAlignment = HorizontalAlignment.Stretch, VerticalAlignment = VerticalAlignment.Center };
         AutomationProperties.SetName(glass, Ui.T("settings.glass"));
         glass.ValueChanged += async (_, e) =>
         {
@@ -103,8 +131,11 @@ public sealed partial class SettingsPage : Page
                 await _theme.SetGlassAsync((int)e.NewValue, XamlRoot.Content as FrameworkElement);
             }
         };
-        var glassRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 14 };
+        var glassRow = new Grid { ColumnSpacing = 14 };
+        glassRow.ColumnDefinitions.Add(new ColumnDefinition());
+        glassRow.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         glassRow.Children.Add(glass);
+        Grid.SetColumn(glassValue, 1);
         glassRow.Children.Add(glassValue);
         glassCard.Children.Add(glassRow);
         Wrap(glassCard);
@@ -124,10 +155,13 @@ public sealed partial class SettingsPage : Page
         motionCard.Children.Add(motion);
         Wrap(motionCard);
 
+        // Cột 2: widget, nhắc nhở & giờ yên lặng, phím tắt.
+        _column = 1;
         BuildRemindersCard();
         BuildHotkeysCard();
 
-        // Streak freeze
+        // Streak freeze (cột 3, cạnh tạm nghỉ)
+        _column = 2;
         var freezeCard = Card(Ui.T("buddy.title"));
         var autoFreeze = new ToggleSwitch { OnContent = Ui.T("settings.freeze.auto"), OffContent = Ui.T("settings.freeze.auto") };
         AutomationProperties.SetName(autoFreeze, Ui.T("settings.freeze.auto"));
@@ -150,6 +184,7 @@ public sealed partial class SettingsPage : Page
         Wrap(freezeCard);
 
         // Widget chạy cùng Windows (WidgetHost đọc khóa này và tự đăng ký/gỡ)
+        _column = 1;
         var widgetsCard = Card(Ui.T("settings.widgets"));
         var autostart = new ToggleSwitch { OnContent = Ui.T("settings.autostart"), OffContent = Ui.T("settings.autostart") };
         AutomationProperties.SetName(autostart, Ui.T("settings.autostart"));
@@ -339,6 +374,8 @@ public sealed partial class SettingsPage : Page
         widgetsCard.Children.Add(pinChips);
         Wrap(widgetsCard);
 
+        _column = 2;
+
         // Hỗ trợ: phiên bản, thư mục log và báo lỗi (người dùng tự gửi, app không tải gì lên).
         var supportCard = Card(Ui.T("settings.support"));
         supportCard.Children.Add(new TextBlock { Text = Ui.Loc.Format("settings.support.version", CrashReporting.AppVersion), Style = Res("BodySecondaryTextStyle") });
@@ -348,24 +385,74 @@ public sealed partial class SettingsPage : Page
         supportCard.Children.Add(logs);
         Wrap(supportCard);
 
-        // Ngôn ngữ
+        // Ngôn ngữ (lưới 4 ngôn ngữ, đổi tức thì)
         var languageCard = Card(Ui.T("settings.language"));
-        var language = new ChipGroup { MinChipWidth = 130, MaxWidth = 320, HorizontalAlignment = HorizontalAlignment.Left };
-        language.Add(Ui.T("settings.lang.vi"));
-        language.Add(Ui.T("settings.lang.en"));
-        language.SelectedIndex = Ui.Loc.Language == "en" ? 1 : 0;
+        var language = new ChipGroup { MinChipWidth = 120, HorizontalAlignment = HorizontalAlignment.Stretch };
+        var langs = new[] { ("vi", "settings.lang.vi"), ("en", "settings.lang.en"), ("ja", "settings.lang.ja"), ("ko", "settings.lang.ko") };
+
+        foreach (var (_, key) in langs)
+        {
+            language.Add(Ui.T(key));
+        }
+
+        language.SelectedIndex = Math.Max(0, Array.FindIndex(langs, l => l.Item1 == Ui.Loc.Language));
         language.SelectionChanged += async (_, _) =>
         {
-            if (!_building && App.MainWindowInstance is { } window)
+            if (!_building && App.MainWindowInstance is { } window && language.SelectedIndex >= 0 && language.SelectedIndex < langs.Length)
             {
-                await window.SetLanguageAsync(language.SelectedIndex == 1 ? "en" : "vi");
+                await window.SetLanguageAsync(langs[language.SelectedIndex].Item1);
             }
         };
         languageCard.Children.Add(language);
         Wrap(languageCard);
 
+        LayoutColumns();
         UpdateTiles();
         _building = false;
+    }
+
+    /// <summary>Đặt 3 cột cạnh nhau (cửa sổ rộng) hoặc xếp chồng (cửa sổ hẹp).</summary>
+    private void LayoutColumns()
+    {
+        var three = ActualWidth == 0 || ActualWidth >= ThreeColumnsFrom;
+        _threeColumns = three;
+
+        if (_layoutHost is not null)
+        {
+            _root.Children.Remove(_layoutHost);
+            _layoutHost = null;
+        }
+
+        foreach (var column in _columns)
+        {
+            (column.Parent as Panel)?.Children.Remove(column);
+        }
+
+        if (!three)
+        {
+            var stack = new StackPanel { Spacing = 16 };
+
+            foreach (var column in _columns)
+            {
+                stack.Children.Add(column);
+            }
+
+            _layoutHost = stack;
+            _root.Children.Add(stack);
+            return;
+        }
+
+        var grid = new Grid { ColumnSpacing = 16 };
+
+        for (var i = 0; i < _columns.Length; i++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition());
+            Grid.SetColumn(_columns[i], i);
+            grid.Children.Add(_columns[i]);
+        }
+
+        _layoutHost = grid;
+        _root.Children.Add(grid);
     }
 
     private static Style Res(string key) => (Style)Application.Current.Resources[key];
@@ -452,7 +539,7 @@ public sealed partial class SettingsPage : Page
             AutomationProperties.SetName(control, Ui.T(key));
         }
 
-        var quietRow = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 12 };
+        var quietRow = new HabitGrid.WinUI.Controls.WrapPanel { HorizontalSpacing = 12, VerticalSpacing = 10 };
         quietRow.Children.Add(from);
         quietRow.Children.Add(to);
 
@@ -562,7 +649,7 @@ public sealed partial class SettingsPage : Page
     }
 
     private void Wrap(StackPanel content) =>
-        _root.Children.Add(new Border { Style = Res("CardBorder"), Child = content });
+        _columns[_column].Children.Add(new Border { Style = Res("GlassCard"), Child = content });
 
     private UIElement CreateTile(ThemeDefinition theme)
     {

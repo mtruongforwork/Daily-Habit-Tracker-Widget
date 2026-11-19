@@ -148,9 +148,11 @@ public sealed class AppHost : IDisposable
         var localizer = new Localizer();
         var settings = new SettingsStore(database);
 
-        // Ngôn ngữ: theo cài đặt đã lưu, nếu chưa có thì theo ngôn ngữ giao diện của Windows.
+        // Ngôn ngữ: theo cài đặt đã lưu, nếu chưa có thì theo ngôn ngữ giao diện của Windows (vi, ja, ko; mặc định en).
         var savedLanguage = await settings.GetAsync(SettingKeys.Language);
-        localizer.SetLanguage(savedLanguage ?? (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "vi" ? "vi" : "en"));
+        var osLang = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
+        var defaultLang = osLang is "vi" or "ja" or "ko" ? osLang : "en";
+        localizer.SetLanguage(savedLanguage ?? defaultLang);
         // Quyền "sống": Free cho tới khi PlusService xác minh được Plus (từ cache offline hoặc Store).
         var entitlements = new HabitGrid.Core.Domain.Monetization.LiveEntitlements();
         var dayStartHour = int.TryParse(await settings.GetAsync(SettingKeys.DayStartHour), NumberStyles.Integer, CultureInfo.InvariantCulture, out var hour)

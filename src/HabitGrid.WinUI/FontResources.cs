@@ -10,16 +10,18 @@ namespace HabitGrid.WinUI;
 /// </summary>
 public sealed class FontResources : ResourceDictionary
 {
-    private const string BundledDisplay = "ms-appx:///Assets/Fonts/BeVietnamPro-ExtraBold.ttf#Be Vietnam Pro";
-    private const string BundledBold = "ms-appx:///Assets/Fonts/BeVietnamPro-Bold.ttf#Be Vietnam Pro";
-    private const string BundledSemiBold = "ms-appx:///Assets/Fonts/BeVietnamPro-SemiBold.ttf#Be Vietnam Pro";
+    private const string CjkFallback = ", Segoe UI, Yu Gothic UI, Malgun Gothic, Microsoft YaHei UI";
+    private const string BundledDisplay = "ms-appx:///Assets/Fonts/BeVietnamPro-ExtraBold.ttf#Be Vietnam Pro" + CjkFallback;
+    private const string BundledBold = "ms-appx:///Assets/Fonts/BeVietnamPro-Bold.ttf#Be Vietnam Pro" + CjkFallback;
+    private const string BundledSemiBold = "ms-appx:///Assets/Fonts/BeVietnamPro-SemiBold.ttf#Be Vietnam Pro" + CjkFallback;
 
     public FontResources()
     {
         var family = AppFonts.Resolve(ReadChoice()).Family;
-        this["DisplayFont"] = new FontFamily(family ?? BundledDisplay);
-        this["DisplayBoldFont"] = new FontFamily(family ?? BundledBold);
-        this["DisplaySemiBoldFont"] = new FontFamily(family ?? BundledSemiBold);
+        var withFallback = family is null ? null : family + CjkFallback;
+        this["DisplayFont"] = new FontFamily(withFallback ?? BundledDisplay);
+        this["DisplayBoldFont"] = new FontFamily(withFallback ?? BundledBold);
+        this["DisplaySemiBoldFont"] = new FontFamily(withFallback ?? BundledSemiBold);
     }
 
     public static string FilePath => Path.Combine(AppPaths.DataDir, AppFonts.FileName);

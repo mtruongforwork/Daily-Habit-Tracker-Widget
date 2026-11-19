@@ -1,0 +1,850 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="app.name" xml:space="preserve"><value>HabitGrid</value></data>
+  <data name="nav.today" xml:space="preserve"><value>오늘</value></data>
+  <data name="nav.habits" xml:space="preserve"><value>습관</value></data>
+  <data name="nav.insights" xml:space="preserve"><value>인사이트</value></data>
+  <data name="nav.buddy" xml:space="preserve"><value>버디</value></data>
+  <data name="nav.settings" xml:space="preserve"><value>설정</value></data>
+  <data name="today.title" xml:space="preserve"><value>오늘</value></data>
+  <data name="today.greeting.morning" xml:space="preserve"><value>좋은 아침이에요</value></data>
+  <data name="today.greeting.afternoon" xml:space="preserve"><value>좋은 오후예요</value></data>
+  <data name="today.greeting.evening" xml:space="preserve"><value>좋은 저녁이에요</value></data>
+  <data name="today.progress" xml:space="preserve"><value>오늘 {0}/{1} 완료</value></data>
+  <data name="today.allDone" xml:space="preserve"><value>모두 완료! 🎉</value></data>
+  <data name="today.completed" xml:space="preserve"><value>완료됨</value></data>
+  <data name="today.notToday" xml:space="preserve"><value>오늘은 쉬는 날</value></data>
+  <data name="today.empty.title" xml:space="preserve"><value>아직 습관이 없어요</value></data>
+  <data name="today.empty.body" xml:space="preserve"><value>첫 번째 습관을 추가해 연속 기록을 시작해 보세요.</value></data>
+  <data name="today.undo" xml:space="preserve"><value>실행 취소</value></data>
+  <data name="today.checked" xml:space="preserve"><value>{0} 체크됨</value></data>
+  <data name="today.progressUnit" xml:space="preserve"><value>{0}/{1} {2}</value></data>
+  <data name="group.morning" xml:space="preserve"><value>아침</value></data>
+  <data name="group.afternoon" xml:space="preserve"><value>오후</value></data>
+  <data name="group.evening" xml:space="preserve"><value>저녁</value></data>
+  <data name="group.anytime" xml:space="preserve"><value>언제든</value></data>
+  <data name="habits.title" xml:space="preserve"><value>습관</value></data>
+  <data name="habits.add" xml:space="preserve"><value>습관 추가</value></data>
+  <data name="habits.archive" xml:space="preserve"><value>보관</value></data>
+  <data name="habits.delete" xml:space="preserve"><value>삭제</value></data>
+  <data name="habits.empty" xml:space="preserve"><value>아직 아무것도 없어요</value></data>
+  <data name="habits.rate30" xml:space="preserve"><value>30일간 {0}%</value></data>
+  <data name="add.title" xml:space="preserve"><value>새 습관</value></data>
+  <data name="add.name" xml:space="preserve"><value>습관 이름</value></data>
+  <data name="add.kind" xml:space="preserve"><value>유형</value></data>
+  <data name="add.target" xml:space="preserve"><value>일일 목표</value></data>
+  <data name="add.kind.boolean" xml:space="preserve"><value>예 / 아니오</value></data>
+  <data name="add.kind.count" xml:space="preserve"><value>횟수</value></data>
+  <data name="add.kind.duration" xml:space="preserve"><value>시간(분)</value></data>
+  <data name="add.kind.quit" xml:space="preserve"><value>금지</value></data>
+  <data name="add.save" xml:space="preserve"><value>저장</value></data>
+  <data name="add.cancel" xml:space="preserve"><value>취소</value></data>
+  <data name="streak.days" xml:space="preserve"><value>{0}일</value></data>
+  <data name="streak.weeks" xml:space="preserve"><value>{0}주</value></data>
+  <data name="streak.months" xml:space="preserve"><value>{0}개월</value></data>
+  <data name="streak.windows" xml:space="preserve"><value>{0}회</value></data>
+  <data name="streak.atRisk" xml:space="preserve"><value>연속 기록 위험</value></data>
+  <data name="quit.clean" xml:space="preserve"><value>{0}일째 유지 중</value></data>
+  <data name="quit.slip" xml:space="preserve"><value>실수했어요</value></data>
+  <data name="placeholder.soon" xml:space="preserve"><value>출시 예정</value></data>
+  <data name="placeholder.insights" xml:space="preserve"><value>통계와 자동 인사이트가 곧 추가됩니다.</value></data>
+  <data name="placeholder.buddy" xml:space="preserve"><value>버디와 배지가 곧 추가됩니다.</value></data>
+  <data name="placeholder.settings" xml:space="preserve"><value>설정이 곧 추가됩니다.</value></data>
+  <data name="error.generic" xml:space="preserve"><value>문제가 발생했습니다. 데이터는 안전합니다.</value></data>
+  <data name="error.openDataFolder" xml:space="preserve"><value>데이터 폴더 열기</value></data>
+  <data name="validation.name.required" xml:space="preserve"><value>습관 이름을 입력해 주세요.</value></data>
+  <data name="validation.name.too_long" xml:space="preserve"><value>이름은 최대 40자까지 입력할 수 있습니다.</value></data>
+  <data name="validation.target.range" xml:space="preserve"><value>목표는 0보다 커야 합니다.</value></data>
+  <data name="validation.generic" xml:space="preserve"><value>올바르지 않은 항목이 있습니다.</value></data>
+  <data name="habits.edit" xml:space="preserve"><value>편집</value></data>
+  <data name="editor.title.new" xml:space="preserve"><value>새 습관</value></data>
+  <data name="editor.title.edit" xml:space="preserve"><value>습관 편집</value></data>
+  <data name="editor.name" xml:space="preserve"><value>습관 이름</value></data>
+  <data name="editor.description" xml:space="preserve"><value>설명(선택)</value></data>
+  <data name="editor.icon" xml:space="preserve"><value>아이콘</value></data>
+  <data name="editor.icon.custom" xml:space="preserve"><value>또는 이모지 입력</value></data>
+  <data name="editor.color" xml:space="preserve"><value>색상</value></data>
+  <data name="editor.kind" xml:space="preserve"><value>유형</value></data>
+  <data name="editor.target" xml:space="preserve"><value>일일 목표</value></data>
+  <data name="editor.unit" xml:space="preserve"><value>단위</value></data>
+  <data name="editor.frequency" xml:space="preserve"><value>빈도</value></data>
+  <data name="editor.freq.daily" xml:space="preserve"><value>매일</value></data>
+  <data name="editor.freq.weekdays" xml:space="preserve"><value>특정 요일</value></data>
+  <data name="editor.freq.timesPerWeek" xml:space="preserve"><value>주 X회</value></data>
+  <data name="editor.freq.timesPerMonth" xml:space="preserve"><value>월 X회</value></data>
+  <data name="editor.freq.everyNDays" xml:space="preserve"><value>N일마다</value></data>
+  <data name="editor.freq.times" xml:space="preserve"><value>횟수</value></data>
+  <data name="editor.freq.interval" xml:space="preserve"><value>간격(일)</value></data>
+  <data name="editor.timeOfDay" xml:space="preserve"><value>시간대</value></data>
+  <data name="editor.reminders" xml:space="preserve"><value>알림</value></data>
+  <data name="editor.reminder.add" xml:space="preserve"><value>알림 추가</value></data>
+  <data name="editor.reminder.smart" xml:space="preserve"><value>스마트 알림</value></data>
+  <data name="editor.reminder.followUp" xml:space="preserve"><value>미완료 시 다시 알림</value></data>
+  <data name="editor.reminder.remove" xml:space="preserve"><value>제거</value></data>
+  <data name="editor.askMood" xml:space="preserve"><value>체크인 후 기분 묻기</value></data>
+  <data name="editor.allowNotes" xml:space="preserve"><value>메모 허용</value></data>
+  <data name="editor.allowFreeze" xml:space="preserve"><value>연속 기록 프리즈 허용</value></data>
+  <data name="editor.tags" xml:space="preserve"><value>태그</value></data>
+  <data name="editor.tags.hint" xml:space="preserve"><value>쉼표로 구분, 최대 5개</value></data>
+  <data name="editor.startDate" xml:space="preserve"><value>시작일</value></data>
+  <data name="editor.advanced" xml:space="preserve"><value>고급</value></data>
+  <data name="editor.preview" xml:space="preserve"><value>미리보기</value></data>
+  <data name="editor.save" xml:space="preserve"><value>저장</value></data>
+  <data name="editor.cancel" xml:space="preserve"><value>취소</value></data>
+  <data name="day.mon" xml:space="preserve"><value>월</value></data>
+  <data name="day.tue" xml:space="preserve"><value>화</value></data>
+  <data name="day.wed" xml:space="preserve"><value>수</value></data>
+  <data name="day.thu" xml:space="preserve"><value>목</value></data>
+  <data name="day.fri" xml:space="preserve"><value>금</value></data>
+  <data name="day.sat" xml:space="preserve"><value>토</value></data>
+  <data name="day.sun" xml:space="preserve"><value>일</value></data>
+  <data name="validation.frequency.days.empty" xml:space="preserve"><value>최소 하나의 요일을 선택하세요.</value></data>
+  <data name="validation.frequency.times.range" xml:space="preserve"><value>횟수가 올바르지 않습니다(주 1–6회, 월 1–27회).</value></data>
+  <data name="validation.frequency.interval.range" xml:space="preserve"><value>간격은 2~30일 사이여야 합니다.</value></data>
+  <data name="validation.color.invalid" xml:space="preserve"><value>올바르지 않은 색상입니다.</value></data>
+  <data name="validation.description.too_long" xml:space="preserve"><value>설명은 최대 200자까지 가능합니다.</value></data>
+  <data name="validation.tags.too_many" xml:space="preserve"><value>태그는 최대 5개까지 가능합니다.</value></data>
+  <data name="validation.tags.invalid" xml:space="preserve"><value>올바르지 않은 태그입니다(최대 20자).</value></data>
+  <data name="validation.target.unit_too_long" xml:space="preserve"><value>단위는 최대 12자까지 가능합니다.</value></data>
+  <data name="validation.reminders.too_many" xml:space="preserve"><value>습관당 알림은 최대 5개까지 가능합니다.</value></data>
+  <data name="validation.limit.habits" xml:space="preserve"><value>무료 플랜에서는 동시에 최대 5개의 습관만 실행할 수 있습니다. 하나를 보관하거나 Plus로 업그레이드하세요.</value></data>
+  <data name="topic.study" xml:space="preserve"><value>공부</value></data>
+  <data name="topic.health" xml:space="preserve"><value>건강</value></data>
+  <data name="topic.fitness" xml:space="preserve"><value>운동</value></data>
+  <data name="topic.mind" xml:space="preserve"><value>마음</value></data>
+  <data name="topic.creative" xml:space="preserve"><value>창작</value></data>
+  <data name="topic.work" xml:space="preserve"><value>업무</value></data>
+  <data name="topic.home" xml:space="preserve"><value>생활</value></data>
+  <data name="topic.quit" xml:space="preserve"><value>나쁜 습관 끊기</value></data>
+  <data name="onboarding.welcome.title" xml:space="preserve"><value>하루에 한 칸, 빛나는 습관.</value></data>
+  <data name="onboarding.welcome.body" xml:space="preserve"><value>HabitGrid는 바탕화면의 작은 그리드로 습관을 관리합니다. 계정이 필요 없어요.</value></data>
+  <data name="onboarding.start" xml:space="preserve"><value>시작하기</value></data>
+  <data name="onboarding.haveData" xml:space="preserve"><value>직접 설정할게요</value></data>
+  <data name="onboarding.goals.title" xml:space="preserve"><value>어떤 습관을 만들고 싶나요?</value></data>
+  <data name="onboarding.goals.hint" xml:space="preserve"><value>최대 3개 주제 선택</value></data>
+  <data name="onboarding.habits.title" xml:space="preserve"><value>첫 습관을 골라보세요</value></data>
+  <data name="onboarding.habits.hint" xml:space="preserve"><value>최대 3개 선택(이름 수정 가능)</value></data>
+  <data name="onboarding.custom" xml:space="preserve"><value>직접 입력</value></data>
+  <data name="onboarding.custom.placeholder" xml:space="preserve"><value>습관 이름 입력</value></data>
+  <data name="onboarding.custom.add" xml:space="preserve"><value>추가</value></data>
+  <data name="onboarding.buddy.title" xml:space="preserve"><value>버디 이름 짓기</value></data>
+  <data name="onboarding.buddy.body" xml:space="preserve"><value>버디는 연속 기록과 함께 자랍니다.</value></data>
+  <data name="onboarding.buddy.default" xml:space="preserve"><value>버디</value></data>
+  <data name="onboarding.reminder.title" xml:space="preserve"><value>언제 알려드릴까요?</value></data>
+  <data name="onboarding.reminder.body" xml:space="preserve"><value>습관 편집 화면에서 언제든 바꿀 수 있습니다.</value></data>
+  <data name="reminder.none" xml:space="preserve"><value>알림 없음</value></data>
+  <data name="reminder.morning" xml:space="preserve"><value>아침 08:00</value></data>
+  <data name="reminder.evening" xml:space="preserve"><value>저녁 20:00</value></data>
+  <data name="reminder.custom" xml:space="preserve"><value>시간 선택</value></data>
+  <data name="onboarding.next" xml:space="preserve"><value>계속</value></data>
+  <data name="onboarding.back" xml:space="preserve"><value>뒤로</value></data>
+  <data name="onboarding.finish" xml:space="preserve"><value>시작해요!</value></data>
+  <data name="onboarding.step" xml:space="preserve"><value>{0} / {1} 단계</value></data>
+  <data name="onboarding.limit.topics" xml:space="preserve"><value>주제는 최대 3개까지 선택할 수 있습니다.</value></data>
+  <data name="onboarding.limit.picks" xml:space="preserve"><value>습관은 최대 3개까지 선택할 수 있습니다.</value></data>
+  <data name="today.buddy.sleepy" xml:space="preserve"><value>{0}이(가) 졸려해요…</value></data>
+  <data name="today.buddy.okay" xml:space="preserve"><value>{0}이(가) 몸을 푸는 중이에요</value></data>
+  <data name="today.buddy.happy" xml:space="preserve"><value>{0}이(가) 기분이 좋아요!</value></data>
+  <data name="today.buddy.ecstatic" xml:space="preserve"><value>{0}이(가) 날아갈 듯 기뻐요! 🎉</value></data>
+  <data name="today.streakLabel" xml:space="preserve"><value>일 연속</value></data>
+  <data name="today.freeze" xml:space="preserve"><value>❄ 프리즈 {0}</value></data>
+  <data name="today.level" xml:space="preserve"><value>Lv {0} · {1} XP</value></data>
+  <data name="today.viewing" xml:space="preserve"><value>{0} 보는 중</value></data>
+  <data name="today.backToToday" xml:space="preserve"><value>오늘로 돌아가기</value></data>
+  <data name="today.menu.skip" xml:space="preserve"><value>오늘 건너뛰기</value></data>
+  <data name="today.menu.unskip" xml:space="preserve"><value>건너뛰기 취소</value></data>
+  <data name="today.menu.minus" xml:space="preserve"><value>1 빼기</value></data>
+  <data name="today.state.done" xml:space="preserve"><value>완료</value></data>
+  <data name="today.state.skipped" xml:space="preserve"><value>건너뜀</value></data>
+  <data name="today.tapToCheck" xml:space="preserve"><value>탭하여 체크</value></data>
+  <data name="today.tapToAdd" xml:space="preserve"><value>탭하여 1 추가</value></data>
+  <data name="today.relax" xml:space="preserve"><value>오늘 예정된 습관이 없어요 😴</value></data>
+  <data name="skip.limit" xml:space="preserve"><value>각 습관은 일주일에 최대 2번까지 건너뛸 수 있습니다.</value></data>
+  <data name="week.today" xml:space="preserve"><value>오늘</value></data>
+  <data name="habits.filter.active" xml:space="preserve"><value>진행 중</value></data>
+  <data name="habits.filter.archived" xml:space="preserve"><value>보관됨</value></data>
+  <data name="habits.unarchive" xml:space="preserve"><value>복원</value></data>
+  <data name="habits.moveup" xml:space="preserve"><value>위로 이동</value></data>
+  <data name="habits.movedown" xml:space="preserve"><value>아래로 이동</value></data>
+  <data name="habits.open" xml:space="preserve"><value>상세 보기</value></data>
+  <data name="habits.empty.archived" xml:space="preserve"><value>보관된 습관이 없습니다</value></data>
+  <data name="detail.back" xml:space="preserve"><value>뒤로</value></data>
+  <data name="detail.streak.current" xml:space="preserve"><value>현재 연속 기록</value></data>
+  <data name="detail.streak.best" xml:space="preserve"><value>최고</value></data>
+  <data name="detail.rate30" xml:space="preserve"><value>30일 달성률</value></data>
+  <data name="detail.total" xml:space="preserve"><value>총 완료 횟수</value></data>
+  <data name="detail.delta.up" xml:space="preserve"><value>▲ 이전 기간 대비 +{0}%</value></data>
+  <data name="detail.delta.down" xml:space="preserve"><value>▼ 이전 기간 대비 -{0}%</value></data>
+  <data name="detail.delta.same" xml:space="preserve"><value>이전 기간과 동일</value></data>
+  <data name="detail.heatmap" xml:space="preserve"><value>최근 52주</value></data>
+  <data name="detail.months" xml:space="preserve"><value>월별</value></data>
+  <data name="detail.weekdays" xml:space="preserve"><value>요일별</value></data>
+  <data name="detail.journal" xml:space="preserve"><value>메모</value></data>
+  <data name="detail.journal.empty" xml:space="preserve"><value>아직 메모가 없습니다. 캘린더에서 날짜를 탭해 추가하세요.</value></data>
+  <data name="detail.notfound" xml:space="preserve"><value>습관을 찾을 수 없습니다</value></data>
+  <data name="detail.day.value" xml:space="preserve"><value>값</value></data>
+  <data name="detail.day.done" xml:space="preserve"><value>완료</value></data>
+  <data name="detail.day.skip" xml:space="preserve"><value>이 날 건너뛰기</value></data>
+  <data name="detail.day.note" xml:space="preserve"><value>메모</value></data>
+  <data name="detail.day.mood" xml:space="preserve"><value>기분</value></data>
+  <data name="detail.day.save" xml:space="preserve"><value>저장</value></data>
+  <data name="detail.day.cancel" xml:space="preserve"><value>취소</value></data>
+  <data name="day.invalid" xml:space="preserve"><value>이 날짜는 편집할 수 없습니다.</value></data>
+  <data name="detail.legend.less" xml:space="preserve"><value>적음</value></data>
+  <data name="detail.legend.more" xml:space="preserve"><value>많음</value></data>
+  <data name="theme.candy" xml:space="preserve"><value>Candy Bento</value></data>
+  <data name="theme.neon" xml:space="preserve"><value>Neon Night</value></data>
+  <data name="theme.pastel" xml:space="preserve"><value>Soft Pastel</value></data>
+  <data name="settings.title" xml:space="preserve"><value>설정</value></data>
+  <data name="settings.theme" xml:space="preserve"><value>색상 테마</value></data>
+  <data name="settings.mode" xml:space="preserve"><value>화면 모드</value></data>
+  <data name="settings.mode.system" xml:space="preserve"><value>시스템</value></data>
+  <data name="settings.mode.light" xml:space="preserve"><value>라이트</value></data>
+  <data name="settings.mode.dark" xml:space="preserve"><value>다크</value></data>
+  <data name="settings.motion" xml:space="preserve"><value>동작 줄이기</value></data>
+  <data name="settings.motion.hint" xml:space="preserve"><value>배경 애니메이션, 색종이 효과, 체크인 물결 효과를 끕니다.</value></data>
+  <data name="settings.language" xml:space="preserve"><value>언어</value></data>
+  <data name="settings.lang.vi" xml:space="preserve"><value>Tiếng Việt</value></data>
+  <data name="settings.lang.en" xml:space="preserve"><value>English</value></data>
+  <data name="settings.pastel.note" xml:space="preserve"><value>이 테마는 라이트 모드 전용입니다.</value></data>
+  <data name="settings.widgets" xml:space="preserve"><value>바탕화면 위젯</value></data>
+  <data name="settings.autostart" xml:space="preserve"><value>Windows 시작 시 위젯 실행</value></data>
+  <data name="settings.autostart.hint" xml:space="preserve"><value>메인 앱을 열지 않아도 로그인 시 위젯이 표시됩니다. 끄면 직접 열 때만 실행됩니다.</value></data>
+  <data name="buddy.title" xml:space="preserve"><value>버디</value></data>
+  <data name="buddy.level" xml:space="preserve"><value>레벨 {0}</value></data>
+  <data name="buddy.xp" xml:space="preserve"><value>{0}/{1} XP</value></data>
+  <data name="buddy.maxlevel" xml:space="preserve"><value>최대 레벨</value></data>
+  <data name="buddy.freeze" xml:space="preserve"><value>프리즈: {0}</value></data>
+  <data name="buddy.streak" xml:space="preserve"><value>전체 연속 기록 {0}일</value></data>
+  <data name="buddy.badges" xml:space="preserve"><value>배지</value></data>
+  <data name="buddy.badges.count" xml:space="preserve"><value>{0}/{1} 달성</value></data>
+  <data name="badge.secret.name" xml:space="preserve"><value>???</value></data>
+  <data name="badge.secret.desc" xml:space="preserve"><value>비밀 배지입니다.</value></data>
+  <data name="badge.progress" xml:space="preserve"><value>{0}/{1}</value></data>
+  <data name="badge.tier.1" xml:space="preserve"><value>브론즈</value></data>
+  <data name="badge.tier.2" xml:space="preserve"><value>실버</value></data>
+  <data name="badge.tier.3" xml:space="preserve"><value>골드</value></data>
+  <data name="stage.egg" xml:space="preserve"><value>알</value></data>
+  <data name="stage.baby" xml:space="preserve"><value>아기</value></data>
+  <data name="stage.teen" xml:space="preserve"><value>청소년</value></data>
+  <data name="stage.adult" xml:space="preserve"><value>어른</value></data>
+  <data name="stage.legend" xml:space="preserve"><value>전설</value></data>
+  <data name="celebrate.level.title" xml:space="preserve"><value>레벨 {0}!</value></data>
+  <data name="celebrate.level.body" xml:space="preserve"><value>버디가 성장했습니다. 프리즈 1개를 얻었어요.</value></data>
+  <data name="celebrate.badge.title" xml:space="preserve"><value>새 배지</value></data>
+  <data name="celebrate.close" xml:space="preserve"><value>멋져요!</value></data>
+  <data name="freeze.ask.title" xml:space="preserve"><value>프리즈를 사용해 연속 기록을 지킬까요?</value></data>
+  <data name="freeze.ask.body" xml:space="preserve"><value>{0}일을 놓쳤어요. 프리즈 {0}개를 사용해 전체 연속 기록을 유지할까요?</value></data>
+  <data name="freeze.use" xml:space="preserve"><value>프리즈 사용</value></data>
+  <data name="freeze.skip" xml:space="preserve"><value>초기화하기</value></data>
+  <data name="settings.freeze.auto" xml:space="preserve"><value>프리즈 자동 사용</value></data>
+  <data name="settings.freeze.hint" xml:space="preserve"><value>토큰이 있으면 자동으로 연속 기록을 지켜줍니다. 끄면 먼저 물어봅니다.</value></data>
+  <data name="badge.first_checkin.name" xml:space="preserve"><value>첫 걸음</value></data>
+  <data name="badge.first_checkin.desc" xml:space="preserve"><value>처음으로 체크인하기.</value></data>
+  <data name="badge.first_perfect_day.name" xml:space="preserve"><value>첫 완벽한 하루</value></data>
+  <data name="badge.first_perfect_day.desc" xml:space="preserve"><value>하루에 예정된 모든 습관 완료하기.</value></data>
+  <data name="badge.three_habits.name" xml:space="preserve"><value>트리오</value></data>
+  <data name="badge.three_habits.desc" xml:space="preserve"><value>동시에 3개의 습관 기록하기.</value></data>
+  <data name="badge.first_note.name" xml:space="preserve"><value>메모 습관</value></data>
+  <data name="badge.first_note.desc" xml:space="preserve"><value>첫 번째 메모 작성하기.</value></data>
+  <data name="badge.streak_7.name" xml:space="preserve"><value>일주일 완주</value></data>
+  <data name="badge.streak_7.desc" xml:space="preserve"><value>7일 연속 기록 유지하기.</value></data>
+  <data name="badge.streak_30.name" xml:space="preserve"><value>한 달의 힘</value></data>
+  <data name="badge.streak_30.desc" xml:space="preserve"><value>30일 연속 기록 유지하기.</value></data>
+  <data name="badge.streak_100.name" xml:space="preserve"><value>100일의 기적</value></data>
+  <data name="badge.streak_100.desc" xml:space="preserve"><value>100일 연속 기록 유지하기.</value></data>
+  <data name="badge.streak_365.name" xml:space="preserve"><value>꼬박 일 년</value></data>
+  <data name="badge.streak_365.desc" xml:space="preserve"><value>365일 연속 기록 유지하기.</value></data>
+  <data name="badge.comeback.name" xml:space="preserve"><value>컴백</value></data>
+  <data name="badge.comeback.desc" xml:space="preserve"><value>7일 연속 기록을 놓친 뒤 다시 달성하기.</value></data>
+  <data name="badge.checkins_100.name" xml:space="preserve"><value>100회 체크인</value></data>
+  <data name="badge.checkins_100.desc" xml:space="preserve"><value>체크인 100회 달성하기.</value></data>
+  <data name="badge.checkins_1000.name" xml:space="preserve"><value>1000회 체크인</value></data>
+  <data name="badge.checkins_1000.desc" xml:space="preserve"><value>체크인 1000회 달성하기.</value></data>
+  <data name="badge.focus_10h.name" xml:space="preserve"><value>10시간 집중</value></data>
+  <data name="badge.focus_10h.desc" xml:space="preserve"><value>총 10시간 동안 포커스하기.</value></data>
+  <data name="badge.water_100_glasses.name" xml:space="preserve"><value>물 100잔</value></data>
+  <data name="badge.water_100_glasses.desc" xml:space="preserve"><value>물 100잔 마시기(water 태그 습관).</value></data>
+  <data name="badge.early_bird.name" xml:space="preserve"><value>얼리버드</value></data>
+  <data name="badge.early_bird.desc" xml:space="preserve"><value>오전 7시 이전에 10번 체크인하기.</value></data>
+  <data name="badge.night_owl.name" xml:space="preserve"><value>올빼미</value></data>
+  <data name="badge.night_owl.desc" xml:space="preserve"><value>오후 11시 이후에 10번 체크인하기.</value></data>
+  <data name="badge.weekend_warrior.name" xml:space="preserve"><value>주말의 전사</value></data>
+  <data name="badge.weekend_warrior.desc" xml:space="preserve"><value>토요일과 일요일 모두 완벽하게 달성하기.</value></data>
+  <data name="badge.widget_pinned.name" xml:space="preserve"><value>바탕화면 고정</value></data>
+  <data name="badge.widget_pinned.desc" xml:space="preserve"><value>바탕화면에 위젯 고정하기.</value></data>
+  <data name="badge.quick_checkin_used.name" xml:space="preserve"><value>빠른 손</value></data>
+  <data name="badge.quick_checkin_used.desc" xml:space="preserve"><value>빠른 체크인 단축키 사용하기.</value></data>
+  <data name="badge.theme_changed.name" xml:space="preserve"><value>나만의 스타일</value></data>
+  <data name="badge.theme_changed.desc" xml:space="preserve"><value>앱 테마 변경하기.</value></data>
+  <data name="badge.shared_card.name" xml:space="preserve"><value>자랑하기</value></data>
+  <data name="badge.shared_card.desc" xml:space="preserve"><value>달성 카드 공유하기.</value></data>
+  <data name="badge.midnight_checkin.name" xml:space="preserve"><value>자정</value></data>
+  <data name="badge.midnight_checkin.desc" xml:space="preserve"><value>정각 00:00에 체크인하기.</value></data>
+  <data name="badge.perfect_week.name" xml:space="preserve"><value>완벽한 한 주</value></data>
+  <data name="badge.perfect_week.desc" xml:space="preserve"><value>7일 연속 완벽한 하루 달성하기.</value></data>
+  <data name="badge.marathon_day.name" xml:space="preserve"><value>마라톤 데이</value></data>
+  <data name="badge.marathon_day.desc" xml:space="preserve"><value>하루에 10회 체크인 완료하기.</value></data>
+  <data name="palette.title" xml:space="preserve"><value>명령 팔레트</value></data>
+  <data name="palette.placeholder" xml:space="preserve"><value>페이지, 작업, 습관 검색…</value></data>
+  <data name="palette.empty" xml:space="preserve"><value>일치하는 명령이 없습니다</value></data>
+  <data name="cmd.new" xml:space="preserve"><value>새 습관</value></data>
+  <data name="cmd.focus" xml:space="preserve"><value>포커스 시작</value></data>
+  <data name="cmd.focus.stop" xml:space="preserve"><value>포커스 중지</value></data>
+  <data name="cmd.quick" xml:space="preserve"><value>빠른 체크인</value></data>
+  <data name="cmd.open" xml:space="preserve"><value>열기: {0}</value></data>
+  <data name="cmd.check" xml:space="preserve"><value>체크: {0}</value></data>
+  <data name="cmd.undo" xml:space="preserve"><value>실행 취소</value></data>
+  <data name="detail.focus" xml:space="preserve"><value>포커스</value></data>
+  <data name="focus.sent" xml:space="preserve"><value>위젯으로 포커스 명령을 보냈습니다</value></data>
+  <data name="focus.host.missing" xml:space="preserve"><value>HabitGrid Widgets를 찾을 수 없어 포커스를 시작할 수 없습니다.</value></data>
+  <data name="settings.reminders" xml:space="preserve"><value>알림</value></data>
+  <data name="settings.reminders.enabled" xml:space="preserve"><value>알림 사용</value></data>
+  <data name="settings.reminders.hint" xml:space="preserve"><value>앱이 닫혀 있어도 제시간에 알림이 표시됩니다. 각 습관의 알림 시간은 편집 화면에서 설정하세요.</value></data>
+  <data name="settings.quiet" xml:space="preserve"><value>방해 금지 시간</value></data>
+  <data name="settings.quiet.from" xml:space="preserve"><value>시작</value></data>
+  <data name="settings.quiet.to" xml:space="preserve"><value>종료</value></data>
+  <data name="settings.rescue" xml:space="preserve"><value>오후 9시 연속 기록 구조 알림</value></data>
+  <data name="settings.morning" xml:space="preserve"><value>아침 요약</value></data>
+  <data name="settings.morning.at" xml:space="preserve"><value>시간</value></data>
+  <data name="settings.hotkeys" xml:space="preserve"><value>단축키</value></data>
+  <data name="settings.hotkey.quick" xml:space="preserve"><value>빠른 체크인 (Win+Alt+H)</value></data>
+  <data name="settings.hotkey.focus" xml:space="preserve"><value>포커스 시작/일시정지 (Win+Alt+F)</value></data>
+  <data name="settings.hotkeys.hint" xml:space="preserve"><value>전역 단축키는 HabitGrid Widgets가 등록합니다. 다른 앱이 사용 중이면 Ctrl+Alt가 대신 사용됩니다.</value></data>
+  <data name="settings.hotkey.registered" xml:space="preserve"><value>사용 중: {0}</value></data>
+  <data name="settings.hotkey.none" xml:space="preserve"><value>등록 안 됨(위젯 미실행 또는 키 사용 중)</value></data>
+  <data name="settings.shortcuts.inapp" xml:space="preserve"><value>앱 내: Ctrl+K 명령 · Ctrl+N 새 습관 · Ctrl+Z 실행 취소 · Ctrl+, 설정 · 1–9 오늘 체크</value></data>
+  <data name="plus.name" xml:space="preserve"><value>HabitGrid Plus</value></data>
+  <data name="plus.tagline" xml:space="preserve"><value>더 많은 습관, 더 다양한 스타일, 더 멋진 버디.</value></data>
+  <data name="plus.benefit.habits" xml:space="preserve"><value>무제한 습관(무료: 5개)</value></data>
+  <data name="plus.benefit.themes" xml:space="preserve"><value>Soft Pastel 즉시 잠금 해제(무료: 레벨 10)</value></data>
+  <data name="plus.benefit.freeze" xml:space="preserve"><value>프리즈 최대 5개 보관(무료: 3개)</value></data>
+  <data name="plus.benefit.insights" xml:space="preserve"><value>90일 및 전체 기간 인사이트, CSV 내보내기(무료: 30일)</value></data>
+  <data name="plus.benefit.sounds" xml:space="preserve"><value>포커스용 배경 사운드</value></data>
+  <data name="plus.benefit.support" xml:space="preserve"><value>인디 개발자 응원하기 ❤</value></data>
+  <data name="plus.plan.monthly" xml:space="preserve"><value>월간</value></data>
+  <data name="plus.plan.yearly" xml:space="preserve"><value>연간</value></data>
+  <data name="plus.plan.lifetime" xml:space="preserve"><value>평생 소장</value></data>
+  <data name="plus.per.month" xml:space="preserve"><value>매월</value></data>
+  <data name="plus.per.year" xml:space="preserve"><value>매년</value></data>
+  <data name="plus.once" xml:space="preserve"><value>1회 결제</value></data>
+  <data name="plus.trial.days" xml:space="preserve"><value>{0}일 무료 체험</value></data>
+  <data name="plus.save" xml:space="preserve"><value>{0}% 할인</value></data>
+  <data name="plus.trial" xml:space="preserve"><value>무료 체험 포함</value></data>
+  <data name="plus.buy" xml:space="preserve"><value>이 플랜 선택</value></data>
+  <data name="plus.restore" xml:space="preserve"><value>구매 복원</value></data>
+  <data name="plus.close" xml:space="preserve"><value>나중에</value></data>
+  <data name="plus.terms" xml:space="preserve"><value>월간 및 연간 플랜은 Microsoft 계정(account.microsoft.com → 서비스 및 구독)에서 해지할 때까지 자동 갱신됩니다. 무료 체험 종료 전에 해지하면 요금이 청구되지 않습니다.</value></data>
+  <data name="plus.reference" xml:space="preserve"><value>참고 가격이며, 실제 통화 가격은 Microsoft Store 창에 표시됩니다.</value></data>
+  <data name="plus.nostore" xml:space="preserve"><value>구매는 Microsoft Store 버전에서만 가능합니다. 이 버전은 Store와 연결되어 있지 않습니다.</value></data>
+  <data name="plus.msg.thanks" xml:space="preserve"><value>감사합니다! Plus가 잠금 해제되었습니다 🎉</value></data>
+  <data name="plus.msg.network" xml:space="preserve"><value>Microsoft Store에 연결할 수 없습니다. 나중에 다시 시도해 주세요.</value></data>
+  <data name="plus.msg.nostore" xml:space="preserve"><value>이 버전은 Microsoft Store와 연결되어 있지 않아 구매할 수 없습니다.</value></data>
+  <data name="plus.msg.failed" xml:space="preserve"><value>구매를 완료할 수 없습니다.</value></data>
+  <data name="plus.msg.restored" xml:space="preserve"><value>Plus가 복원되었습니다.</value></data>
+  <data name="plus.msg.nothing" xml:space="preserve"><value>이 Microsoft 계정에서 Plus 구매 내역을 찾지 못했습니다.</value></data>
+  <data name="plus.reason.limit" xml:space="preserve"><value>무료 플랜에서는 진행 중인 습관을 최대 5개까지 만들 수 있습니다.</value></data>
+  <data name="plus.reason.theme" xml:space="preserve"><value>이 테마는 Plus 전용입니다(또는 레벨 {0}에서 해제).</value></data>
+  <data name="settings.plus" xml:space="preserve"><value>HabitGrid Plus</value></data>
+  <data name="settings.plus.free" xml:space="preserve"><value>무료 플랜을 사용 중입니다.</value></data>
+  <data name="settings.plus.active" xml:space="preserve"><value>Plus 사용 중 · {0}</value></data>
+  <data name="settings.plus.tier.Monthly" xml:space="preserve"><value>월간</value></data>
+  <data name="settings.plus.tier.Yearly" xml:space="preserve"><value>연간</value></data>
+  <data name="settings.plus.tier.Lifetime" xml:space="preserve"><value>평생 소장</value></data>
+  <data name="settings.plus.tier.LegacyPro" xml:space="preserve"><value>평생 소장(Pro v1)</value></data>
+  <data name="settings.plus.recheck" xml:space="preserve"><value>Microsoft Store와 확인한 지 오래되었습니다. 인터넷에 연결한 뒤 구매 복원을 눌러주세요.</value></data>
+  <data name="settings.plus.upgrade" xml:space="preserve"><value>업그레이드</value></data>
+  <data name="settings.plus.choose" xml:space="preserve"><value>진행할 습관 선택</value></data>
+  <data name="theme.locked" xml:space="preserve"><value>🔒 Plus</value></data>
+  <data name="theme.locked.level" xml:space="preserve"><value>🔒 Plus · 또는 레벨 {0}</value></data>
+  <data name="plan.readonly" xml:space="preserve"><value>이 습관은 읽기 전용입니다(무료 한도 초과). 설정에서 진행할 습관을 선택하거나 Plus로 업그레이드하세요.</value></data>
+  <data name="plan.choose.title" xml:space="preserve"><value>계속 진행할 습관 {0}개 선택</value></data>
+  <data name="plan.choose.body" xml:space="preserve"><value>무료 플랜에서는 최대 {0}개의 습관을 진행할 수 있습니다. 나머지 습관의 모든 데이터는 유지되며 체크인만 일시 중지됩니다.</value></data>
+  <data name="plan.choose.save" xml:space="preserve"><value>선택 저장</value></data>
+  <data name="plan.choose.count" xml:space="preserve"><value>{0}/{1} 선택됨</value></data>
+  <data name="today.state.readonly" xml:space="preserve"><value>🔒 읽기 전용</value></data>
+  <data name="insights.title" xml:space="preserve"><value>인사이트</value></data>
+  <data name="insights.range.30" xml:space="preserve"><value>30일</value></data>
+  <data name="insights.range.90" xml:space="preserve"><value>90일</value></data>
+  <data name="insights.range.all" xml:space="preserve"><value>전체</value></data>
+  <data name="insights.rate" xml:space="preserve"><value>완료율</value></data>
+  <data name="insights.perfect" xml:space="preserve"><value>완벽한 날</value></data>
+  <data name="insights.checkins" xml:space="preserve"><value>체크인</value></data>
+  <data name="insights.beststreak" xml:space="preserve"><value>최고 연속 기록</value></data>
+  <data name="insights.trend" xml:space="preserve"><value>주간 추세</value></data>
+  <data name="insights.weekdays" xml:space="preserve"><value>요일별</value></data>
+  <data name="insights.hours" xml:space="preserve"><value>체크인 시간대</value></data>
+  <data name="insights.habits" xml:space="preserve"><value>습관별</value></data>
+  <data name="insights.mood" xml:space="preserve"><value>기분</value></data>
+  <data name="insights.mood.avg" xml:space="preserve"><value>평균 {0}/5</value></data>
+  <data name="insights.mood.compare" xml:space="preserve"><value>실천한 날: {0}/5 · 다른 날: {1}/5</value></data>
+  <data name="insights.mood.none" xml:space="preserve"><value>아직 기분 데이터가 없습니다. 캘린더에서 날짜를 편집해 기분을 추가해 보세요.</value></data>
+  <data name="insights.auto" xml:space="preserve"><value>맞춤 팁</value></data>
+  <data name="insights.auto.none" xml:space="preserve"><value>아직 팁을 드릴 데이터가 부족합니다. 몇 주간 체크인하면 표시됩니다.</value></data>
+  <data name="insights.export" xml:space="preserve"><value>CSV 내보내기</value></data>
+  <data name="insights.export.done" xml:space="preserve"><value>{0} 저장됨</value></data>
+  <data name="insights.export.failed" xml:space="preserve"><value>파일을 저장할 수 없습니다.</value></data>
+  <data name="insights.empty" xml:space="preserve"><value>습관을 추가하고 며칠간 체크인하면 인사이트가 표시됩니다.</value></data>
+  <data name="insights.plus" xml:space="preserve"><value>Plus</value></data>
+  <data name="insights.row.rate" xml:space="preserve"><value>{0}% 완료</value></data>
+  <data name="insights.row.total" xml:space="preserve"><value>총 {0} {1} · 평균 {2}/일 · 최고 {3}</value></data>
+  <data name="insight.weak_weekday" xml:space="preserve"><value>{weekday}에 {habit}을(를) 자주 놓치시네요. 해당 요일 알림을 옮겨볼까요?</value></data>
+  <data name="insight.golden_hour" xml:space="preserve"><value>가장 집중이 잘 되는 시간은 {start}–{end}입니다.</value></data>
+  <data name="insight.momentum_up" xml:space="preserve"><value>{habit}이(가) 순항 중이에요: +{delta}%!</value></data>
+  <data name="insight.slipping" xml:space="preserve"><value>{habit}이(가) 주춤하고 있어요(−{delta}%). 일주일간 목표를 {suggested}(으)로 낮춰볼까요?</value></data>
+  <data name="insight.slipping.plain" xml:space="preserve"><value>{habit}이(가) 주춤하고 있어요(−{delta}%). 다른 알림 시간을 시도하거나 힘든 날은 건너뛰어 보세요.</value></data>
+  <data name="insight.mood_link" xml:space="preserve"><value>{habit}을(를) 실천한 날에는 기분이 훨씬 좋습니다.</value></data>
+  <data name="insight.stack_suggestion" xml:space="preserve"><value>{a}와(과) {b}은(는) 주로 함께 이루어집니다. 루틴으로 묶어볼까요?</value></data>
+  <data name="insight.near_milestone" xml:space="preserve"><value>{habit} {milestone}일 달성까지 {n}일 남았어요!</value></data>
+  <data name="plus.promo.active" xml:space="preserve"><value>🎁 무료 Plus 체험 중, {0}일 남았습니다. 종료 후에도 모든 데이터는 유지됩니다.</value></data>
+  <data name="settings.plus.tier.Promo" xml:space="preserve"><value>무료 혜택</value></data>
+  <data name="settings.plus.promo" xml:space="preserve"><value>🎁 무료 Plus · {0}일 남음. 종료 후에도 모든 데이터는 유지됩니다.</value></data>
+  <data name="settings.data.openFolder" xml:space="preserve"><value>폴더 열기</value></data>
+  <data name="crash.title" xml:space="preserve"><value>지난번 실행 시 HabitGrid에 문제가 발생했습니다</value></data>
+  <data name="crash.body" xml:space="preserve"><value>오류 보고서 {0}개가 PC에 저장되었습니다. 앱은 이를 외부로 전송하지 않습니다. 빠른 해결을 위해 폴더를 열거나 보고서를 복사해 개발자에게 보내주세요.</value></data>
+  <data name="crash.open" xml:space="preserve"><value>보고서 폴더 열기</value></data>
+  <data name="crash.copy" xml:space="preserve"><value>보고서 복사</value></data>
+  <data name="settings.support" xml:space="preserve"><value>지원</value></data>
+  <data name="settings.support.version" xml:space="preserve"><value>버전 {0}</value></data>
+  <data name="settings.support.logs" xml:space="preserve"><value>로그 및 보고서 폴더 열기</value></data>
+  <data name="settings.support.hint" xml:space="preserve"><value>로그와 오류 보고서는 PC에만 저장됩니다. 도움이 필요하면 이 폴더의 파일을 개발자에게 보내주세요.</value></data>
+  <data name="frame.default" xml:space="preserve"><value>기본</value></data>
+  <data name="frame.candy" xml:space="preserve"><value>캔디 핑크</value></data>
+  <data name="frame.midnight" xml:space="preserve"><value>미드나이트</value></data>
+  <data name="frame.dew" xml:space="preserve"><value>아침 이슬</value></data>
+  <data name="frame.dreamy" xml:space="preserve"><value>드리미 퍼플</value></data>
+  <data name="frame.orbit" xml:space="preserve"><value>오르빗</value></data>
+  <data name="moments.title" xml:space="preserve"><value>모먼트</value></data>
+  <data name="moments.capture" xml:space="preserve"><value>사진 찍기</value></data>
+  <data name="moments.pick" xml:space="preserve"><value>사진 선택</value></data>
+  <data name="moments.share" xml:space="preserve"><value>카드 공유</value></data>
+  <data name="moments.empty" xml:space="preserve"><value>이 습관을 실천할 때 작은 사진을 남겨보세요. 나중에 돌아보면 즐거워요. 사진은 PC에만 저장됩니다.</value></data>
+  <data name="moments.limit" xml:space="preserve"><value>무료 플랜: 습관당 하루 1장(오늘 이미 사용). Plus는 무제한입니다.</value></data>
+  <data name="moments.photo" xml:space="preserve"><value>{0}의 모먼트 사진</value></data>
+  <data name="moments.delete" xml:space="preserve"><value>사진 삭제</value></data>
+  <data name="moments.failed.LimitReached" xml:space="preserve"><value>오늘 이 습관의 사진 한도에 도달했습니다(무료: 하루 1장).</value></data>
+  <data name="moments.failed.InvalidImage" xml:space="preserve"><value>올바른 JPEG/PNG 파일이 아니거나 용량이 너무 큽니다(최대 15 MB).</value></data>
+  <data name="moments.failed.NotAllowed" xml:space="preserve"><value>이 날짜에는 사진을 추가할 수 없습니다.</value></data>
+  <data name="share.title" xml:space="preserve"><value>공유 카드</value></data>
+  <data name="share.save" xml:space="preserve"><value>이미지 저장</value></data>
+  <data name="share.copy" xml:space="preserve"><value>복사</value></data>
+  <data name="share.watermark.hide" xml:space="preserve"><value>HabitGrid 로고 숨기기 (Plus)</value></data>
+  <data name="share.hint" xml:space="preserve"><value>스토리, Locket, Threads용 1080×1920 이미지입니다. 직접 게시하시면 됩니다 — HabitGrid는 SNS 비밀번호를 절대 요구하지 않습니다.</value></data>
+  <data name="share.saved" xml:space="preserve"><value>{0} 저장됨</value></data>
+  <data name="share.copied" xml:space="preserve"><value>이미지가 복사되었습니다 — 게시할 앱에 붙여넣으세요.</value></data>
+  <data name="share.failed" xml:space="preserve"><value>이미지를 만들 수 없습니다.</value></data>
+  <data name="plus.benefit.moments" xml:space="preserve"><value>무제한 모먼트 사진(무료: 습관당 하루 1장)</value></data>
+  <data name="plus.benefit.share" xml:space="preserve"><value>모든 공유 카드 프레임, 4컷 스트립, 로고 숨기기(무료: 2프레임, 1장)</value></data>
+  <data name="plus.benefit.momentWidget" xml:space="preserve"><value>바탕화면 모먼트 위젯</value></data>
+  <data name="settings.momentWidget" xml:space="preserve"><value>모먼트 위젯 (Plus)</value></data>
+  <data name="settings.momentWidget.hint" xml:space="preserve"><value>최신 모먼트 사진을 바탕화면에 표시합니다. 클릭하면 '지난달 오늘'을 볼 수 있어요.</value></data>
+  <data name="backup.title" xml:space="preserve"><value>백업</value></data>
+  <data name="backup.hint" xml:space="preserve"><value>앱이 매일 PC에 자동 백업합니다(최근 14개 보관). 수동 백업 및 재설치 시 복원도 가능합니다.</value></data>
+  <data name="backup.now" xml:space="preserve"><value>지금 백업</value></data>
+  <data name="backup.restore.file" xml:space="preserve"><value>파일에서 복원…</value></data>
+  <data name="backup.open" xml:space="preserve"><value>폴더 열기</value></data>
+  <data name="backup.restore" xml:space="preserve"><value>복원</value></data>
+  <data name="backup.auto" xml:space="preserve"><value>자동</value></data>
+  <data name="backup.manual" xml:space="preserve"><value>수동</value></data>
+  <data name="backup.none" xml:space="preserve"><value>아직 백업이 없습니다.</value></data>
+  <data name="backup.done" xml:space="preserve"><value>{0} 저장됨</value></data>
+  <data name="backup.failed" xml:space="preserve"><value>실패했습니다. 현재 데이터는 그대로 유지됩니다.</value></data>
+  <data name="backup.invalid" xml:space="preserve"><value>이 백업은 사용할 수 없습니다: {0}</value></data>
+  <data name="backup.restored" xml:space="preserve"><value>습관 {0}개와 {1}일치 기록을 복원했습니다.</value></data>
+  <data name="backup.confirm.title" xml:space="preserve"><value>백업에서 복원할까요?</value></data>
+  <data name="backup.confirm.body" xml:space="preserve"><value>현재 데이터가 이 백업으로 대체됩니다. 복원 전에 현재 상태를 먼저 저장하므로 언제든 되돌릴 수 있습니다.</value></data>
+  <data name="vacation.title" xml:space="preserve"><value>휴식 모드</value></data>
+  <data name="vacation.start" xml:space="preserve"><value>휴식 시작</value></data>
+  <data name="vacation.end" xml:space="preserve"><value>일찍 종료</value></data>
+  <data name="vacation.until" xml:space="preserve"><value>휴식 종료일</value></data>
+  <data name="vacation.days" xml:space="preserve"><value>{0}일</value></data>
+  <data name="vacation.limit" xml:space="preserve"><value>한 번에 최대 {0}일. Plus에서는 더 긴 휴식이 가능합니다.</value></data>
+  <data name="vacation.body.all" xml:space="preserve"><value>모든 습관을 일시 중지합니다(아픔, 여행, 시험 등): 연속 기록은 유지되며 알림이 없고 미달성으로 처리되지 않습니다.</value></data>
+  <data name="vacation.body.one" xml:space="preserve"><value>"{0}"만 일시 중지합니다: 연속 기록은 유지되며 알림이 없습니다.</value></data>
+  <data name="vacation.banner.all" xml:space="preserve"><value>🏖 {0}까지 휴식 중입니다. 연속 기록은 안전합니다.</value></data>
+  <data name="vacation.banner.some" xml:space="preserve"><value>🏖 일부 습관이 {0}까지 휴식 중입니다.</value></data>
+  <data name="vacation.pause.habit" xml:space="preserve"><value>일시 중지</value></data>
+  <data name="vacation.err.InPast" xml:space="preserve"><value>휴식은 과거 날짜로 시작할 수 없습니다.</value></data>
+  <data name="vacation.err.EndBeforeStart" xml:space="preserve"><value>종료일은 오늘 이후여야 합니다.</value></data>
+  <data name="vacation.err.TooLong" xml:space="preserve"><value>휴식은 최대 {0}일까지 가능합니다.</value></data>
+  <data name="vacation.err.AlreadyActive" xml:space="preserve"><value>이미 휴식 중입니다. 새로 시작하기 전에 먼저 종료하세요.</value></data>
+  <data name="vacation.err.NothingToPause" xml:space="preserve"><value>일시 중지할 습관이 없습니다(금지 습관은 휴식이 필요 없습니다).</value></data>
+  <data name="settings.vacation" xml:space="preserve"><value>휴식 모드</value></data>
+  <data name="settings.vacation.hint" xml:space="preserve"><value>여행 중이거나 아프신가요? 프리즈를 쓰지 않고도 연속 기록을 지킬 수 있습니다.</value></data>
+  <data name="settings.vacation.active" xml:space="preserve"><value>{0}까지 휴식 중.</value></data>
+  <data name="settings.vacation.none" xml:space="preserve"><value>현재 휴식 중이 아닙니다.</value></data>
+  <data name="mood.title.today" xml:space="preserve"><value>오늘 기분이 어떠신가요?</value></data>
+  <data name="mood.title.past" xml:space="preserve"><value>그날 기분이 어땠나요?</value></data>
+  <data name="mood.note" xml:space="preserve"><value>하루에 대한 한 줄 메모(선택)</value></data>
+  <data name="routine.title" xml:space="preserve"><value>루틴</value></data>
+  <data name="routine.hint" xml:space="preserve"><value>"아침"이나 "취침 전"처럼 습관을 순서대로 묶어 하나씩 진행하거나 한 번에 완료할 수 있습니다.</value></data>
+  <data name="routine.empty" xml:space="preserve"><value>아직 루틴이 없습니다. 첫 루틴을 만들어 보세요.</value></data>
+  <data name="routine.create" xml:space="preserve"><value>루틴 만들기</value></data>
+  <data name="routine.edit" xml:space="preserve"><value>루틴 편집</value></data>
+  <data name="routine.steps" xml:space="preserve"><value>{0}단계</value></data>
+  <data name="routine.limit" xml:space="preserve"><value>루틴 한도: {0}. Plus는 무제한입니다.</value></data>
+  <data name="routine.name" xml:space="preserve"><value>루틴 이름</value></data>
+  <data name="routine.name.placeholder" xml:space="preserve"><value>예: 아침, 취침 전</value></data>
+  <data name="routine.pick" xml:space="preserve"><value>습관 선택(각 습관은 하나의 루틴에만 포함)</value></data>
+  <data name="routine.order" xml:space="preserve"><value>단계 순서</value></data>
+  <data name="routine.selected" xml:space="preserve"><value>{0}/{1} 선택됨</value></data>
+  <data name="routine.nohabits" xml:space="preserve"><value>추가할 수 있는 습관이 없습니다. 각 습관은 하나의 루틴에만 속하며 금지 습관은 추가할 수 없습니다.</value></data>
+  <data name="routine.progress" xml:space="preserve"><value>{0}/{1}단계</value></data>
+  <data name="routine.complete" xml:space="preserve"><value>루틴 완료 🎉</value></data>
+  <data name="routine.completeAll" xml:space="preserve"><value>루틴 완료하기</value></data>
+  <data name="routine.pending" xml:space="preserve"><value>미완료</value></data>
+  <data name="routine.err.NameRequired" xml:space="preserve"><value>루틴 이름을 입력하세요.</value></data>
+  <data name="routine.err.NameTooLong" xml:space="preserve"><value>루틴 이름은 최대 30자까지 가능합니다.</value></data>
+  <data name="routine.err.TooFewHabits" xml:space="preserve"><value>루틴에는 최소 2개의 습관이 필요합니다.</value></data>
+  <data name="routine.err.TooManyHabits" xml:space="preserve"><value>루틴에는 최대 12개의 습관만 추가할 수 있습니다.</value></data>
+  <data name="routine.err.LimitReached" xml:space="preserve"><value>무료 플랜에서는 루틴을 2개까지 만들 수 있습니다. Plus로 업그레이드하세요.</value></data>
+  <data name="routine.err.UnknownHabit" xml:space="preserve"><value>습관이 잘못되었거나 이미 다른 루틴에 있습니다.</value></data>
+  <data name="routine.err.NotFound" xml:space="preserve"><value>해당 루틴을 찾을 수 없습니다.</value></data>
+  <data name="backup.mirror.title" xml:space="preserve"><value>클라우드 폴더에 백업 (Plus)</value></data>
+  <data name="backup.mirror.hint" xml:space="preserve"><value>백업할 때마다 선택한 폴더에도 복사합니다. OneDrive, Google Drive 또는 Dropbox 폴더를 지정하면 자동으로 동기화됩니다. HabitGrid는 로그인하지 않습니다.</value></data>
+  <data name="backup.mirror.choose" xml:space="preserve"><value>폴더 선택…</value></data>
+  <data name="backup.mirror.off" xml:space="preserve"><value>끄기</value></data>
+  <data name="backup.mirror.use" xml:space="preserve"><value>폴더 사용</value></data>
+  <data name="backup.mirror.none" xml:space="preserve"><value>선택된 클라우드 폴더가 없습니다.</value></data>
+  <data name="backup.mirror.current" xml:space="preserve"><value>클라우드 폴더: {0}</value></data>
+  <data name="backup.mirror.ok" xml:space="preserve"><value>최신 백업을 {0}에 복사했습니다</value></data>
+  <data name="backup.mirror.failed" xml:space="preserve"><value>클라우드 폴더에 복사하지 못했습니다(드라이브 준비 안 됨 또는 용량 부족). 로컬 백업은 안전합니다.</value></data>
+  <data name="backup.mirror.err.empty" xml:space="preserve"><value>폴더가 선택되지 않았습니다.</value></data>
+  <data name="backup.mirror.err.invalid" xml:space="preserve"><value>올바른 경로가 아닙니다.</value></data>
+  <data name="backup.mirror.err.same-as-local" xml:space="preserve"><value>로컬 백업 폴더와 다른 폴더를 선택하세요.</value></data>
+  <data name="backup.mirror.err.not-writable" xml:space="preserve"><value>해당 폴더에 쓸 수 없습니다.</value></data>
+  <data name="share.layout.single" xml:space="preserve"><value>사진 1장</value></data>
+  <data name="share.layout.strip" xml:space="preserve"><value>4컷 스트립</value></data>
+  <data name="adv.title" xml:space="preserve"><value>고급 인사이트</value></data>
+  <data name="adv.locked.title" xml:space="preserve"><value>데이터를 더 깊이 살펴보세요</value></data>
+  <data name="adv.unlock" xml:space="preserve"><value>Plus로 잠금 해제</value></data>
+  <data name="adv.locked.body" xml:space="preserve"><value>이번 달과 지난 달 비교, 함께 하는 습관 찾기, 두 습관 나란히 비교, 전체 습관 연간 캘린더를 볼 수 있습니다.</value></data>
+  <data name="adv.months" xml:space="preserve"><value>이번 달 vs 지난 달</value></data>
+  <data name="adv.months.range" xml:space="preserve"><value>{0}–{1} vs {2}–{3}</value></data>
+  <data name="adv.months.overall" xml:space="preserve"><value>완료율: {0} (지난 달 {1}) {2}</value></data>
+  <data name="adv.months.checkins" xml:space="preserve"><value>체크인: {0} (지난 달 {1})</value></data>
+  <data name="adv.corr" xml:space="preserve"><value>함께 하는 습관</value></data>
+  <data name="adv.corr.hint" xml:space="preserve"><value>최근 90일 기준이며 휴식/건너뛴 날은 제외되고 데이터가 충분할 때만 표시됩니다.</value></data>
+  <data name="adv.corr.none" xml:space="preserve"><value>아직 뚜렷한 짝이 없습니다. 몇 주간의 데이터가 더 필요합니다.</value></data>
+  <data name="adv.corr.line" xml:space="preserve"><value>{0}을(를) 한 날에는 {1}도 실천: {2}% (다른 날 {3}%).</value></data>
+  <data name="adv.compare" xml:space="preserve"><value>두 습관 비교</value></data>
+  <data name="adv.compare.a" xml:space="preserve"><value>습관 A</value></data>
+  <data name="adv.compare.b" xml:space="preserve"><value>습관 B</value></data>
+  <data name="adv.compare.need2" xml:space="preserve"><value>비교하려면 최소 2개의 습관이 필요합니다.</value></data>
+  <data name="adv.compare.same" xml:space="preserve"><value>서로 다른 두 습관을 선택하세요.</value></data>
+  <data name="adv.compare.streak" xml:space="preserve"><value>현재 연속 기록</value></data>
+  <data name="adv.compare.both" xml:space="preserve"><value>둘 다 완료한 날: {0}일</value></data>
+  <data name="adv.year" xml:space="preserve"><value>연간 캘린더</value></data>
+  <data name="adv.year.hint" xml:space="preserve"><value>각 칸이 하루입니다. 색이 진할수록 그날 예정된 습관을 더 많이 완료했음을 뜻합니다.</value></data>
+  <data name="settings.accent" xml:space="preserve"><value>맞춤 강조 색상</value></data>
+  <data name="settings.accent.hint" xml:space="preserve"><value>앱 전체의 버튼, 진행률 및 강조 색상을 변경합니다 (Plus). 배경과 글자 색상은 테마를 유지합니다.</value></data>
+  <data name="settings.accent.hex" xml:space="preserve"><value>Hex 색상</value></data>
+  <data name="settings.accent.default" xml:space="preserve"><value>테마 색상 사용 중.</value></data>
+  <data name="settings.accent.current" xml:space="preserve"><value>{0} 사용 중.</value></data>
+  <data name="settings.accent.expired" xml:space="preserve"><value>(적용하려면 Plus가 필요합니다. 선택은 유지됩니다.)</value></data>
+  <data name="settings.accent.invalid" xml:space="preserve"><value>올바르지 않은 색상입니다. #RRGGBB 형식을 사용하세요.</value></data>
+  <data name="settings.accent.pick" xml:space="preserve"><value>색상 {0} 선택</value></data>
+  <data name="settings.accent.apply" xml:space="preserve"><value>적용</value></data>
+  <data name="settings.accent.reset" xml:space="preserve"><value>테마 색상으로 복원</value></data>
+  <data name="plus.benefit.backup" xml:space="preserve"><value>OneDrive/Google Drive/Dropbox 폴더로 자동 미러 백업</value></data>
+  <data name="plus.benefit.advanced" xml:space="preserve"><value>고급 인사이트: 월간 비교, 습관 상관관계, 연간 캘린더</value></data>
+  <data name="plus.benefit.accent" xml:space="preserve"><value>앱 전체 맞춤 강조 색상</value></data>
+  <data name="challenge.title" xml:space="preserve"><value>챌린지</value></data>
+  <data name="challenge.hint" xml:space="preserve"><value>명확한 목표 기간이 있는 챌린지를 선택하세요. 습관이 생성되고 연속 기록으로 계산됩니다: 하루 놓치면 처음부터 다시 시작(휴식일은 제외).</value></data>
+  <data name="challenge.length" xml:space="preserve"><value>기간</value></data>
+  <data name="challenge.days" xml:space="preserve"><value>{0}일</value></data>
+  <data name="challenge.start" xml:space="preserve"><value>시작</value></data>
+  <data name="challenge.badges" xml:space="preserve"><value>획득한 배지</value></data>
+  <data name="challenge.day" xml:space="preserve"><value>{0}/{1}일차</value></data>
+  <data name="challenge.left" xml:space="preserve"><value>{0}일 남음</value></data>
+  <data name="challenge.completed" xml:space="preserve"><value>{0}일 챌린지 완료!</value></data>
+  <data name="challenge.failed" xml:space="preserve"><value>{0}에 놓쳤어요. 오늘부터 다시 시작할까요?</value></data>
+  <data name="challenge.closed" xml:space="preserve"><value>이 챌린지 습관은 삭제되거나 보관되었습니다.</value></data>
+  <data name="challenge.restart" xml:space="preserve"><value>다시 시작</value></data>
+  <data name="challenge.dismiss" xml:space="preserve"><value>숨기기</value></data>
+  <data name="challenge.unlock" xml:space="preserve"><value>Plus 보기(동시 5개 챌린지)</value></data>
+  <data name="challenge.err.ActiveLimit" xml:space="preserve"><value>무료는 동시에 1개, Plus는 최대 5개의 챌린지를 진행할 수 있습니다.</value></data>
+  <data name="challenge.err.HabitLimit" xml:space="preserve"><value>무료 습관 한도에 도달해 새 습관을 만들 수 없습니다.</value></data>
+  <data name="challenge.err.InvalidDays" xml:space="preserve"><value>기간 또는 이름이 올바르지 않습니다.</value></data>
+  <data name="challenge.err.UnknownTemplate" xml:space="preserve"><value>알 수 없는 챌린지입니다.</value></data>
+  <data name="challenge.err.NotFound" xml:space="preserve"><value>챌린지를 찾을 수 없습니다.</value></data>
+  <data name="challenge.noSugarDrinks" xml:space="preserve"><value>30일간 단 음료 끊기</value></data>
+  <data name="challenge.noSocialMorning" xml:space="preserve"><value>아침 SNS 안 보기</value></data>
+  <data name="challenge.noLateSnacks" xml:space="preserve"><value>야식 안 먹기</value></data>
+  <data name="challenge.read10" xml:space="preserve"><value>매일 10페이지 읽기</value></data>
+  <data name="challenge.walk" xml:space="preserve"><value>매일 6,000보 걷기</value></data>
+  <data name="challenge.water" xml:space="preserve"><value>물 8잔 마시기</value></data>
+  <data name="challenge.meditate" xml:space="preserve"><value>매일 10분 명상하기</value></data>
+  <data name="challenge.earlyBed" xml:space="preserve"><value>일찍 잠자리에 들기</value></data>
+  <data name="challenge.journal" xml:space="preserve"><value>매일 저녁 일기 쓰기</value></data>
+  <data name="challenge.stretch" xml:space="preserve"><value>매일 아침 스트레칭하기</value></data>
+  <data name="weekly.title" xml:space="preserve"><value>지난주 요약</value></data>
+  <data name="weekly.rate" xml:space="preserve"><value>{0} 완료</value></data>
+  <data name="weekly.checkins" xml:space="preserve"><value>체크인 {0}회</value></data>
+  <data name="weekly.perfect" xml:space="preserve"><value>완벽한 날 {0}일</value></data>
+  <data name="weekly.bestday" xml:space="preserve"><value>최고의 날: {0}</value></data>
+  <data name="weekly.besthabit" xml:space="preserve"><value>우수 습관: {0}</value></data>
+  <data name="weekly.seen" xml:space="preserve"><value>확인</value></data>
+  <data name="weekly.tip.Praise" xml:space="preserve"><value>정말 알찬 한 주였어요. 이 리듬을 계속 이어가세요!</value></data>
+  <data name="weekly.tip.FocusWeakest" xml:space="preserve"><value>{0}이(가) 조금 소홀했어요({1}%). 이번 주 목표로 삼아볼까요?</value></data>
+  <data name="weekly.tip.Improving" xml:space="preserve"><value>지난주보다 나아지고 있어요. 계속 힘내세요!</value></data>
+  <data name="weekly.tip.Steady" xml:space="preserve"><value>안정적이에요. 이번 주에 집중할 습관 하나를 골라보세요.</value></data>
+  <data name="weekly.intent.pick" xml:space="preserve"><value>이번 주 목표 고르기</value></data>
+  <data name="weekly.intent.title" xml:space="preserve"><value>이번 주 목표</value></data>
+  <data name="weekly.intent.progress" xml:space="preserve"><value>{0}: {1}/{2}</value></data>
+  <data name="weekly.intent.clear" xml:space="preserve"><value>목표 지우기</value></data>
+  <data name="routine.run.title" xml:space="preserve"><value>타이머</value></data>
+  <data name="routine.run.hint" xml:space="preserve"><value>각 단계의 분을 설정하세요. 시간이 다 되거나 완료를 누르면 단계가 완료됩니다.</value></data>
+  <data name="routine.run.minutesFor" xml:space="preserve"><value>{0} 시간(분)</value></data>
+  <data name="routine.run.start" xml:space="preserve"><value>시작</value></data>
+  <data name="routine.run.nothing" xml:space="preserve"><value>오늘 남은 단계가 없습니다.</value></data>
+  <data name="routine.run.done" xml:space="preserve"><value>완료</value></data>
+  <data name="routine.run.skip" xml:space="preserve"><value>건너뛰기</value></data>
+  <data name="routine.run.pause" xml:space="preserve"><value>일시정지</value></data>
+  <data name="routine.run.resume" xml:space="preserve"><value>재개</value></data>
+  <data name="routine.run.stop" xml:space="preserve"><value>중지</value></data>
+  <data name="routine.run.remaining" xml:space="preserve"><value>이 단계 남은 시간</value></data>
+  <data name="routine.run.step" xml:space="preserve"><value>{0}/{1}단계</value></data>
+  <data name="routine.run.total" xml:space="preserve"><value>약 {0}분 남음</value></data>
+  <data name="routine.run.finished" xml:space="preserve"><value>루틴 완료! {0}단계를 기록했습니다.</value></data>
+  <data name="plus.benefit.routineTimer" xml:space="preserve"><value>루틴 타이머 및 무제한 루틴(무료: 2개)</value></data>
+  <data name="accessory.cap" xml:space="preserve"><value>야구모자</value></data>
+  <data name="accessory.party" xml:space="preserve"><value>파티 안경</value></data>
+  <data name="accessory.grad" xml:space="preserve"><value>학사모</value></data>
+  <data name="accessory.crown" xml:space="preserve"><value>왕관</value></data>
+  <data name="accessory.tophat" xml:space="preserve"><value>실크햇</value></data>
+  <data name="accessory.blossom" xml:space="preserve"><value>벚꽃</value></data>
+  <data name="accessory.shades" xml:space="preserve"><value>선글라스</value></data>
+  <data name="accessory.nerd" xml:space="preserve"><value>뿔테 안경</value></data>
+  <data name="accessory.monocle" xml:space="preserve"><value>단안경</value></data>
+  <data name="accessory.scarf" xml:space="preserve"><value>목도리</value></data>
+  <data name="accessory.medal" xml:space="preserve"><value>메달</value></data>
+  <data name="accessory.ribbon" xml:space="preserve"><value>리본</value></data>
+  <data name="accessory.gem" xml:space="preserve"><value>보석</value></data>
+  <data name="wardrobe.title" xml:space="preserve"><value>액세서리</value></data>
+  <data name="wardrobe.hint" xml:space="preserve"><value>탭하여 착용하거나 해제하세요. 부위별(머리, 얼굴, 목)로 1개씩 착용할 수 있습니다.</value></data>
+  <data name="wardrobe.slot.Head" xml:space="preserve"><value>머리</value></data>
+  <data name="wardrobe.slot.Face" xml:space="preserve"><value>얼굴</value></data>
+  <data name="wardrobe.slot.Neck" xml:space="preserve"><value>목</value></data>
+  <data name="wardrobe.unlock.level" xml:space="preserve"><value>레벨 {0} 달성</value></data>
+  <data name="wardrobe.unlock.badge" xml:space="preserve"><value>배지 획득: {0}</value></data>
+  <data name="wardrobe.unlock.plus" xml:space="preserve"><value>Plus 전용</value></data>
+  <data name="wardrobe.worn" xml:space="preserve"><value>착용 중</value></data>
+  <data name="wardrobe.locked" xml:space="preserve"><value>잠김</value></data>
+  <data name="plus.benefit.accessories" xml:space="preserve"><value>전용 버디 액세서리(계절마다 새 세트 추가)</value></data>
+  <data name="wrapped.title" xml:space="preserve"><value>월간 Wrapped</value></data>
+  <data name="wrapped.button" xml:space="preserve"><value>Wrapped</value></data>
+  <data name="wrapped.lastMonth" xml:space="preserve"><value>지난달</value></data>
+  <data name="wrapped.thisMonth" xml:space="preserve"><value>이번 달</value></data>
+  <data name="wrapped.prev" xml:space="preserve"><value>이전 슬라이드</value></data>
+  <data name="wrapped.next" xml:space="preserve"><value>다음 슬라이드</value></data>
+  <data name="wrapped.empty" xml:space="preserve"><value>이번 달에는 아직 체크인이 없습니다.</value></data>
+  <data name="wrapped.total.lead" xml:space="preserve"><value>이번 달 달성 기록</value></data>
+  <data name="wrapped.total.unit" xml:space="preserve"><value>체크인</value></data>
+  <data name="wrapped.total.days" xml:space="preserve"><value>활동 일수 {0}일</value></data>
+  <data name="wrapped.total.delta" xml:space="preserve"><value>지난달 대비 {0}</value></data>
+  <data name="wrapped.top.lead" xml:space="preserve"><value>최고의 습관 1위</value></data>
+  <data name="wrapped.top.count" xml:space="preserve"><value>이번 달 {0}회</value></data>
+  <data name="wrapped.streak.lead" xml:space="preserve"><value>최장 연속 기록</value></data>
+  <data name="wrapped.streak.days" xml:space="preserve"><value>{0}일 연속</value></data>
+  <data name="wrapped.hour.lead" xml:space="preserve"><value>골든 아워</value></data>
+  <data name="wrapped.hour.note" xml:space="preserve"><value>이 시간대에 가장 자주 체크인해요</value></data>
+  <data name="wrapped.perfect.lead" xml:space="preserve"><value>완벽한 날</value></data>
+  <data name="wrapped.perfect.unit" xml:space="preserve"><value>모든 습관을 완료한 날</value></data>
+  <data name="wrapped.moment.lead" xml:space="preserve"><value>이달의 모먼트</value></data>
+  <data name="wrapped.buddy.lead" xml:space="preserve"><value>나의 동반자</value></data>
+  <data name="wrapped.nodata.TopHabit" xml:space="preserve"><value>아직 두드러진 습관이 없어요.</value></data>
+  <data name="wrapped.nodata.Streak" xml:space="preserve"><value>아직 2일 연속 기록이 없어요. 다음 달에 도전해 보세요!</value></data>
+  <data name="wrapped.nodata.GoldenHour" xml:space="preserve"><value>체크인 시간 데이터가 충분하지 않습니다.</value></data>
+  <data name="wrapped.locked" xml:space="preserve"><value>나머지 슬라이드와 이미지 저장은 Plus 전용입니다.</value></data>
+  <data name="wrapped.unlock" xml:space="preserve"><value>Plus로 잠금 해제</value></data>
+  <data name="plus.benefit.wrapped" xml:space="preserve"><value>월간 Wrapped: 스토리 슬라이드 6장, 1080x1920 이미지 저장(무료: 첫 슬라이드)</value></data>
+  <data name="settings.font" xml:space="preserve"><value>글꼴</value></data>
+  <data name="settings.font.hint" xml:space="preserve"><value>앱 전체 글꼴을 변경합니다 (Plus). 다음에 앱을 열 때 적용됩니다.</value></data>
+  <data name="settings.font.default" xml:space="preserve"><value>Be Vietnam Pro(기본)</value></data>
+  <data name="settings.font.system" xml:space="preserve"><value>시스템</value></data>
+  <data name="settings.font.serif" xml:space="preserve"><value>Serif</value></data>
+  <data name="settings.font.mono" xml:space="preserve"><value>Monospace</value></data>
+  <data name="settings.font.restart" xml:space="preserve"><value>저장되었습니다. 새 글꼴을 적용하려면 HabitGrid를 다시 여세요.</value></data>
+  <data name="wrapped.banner.title" xml:space="preserve"><value>{0} Wrapped가 준비되었습니다</value></data>
+  <data name="wrapped.banner.view" xml:space="preserve"><value>보기</value></data>
+  <data name="wrapped.banner.later" xml:space="preserve"><value>나중에</value></data>
+  <data name="season.Spring" xml:space="preserve"><value>봄</value></data>
+  <data name="season.Summer" xml:space="preserve"><value>여름</value></data>
+  <data name="season.Autumn" xml:space="preserve"><value>가을</value></data>
+  <data name="season.Winter" xml:space="preserve"><value>겨울</value></data>
+  <data name="wardrobe.unlock.season" xml:space="preserve"><value>Plus · {0} 시즌 수집({1}월부터)</value></data>
+  <data name="accessory.tulip" xml:space="preserve"><value>튤립</value></data>
+  <data name="accessory.butterfly" xml:space="preserve"><value>나비</value></data>
+  <data name="accessory.straw" xml:space="preserve"><value>밀짚모자</value></data>
+  <data name="accessory.lei" xml:space="preserve"><value>꽃목걸이</value></data>
+  <data name="accessory.maple" xml:space="preserve"><value>단풍잎</value></data>
+  <data name="accessory.pumpkin" xml:space="preserve"><value>호박</value></data>
+  <data name="accessory.santa" xml:space="preserve"><value>산타 모자</value></data>
+  <data name="accessory.snowflake" xml:space="preserve"><value>눈송이</value></data>
+  <data name="plus.soon" xml:space="preserve"><value>Plus 구매는 다음 업데이트에서 제공될 예정입니다.</value></data>
+  <data name="settings.widgets.limits" xml:space="preserve"><value>무료: 그리드 위젯 1개 및 오늘 목록. Plus: 최대 3개 그리드 위젯 및 아래 위젯.</value></data>
+  <data name="settings.widget.Buddy" xml:space="preserve"><value>버디 위젯 (Plus)</value></data>
+  <data name="settings.widget.Goals" xml:space="preserve"><value>목표 위젯 (Plus)</value></data>
+  <data name="settings.widget.MultiGrid" xml:space="preserve"><value>멀티 그리드 위젯 (Plus)</value></data>
+  <data name="plus.benefit.widgets" xml:space="preserve"><value>추가 위젯: 버디, 목표, 멀티 그리드 및 최대 3개 그리드 위젯(무료: 1개)</value></data>
+  <data name="settings.pin" xml:space="preserve"><value>위젯 고정 방식</value></data>
+  <data name="settings.pin.hint" xml:space="preserve"><value>위젯은 평소 작게 유지되며 마우스를 올리거나 클릭하면 펼쳐집니다. '창 아래'나 '바탕화면 위'에서 보이지 않으면 '항상 위'로 유지하세요.</value></data>
+  <data name="settings.pin.Top" xml:space="preserve"><value>항상 위 (권장)</value></data>
+  <data name="settings.pin.AboveDesktop" xml:space="preserve"><value>창 아래(바탕화면 바로 위)</value></data>
+  <data name="settings.pin.Desktop" xml:space="preserve"><value>바탕화면 위(기존 방식)</value></data>
+  <data name="settings.layout" xml:space="preserve"><value>위젯 레이아웃</value></data>
+  <data name="settings.layout.hint" xml:space="preserve"><value>통합 위젯 하나: 마우스를 올리거나 클릭해 버디, 오늘 할 일, 목표, 습관 그리드를 엽니다. 개별 위젯도 선택할 수 있습니다.</value></data>
+  <data name="settings.layout.Hub" xml:space="preserve"><value>통합 위젯 하나 (권장)</value></data>
+  <data name="settings.layout.Separate" xml:space="preserve"><value>개별 위젯</value></data>
+  <data name="settings.glass" xml:space="preserve"><value>유리 효과</value></data>
+  <data name="settings.glass.hint" xml:space="preserve"><value>뒤의 Windows 바탕화면을 흐리게 비추는 반투명 창(Acrylic). 0으로 끌면 단색 배경이 됩니다.</value></data>
+  <data name="settings.widgetGlass" xml:space="preserve"><value>Dynamic Island 스타일 대신 유리 위젯 사용 (Windows 11)</value></data>
+  <data name="nav.calendar" xml:space="preserve"><value>캘린더</value></data>
+  <data name="calendar.title" xml:space="preserve"><value>캘린더</value></data>
+  <data name="calendar.thisMonth" xml:space="preserve"><value>이번 달</value></data>
+  <data name="calendar.perfect" xml:space="preserve"><value>완벽한 날 {0}일</value></data>
+  <data name="calendar.active" xml:space="preserve"><value>활동 일수 {0}일</value></data>
+  <data name="calendar.average" xml:space="preserve"><value>평균 {0}%</value></data>
+  <data name="calendar.dayProgress" xml:space="preserve"><value>{0}/{1} 완료</value></data>
+  <data name="calendar.empty" xml:space="preserve"><value>이 날은 예정된 습관이 없었습니다.</value></data>
+  <data name="calendar.hint" xml:space="preserve"><value>날짜를 선택해 확인하거나 수정하세요.</value></data>
+  <data name="calendar.prev" xml:space="preserve"><value>이전 달</value></data>
+  <data name="calendar.next" xml:space="preserve"><value>다음 달</value></data>
+  <data name="icon.search" xml:space="preserve"><value>아이콘 검색(예: 달리기, 물)</value></data>
+  <data name="icon.suggest" xml:space="preserve"><value>추천</value></data>
+  <data name="icon.cat.all" xml:space="preserve"><value>전체</value></data>
+  <data name="icon.cat.health" xml:space="preserve"><value>건강</value></data>
+  <data name="icon.cat.sport" xml:space="preserve"><value>운동</value></data>
+  <data name="icon.cat.mind" xml:space="preserve"><value>마음</value></data>
+  <data name="icon.cat.work" xml:space="preserve"><value>업무</value></data>
+  <data name="icon.cat.home" xml:space="preserve"><value>생활</value></data>
+  <data name="icon.cat.food" xml:space="preserve"><value>음식</value></data>
+  <data name="icon.cat.money" xml:space="preserve"><value>금융</value></data>
+  <data name="icon.cat.nature" xml:space="preserve"><value>자연</value></data>
+  <data name="icon.cat.fun" xml:space="preserve"><value>취미</value></data>
+  <data name="icon.cat.social" xml:space="preserve"><value>소셜</value></data>
+  <data name="icon.cat.travel" xml:space="preserve"><value>여행</value></data>
+  <data name="icon.cat.symbols" xml:space="preserve"><value>기호</value></data>
+  <data name="privacy.title" xml:space="preserve"><value>개인정보 및 데이터</value></data>
+  <data name="privacy.where" xml:space="preserve"><value>모든 데이터는 이 PC의 폴더에 저장됩니다: {0}</value></data>
+  <data name="privacy.nosend" xml:space="preserve"><value>HabitGrid는 데이터를 어디에도 전송하지 않습니다: 계정도 추적도 없습니다.</value></data>
+  <data name="privacy.erase" xml:space="preserve"><value>내 모든 데이터 삭제</value></data>
+  <data name="privacy.erase.title" xml:space="preserve"><value>모든 데이터를 삭제할까요?</value></data>
+  <data name="privacy.erase.body" xml:space="preserve"><value>이 PC에 저장된 습관, 기록, 메모, 레벨, 배지, 설정, 모먼트 사진, 백업 및 로그가 영구적으로 삭제됩니다. 되돌릴 수 없습니다. 클라우드 폴더에 복사한 파일이나 사진 폴더의 공유 이미지는 삭제되지 않습니다.</value></data>
+  <data name="privacy.erase.type" xml:space="preserve"><value>확인하려면 "{0}"를 입력하세요.</value></data>
+  <data name="privacy.erase.word" xml:space="preserve"><value>DELETE</value></data>
+  <data name="privacy.erase.confirm" xml:space="preserve"><value>영구 삭제</value></data>
+  <data name="privacy.erase.failed" xml:space="preserve"><value>모든 데이터를 삭제하지 못했습니다. 위젯을 닫고 다시 시도하거나 데이터 폴더를 직접 삭제하세요.</value></data>
+  <data name="privacy.erase.done.title" xml:space="preserve"><value>데이터 삭제됨</value></data>
+  <data name="privacy.erase.done" xml:space="preserve"><value>이 PC에서 데이터가 삭제되었습니다. HabitGrid가 종료되며 다음 실행 시 새로 시작합니다.</value></data>
+  <data name="dashboard.customize" xml:space="preserve"><value>사용자 지정</value></data>
+  <data name="dashboard.title" xml:space="preserve"><value>오늘 레이아웃</value></data>
+  <data name="dashboard.hint" xml:space="preserve"><value>블록을 표시/숨기거나 순서를 변경합니다. 습관 목록은 항상 표시됩니다.</value></data>
+  <data name="dashboard.reset" xml:space="preserve"><value>기본값으로 재설정</value></data>
+  <data name="dashboard.up" xml:space="preserve"><value>위로</value></data>
+  <data name="dashboard.down" xml:space="preserve"><value>아래로</value></data>
+  <data name="dashboard.section.week" xml:space="preserve"><value>주간 바</value></data>
+  <data name="dashboard.section.mood" xml:space="preserve"><value>기분</value></data>
+  <data name="dashboard.section.recap" xml:space="preserve"><value>주간 요약</value></data>
+  <data name="dashboard.section.routines" xml:space="preserve"><value>루틴</value></data>
+  <data name="dashboard.section.challenges" xml:space="preserve"><value>챌린지</value></data>
+  <data name="dashboard.section.hero" xml:space="preserve"><value>진행률 및 연속 기록</value></data>
+  <data name="nav.journal" xml:space="preserve"><value>일기</value></data>
+  <data name="journal.title" xml:space="preserve"><value>일기</value></data>
+  <data name="journal.today" xml:space="preserve"><value>오늘</value></data>
+  <data name="journal.prev" xml:space="preserve"><value>이전 날</value></data>
+  <data name="journal.next" xml:space="preserve"><value>다음 날</value></data>
+  <data name="journal.search" xml:space="preserve"><value>일기 검색 (Enter)</value></data>
+  <data name="journal.empty" xml:space="preserve"><value>아직 기록이 없습니다. 오른쪽에 오늘의 이야기를 몇 줄 적어보세요.</value></data>
+  <data name="journal.noResults" xml:space="preserve"><value>일치하는 기록이 없습니다.</value></data>
+  <data name="journal.placeholder" xml:space="preserve"><value>오늘 하루는 어땠나요? 나만의 기록을 남겨보세요. 일기는 이 PC에만 저장됩니다.</value></data>
+  <data name="journal.saving" xml:space="preserve"><value>저장 중…</value></data>
+  <data name="journal.saved" xml:space="preserve"><value>저장됨</value></data>
+  <data name="journal.failed" xml:space="preserve"><value>저장할 수 없습니다</value></data>
+  <data name="nav.focus" xml:space="preserve"><value>포커스</value></data>
+  <data name="focus.title" xml:space="preserve"><value>포커스</value></data>
+  <data name="focus.start" xml:space="preserve"><value>시작</value></data>
+  <data name="focus.pause" xml:space="preserve"><value>일시정지</value></data>
+  <data name="focus.resume" xml:space="preserve"><value>재개</value></data>
+  <data name="focus.skipBreak" xml:space="preserve"><value>휴식 건너뛰기</value></data>
+  <data name="focus.stop" xml:space="preserve"><value>완료</value></data>
+  <data name="focus.mode.pomodoro" xml:space="preserve"><value>뽀모도로</value></data>
+  <data name="focus.mode.countdown" xml:space="preserve"><value>카운트다운</value></data>
+  <data name="focus.mode.stopwatch" xml:space="preserve"><value>스톱워치</value></data>
+  <data name="focus.minutes" xml:space="preserve"><value>집중 시간(분)</value></data>
+  <data name="focus.break" xml:space="preserve"><value>휴식 시간(분)</value></data>
+  <data name="focus.habit" xml:space="preserve"><value>습관(선택)</value></data>
+  <data name="focus.habit.none" xml:space="preserve"><value>습관 없음</value></data>
+  <data name="focus.hint" xml:space="preserve"><value>세션은 백그라운드에서 실행됩니다: 앱을 닫아도 위젯에서 타이머가 계속 작동하며 시간형 습관에 분이 자동 추가됩니다.</value></data>
+  <data name="focus.phase.ready" xml:space="preserve"><value>준비됨</value></data>
+  <data name="focus.phase.work" xml:space="preserve"><value>집중 중</value></data>
+  <data name="focus.phase.paused" xml:space="preserve"><value>일시정지됨</value></data>
+  <data name="focus.phase.break" xml:space="preserve"><value>휴식 중</value></data>
+  <data name="focus.stats" xml:space="preserve"><value>통계</value></data>
+  <data name="focus.today" xml:space="preserve"><value>오늘</value></data>
+  <data name="focus.week" xml:space="preserve"><value>이번 주</value></data>
+  <data name="focus.total" xml:space="preserve"><value>합계</value></data>
+  <data name="focus.recent" xml:space="preserve"><value>최근 세션</value></data>
+  <data name="focus.none" xml:space="preserve"><value>아직 세션이 없습니다. 왼쪽에서 첫 세션을 시작하세요.</value></data>
+  <data name="focus.min" xml:space="preserve"><value>{0}분</value></data>
+  <data name="focus.hm" xml:space="preserve"><value>{0}시간 {1:00}분</value></data>
+  <data name="settings.placement" xml:space="preserve"><value>위젯 위치</value></data>
+  <data name="settings.placement.hint" xml:space="preserve"><value>"상단 중앙"은 주 모니터 상단 가운데에 작은 알약 위젯(Dynamic Island 스타일)을 항상 위에 고정합니다. 마우스를 올리면 오늘 할 일이 열립니다.</value></data>
+  <data name="settings.placement.KeepPosition" xml:space="preserve"><value>현재 위치 유지</value></data>
+  <data name="settings.placement.TopCenter" xml:space="preserve"><value>상단 중앙</value></data>
+  <data name="settings.restmini" xml:space="preserve"><value>컴팩트 스타일</value></data>
+  <data name="settings.restmini.full" xml:space="preserve"><value>전체</value></data>
+  <data name="settings.restmini.mini" xml:space="preserve"><value>초소형</value></data>
+  <data name="focus.ambient.title" xml:space="preserve"><value>배경 사운드</value></data>
+  <data name="focus.ambient.hint" xml:space="preserve"><value>집중에 도움이 되는 합성 사운드를 믹스하세요. 앱을 최소화해도 계속 재생됩니다.</value></data>
+  <data name="focus.ambient.play" xml:space="preserve"><value>재생</value></data>
+  <data name="focus.ambient.pause" xml:space="preserve"><value>일시정지</value></data>
+  <data name="focus.ambient.White" xml:space="preserve"><value>화이트 노이즈</value></data>
+  <data name="focus.ambient.Pink" xml:space="preserve"><value>핑크 노이즈</value></data>
+  <data name="focus.ambient.Brown" xml:space="preserve"><value>브라운 노이즈</value></data>
+  <data name="focus.ambient.Rain" xml:space="preserve"><value>빗소리</value></data>
+  <data name="focus.ambient.Waves" xml:space="preserve"><value>파도 소리</value></data>
+  <data name="focus.minimize" xml:space="preserve"><value>최소화</value></data>
+  <data name="focus.minimize.hint" xml:space="preserve"><value>앱을 최소화해도 포커스 세션은 위젯(Dynamic Island 알약)에서 계속 실행되며 배경 사운드도 계속 재생됩니다.</value></data>
+  <data name="calendar.summary" xml:space="preserve"><value>이달 요약</value></data>
+  <data name="calendar.summary.rate" xml:space="preserve"><value>완료율</value></data>
+  <data name="calendar.summary.perfect" xml:space="preserve"><value>완벽한 날</value></data>
+  <data name="calendar.summary.active" xml:space="preserve"><value>활동 일수</value></data>
+  <data name="journal.tool.bullet" xml:space="preserve"><value>글머리 기호</value></data>
+  <data name="journal.tool.todo" xml:space="preserve"><value>할 일</value></data>
+  <data name="journal.tool.time" xml:space="preserve"><value>시간</value></data>
+  <data name="journal.tool.grateful" xml:space="preserve"><value>감사</value></data>
+  <data name="journal.tool.grateful.text" xml:space="preserve"><value>오늘 감사한 일</value></data>
+  <data name="journal.mood.title" xml:space="preserve"><value>기분, 최근 30일</value></data>
+  <data name="journal.mood.empty" xml:space="preserve"><value>글을 쓸 때 기분을 선택하면 여기에 차트가 표시됩니다.</value></data>
+  <data name="journal.mood.summary" xml:space="preserve"><value>기분 기록 {0}일, 평균 {1}/5</value></data>
+  <data name="journal.mood.from" xml:space="preserve"><value>30일 전</value></data>
+  <data name="journal.moments.title" xml:space="preserve"><value>오늘의 모먼트</value></data>
+  <data name="journal.moments.empty" xml:space="preserve"><value>이 날의 모먼트 사진이 아직 없습니다.</value></data>
+  <data name="today.quickFocus.title" xml:space="preserve"><value>빠른 포커스</value></data>
+  <data name="today.quickFocus.hint" xml:space="preserve"><value>25분 집중 타이머가 위젯에서 실행됩니다.</value></data>
+  <data name="today.quickFocus.start" xml:space="preserve"><value>25분 시작</value></data>
+  <data name="today.quickFocus.started" xml:space="preserve"><value>시작되었습니다. 위젯에서 타이머가 작동 중입니다.</value></data>
+  <data name="today.quickFocus.failed" xml:space="preserve"><value>시작할 수 없습니다. 포커스 페이지에서 다시 시도하세요.</value></data>
+  <data name="habits.manage" xml:space="preserve"><value>관리</value></data>
+  <data name="habits.routines.hint" xml:space="preserve"><value>아침 및 저녁 단계 목록입니다. 여기서 바로 체크할 수 있어요.</value></data>
+  <data name="habits.routines.empty" xml:space="preserve"><value>아직 루틴이 없습니다. 관리를 눌러 습관을 단계별로 묶어보세요.</value></data>
+  <data name="habits.challenges.hint" xml:space="preserve"><value>7일~100일 챌린지 진행 중.</value></data>
+  <data name="habits.challenges.empty" xml:space="preserve"><value>아직 챌린지가 없습니다. 관리를 눌러 시작해 보세요.</value></data>
+  <data name="moments.more" xml:space="preserve"><value>+{0}장 더</value></data>
+  <data name="share.layout" xml:space="preserve"><value>레이아웃</value></data>
+  <data name="share.frames" xml:space="preserve"><value>프레임</value></data>
+  <data name="plus.group.unlimited" xml:space="preserve"><value>무제한</value></data>
+  <data name="plus.group.insights" xml:space="preserve"><value>인사이트 &amp; Wrapped</value></data>
+  <data name="plus.group.mochi" xml:space="preserve"><value>Mochi 옷장 &amp; 테마</value></data>
+  <data name="plus.group.backup" xml:space="preserve"><value>클라우드 백업</value></data>
+  <data name="plus.group.widgets" xml:space="preserve"><value>바탕화면 위젯</value></data>
+  <data name="plus.group.share" xml:space="preserve"><value>모먼트 &amp; 공유</value></data>
+  <data name="settings.lang.ja" xml:space="preserve"><value>日本語</value></data>
+  <data name="settings.lang.ko" xml:space="preserve"><value>한국어</value></data>
+</root>

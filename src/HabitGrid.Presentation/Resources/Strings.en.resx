@@ -837,4 +837,14 @@
   <data name="habits.challenges.hint" xml:space="preserve"><value>Running 7 to 100-day challenges.</value></data>
   <data name="habits.challenges.empty" xml:space="preserve"><value>No challenges yet. Use Manage to start one, like "30 days without bubble tea".</value></data>
   <data name="moments.more" xml:space="preserve"><value>+{0} more photos</value></data>
+  <data name="share.layout" xml:space="preserve"><value>Layout</value></data>
+  <data name="share.frames" xml:space="preserve"><value>Frames</value></data>
+  <data name="plus.group.unlimited" xml:space="preserve"><value>No limits</value></data>
+  <data name="plus.group.insights" xml:space="preserve"><value>Insights &amp; Wrapped</value></data>
+  <data name="plus.group.mochi" xml:space="preserve"><value>Mochi's wardrobe &amp; looks</value></data>
+  <data name="plus.group.backup" xml:space="preserve"><value>Cloud backup</value></data>
+  <data name="plus.group.widgets" xml:space="preserve"><value>Desktop widgets</value></data>
+  <data name="plus.group.share" xml:space="preserve"><value>Moments &amp; sharing</value></data>
+  <data name="settings.lang.ja" xml:space="preserve"><value>日本語</value></data>
+  <data name="settings.lang.ko" xml:space="preserve"><value>한국어</value></data>
 </root>
