@@ -868,4 +868,17 @@
   <data name="detail.timeline" xml:space="preserve"><value>Dòng thời gian chuỗi</value></data>
   <data name="detail.timeline.empty" xml:space="preserve"><value>Chưa có chuỗi hoàn thành nào.</value></data>
   <data name="buddy.room.weather" xml:space="preserve"><value>Phòng Mochi</value></data>
+  <data name="settings.sound" xml:space="preserve"><value>Âm thanh check-in</value></data>
+  <data name="settings.sound.hint" xml:space="preserve"><value>Phát tiếng pop &amp; chuông nhẹ khi hoàn thành thói quen.</value></data>
+  <data name="today.inline.focus" xml:space="preserve"><value>▶ Focus</value></data>
+  <data name="mochi.tap.hint" xml:space="preserve"><value>Chạm để vuốt ve Mochi</value></data>
+  <data name="mochi.talk.start" xml:space="preserve"><value>Chào buổi mới! Bắt đầu một thói quen nhỏ nhé.</value></data>
+  <data name="mochi.talk.mid" xml:space="preserve"><value>Đang vào guồng rồi đó! Tiếp tục nhẹ nhàng thôi.</value></data>
+  <data name="mochi.talk.almost" xml:space="preserve"><value>Sắp xong hết rồi, Mochi cổ vũ bạn!</value></data>
+  <data name="mochi.talk.perfect" xml:space="preserve"><value>100% Perfect Day! Bạn làm tuyệt lắm!</value></data>
+  <data name="mochi.talk.pet1" xml:space="preserve"><value>Hihi, thích quá! Cảm ơn bạn nha~</value></data>
+  <data name="mochi.talk.pet2" xml:space="preserve"><value>Mochi nạp thêm năng lượng rồi đây!</value></data>
+  <data name="mochi.talk.cozy" xml:space="preserve"><value>Trời tối rồi, làm nốt việc nhẹ rồi nghỉ ngơi nhé.</value></data>
+  <data name="mochi.discovery.title" xml:space="preserve"><value>Khám phá nhỏ hôm nay</value></data>
+  <data name="mochi.discovery.body" xml:space="preserve"><value>Mochi tìm thấy một viên đá lấp lánh dưới ánh trăng (+100% ngày hoàn hảo)!</value></data>
 </root>

@@ -868,4 +868,17 @@
   <data name="detail.timeline" xml:space="preserve"><value>연속 기록 타임라인</value></data>
   <data name="detail.timeline.empty" xml:space="preserve"><value>아직 연속 기록이 없습니다.</value></data>
   <data name="buddy.room.weather" xml:space="preserve"><value>Mochi의 방</value></data>
+  <data name="settings.sound" xml:space="preserve"><value>체크인 효과음</value></data>
+  <data name="settings.sound.hint" xml:space="preserve"><value>습관을 완료할 때 부드러운 팝/차임 소리를 재생합니다.</value></data>
+  <data name="today.inline.focus" xml:space="preserve"><value>▶ 집중</value></data>
+  <data name="mochi.tap.hint" xml:space="preserve"><value>탭해서 Mochi 쓰다듬기</value></data>
+  <data name="mochi.talk.start" xml:space="preserve"><value>새로운 시작! 작은 습관 하나부터 해볼까요?</value></data>
+  <data name="mochi.talk.mid" xml:space="preserve"><value>좋은 리듬이에요! 편한 속도로 계속해 봐요.</value></data>
+  <data name="mochi.talk.almost" xml:space="preserve"><value>거의 다 왔어요! Mochi가 응원할게요!</value></data>
+  <data name="mochi.talk.perfect" xml:space="preserve"><value>100% 퍼펙트 데이! 정말 대단해요!</value></data>
+  <data name="mochi.talk.pet1" xml:space="preserve"><value>헤헤, 기분 좋아요! 고마워요~</value></data>
+  <data name="mochi.talk.pet2" xml:space="preserve"><value>Mochi 에너지가 가득 충전됐어요!</value></data>
+  <data name="mochi.talk.cozy" xml:space="preserve"><value>밤이 깊었어요. 가볍게 마무리하고 푹 쉬세요.</value></data>
+  <data name="mochi.discovery.title" xml:space="preserve"><value>오늘의 작은 발견</value></data>
+  <data name="mochi.discovery.body" xml:space="preserve"><value>Mochi가 달빛 아래 반짝이는 조약돌을 찾았어요 (100% 달성)!</value></data>
 </root>

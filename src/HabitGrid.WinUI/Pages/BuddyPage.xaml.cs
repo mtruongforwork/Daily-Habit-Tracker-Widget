@@ -23,6 +23,9 @@ public sealed partial class BuddyPage : Page
     private bool? _split;
     private int _coins;
     private IReadOnlyList<CustomReward> _rewards = [];
+    private int _mochiTaps;
+    private double _dayProgress;
+    private bool _isPerfectDay;
 
     public BuddyPage()
     {
@@ -63,6 +66,13 @@ public sealed partial class BuddyPage : Page
             var rewardService = App.Host.Get<RewardService>();
             _coins = await rewardService.GetBalanceAsync();
             _rewards = await rewardService.GetRewardsAsync();
+            var today = App.Host.Get<TodayViewModel>();
+            if (today.TotalCount == 0)
+            {
+                await today.LoadAsync();
+            }
+            _dayProgress = today.TotalCount > 0 ? (double)today.DoneCount / today.TotalCount : 0;
+            _isPerfectDay = today.AllDone && today.TotalCount > 0;
             Build();
         }
         catch (Exception ex)
@@ -262,8 +272,21 @@ public sealed partial class BuddyPage : Page
         }
 
         var scale = vertical ? 1.5 : 1;
-        var avatar = new Grid { Width = 140 * scale, Height = 150 * scale, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center };
+        var avatar = new Grid { Width = 140 * scale, Height = 150 * scale, VerticalAlignment = VerticalAlignment.Center, HorizontalAlignment = HorizontalAlignment.Center, IsTabStop = true };
+        ToolTipService.SetToolTip(avatar, Ui.T("mochi.tap.hint"));
         avatar.Children.Add(new TextBlock { Text = StageEmoji(ViewModel.Stage), FontSize = 92 * scale, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center });
+
+        var isNight = DateTime.Now.Hour >= 20 || DateTime.Now.Hour < 6;
+        var reaction = MochiInteractionEngine.React(_mochiTaps, _dayProgress, _isPerfectDay, isNight);
+        var exprBadge = new Border
+        {
+            CornerRadius = new CornerRadius(14),
+            Padding = new Thickness(7, 3, 7, 3),
+            Background = new SolidColorBrush(Windows.UI.Color.FromArgb(180, 255, 255, 255)),
+            HorizontalAlignment = HorizontalAlignment.Right,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Child = new TextBlock { Text = reaction.Emoji, FontSize = 18 }
+        };
 
         foreach (var (slot, accessory) in _wardrobe.Worn)
         {
@@ -276,6 +299,7 @@ public sealed partial class BuddyPage : Page
                 Margin = slot switch { AccessorySlot.Head => new Thickness(0, -14 * scale, 0, 0), AccessorySlot.Face => new Thickness(0, 14 * scale, 0, 0), _ => new Thickness(0, 0, 0, -6 * scale) }
             });
         }
+        avatar.Children.Add(exprBadge);
 
         var worn = _wardrobe.Worn.Count == 0 ? string.Empty : ", " + string.Join(", ", _wardrobe.Worn.Values.Select(a => Ui.T("accessory." + a.Id)));
         AutomationProperties.SetName(avatar, $"{ViewModel.Name}, {Ui.T("stage." + ViewModel.Stage.ToString().ToLowerInvariant())}{worn}");
@@ -290,6 +314,56 @@ public sealed partial class BuddyPage : Page
             Foreground = White(230),
             HorizontalAlignment = vertical ? HorizontalAlignment.Center : HorizontalAlignment.Left
         });
+
+        var bubbleText = new TextBlock { Text = Ui.T(reaction.DialogueKey), FontSize = 13, Foreground = White(245), TextWrapping = TextWrapping.Wrap };
+        var bubble = new Border
+        {
+            CornerRadius = new CornerRadius(14),
+            Padding = new Thickness(12, 8, 12, 8),
+            Background = new SolidColorBrush(Windows.UI.Color.FromArgb(46, 255, 255, 255)),
+            Margin = new Thickness(0, 4, 0, 2),
+            Child = bubbleText
+        };
+        info.Children.Add(bubble);
+
+        if (reaction.IsDiscoveryUnlocked && reaction.DiscoveryKey is { } dKey)
+        {
+            var discovery = new Border
+            {
+                CornerRadius = new CornerRadius(12),
+                Padding = new Thickness(10, 6, 10, 6),
+                Background = new SolidColorBrush(Windows.UI.Color.FromArgb(65, 255, 215, 0)),
+                Child = new TextBlock
+                {
+                    Text = "🌟 " + Ui.T("mochi.discovery.title") + ": " + Ui.T(dKey),
+                    FontSize = 12,
+                    Foreground = White(),
+                    TextWrapping = TextWrapping.Wrap
+                }
+            };
+            info.Children.Add(discovery);
+        }
+
+        void PetMochi()
+        {
+            _mochiTaps++;
+            var next = MochiInteractionEngine.React(_mochiTaps, _dayProgress, _isPerfectDay, isNight);
+            ((TextBlock)exprBadge.Child).Text = next.Emoji;
+            bubbleText.Text = Ui.T(next.DialogueKey);
+            HabitGrid.WinUI.Controls.Motion.SpringPop(avatar, 0.88f);
+            HabitGrid.WinUI.Controls.Motion.SpringPop(bubble, 0.94f);
+            _ = HabitGrid.WinUI.Controls.AppSound.PlayAsync(SoundToneKind.CheckInPop);
+        }
+
+        avatar.Tapped += (_, _) => PetMochi();
+        avatar.KeyDown += (_, e) =>
+        {
+            if (e.Key is Windows.System.VirtualKey.Space or Windows.System.VirtualKey.Enter)
+            {
+                PetMochi();
+                e.Handled = true;
+            }
+        };
 
         var track = new Grid { Height = 10, CornerRadius = new CornerRadius(5), Background = new SolidColorBrush(Windows.UI.Color.FromArgb(70, 255, 255, 255)), Margin = new Thickness(0, 6, 0, 0) };
         var fill = new Border { CornerRadius = new CornerRadius(5), Background = White(), HorizontalAlignment = HorizontalAlignment.Left };

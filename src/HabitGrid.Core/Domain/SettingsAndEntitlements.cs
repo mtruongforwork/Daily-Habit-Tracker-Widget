@@ -28,6 +28,7 @@ public static class SettingKeys
     public const string GoalOfDayDate = "v4.goalOfDay.date";
     public const string CoinsBalance = "v4.wallet.coins";
     public const string RepairTokens = "v4.streak.repairTokens";
+    public const string SoundEffects = "v4.soundEffects";
 }
 
 /// <summary>Giới hạn của gói Free (SPEC-V2-10 §1). Plus có hiện thực riêng ở tầng Platform.</summary>

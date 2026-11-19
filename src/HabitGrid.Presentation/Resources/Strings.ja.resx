@@ -868,4 +868,17 @@
   <data name="detail.timeline" xml:space="preserve"><value>連続記録タイムライン</value></data>
   <data name="detail.timeline.empty" xml:space="preserve"><value>まだ連続記録がありません。</value></data>
   <data name="buddy.room.weather" xml:space="preserve"><value>Mochiの部屋</value></data>
+  <data name="settings.sound" xml:space="preserve"><value>チェックイン音</value></data>
+  <data name="settings.sound.hint" xml:space="preserve"><value>習慣を達成したときにやさしいポップ音とチャイムを鳴らします。</value></data>
+  <data name="today.inline.focus" xml:space="preserve"><value>▶ 集中</value></data>
+  <data name="mochi.tap.hint" xml:space="preserve"><value>タップしてMochiをなでる</value></data>
+  <data name="mochi.talk.start" xml:space="preserve"><value>新しい一日！まずは小さな習慣から始めよう。</value></data>
+  <data name="mochi.talk.mid" xml:space="preserve"><value>いいペースだね！その調子でゆっくり進もう。</value></data>
+  <data name="mochi.talk.almost" xml:space="preserve"><value>あと少し！Mochiが応援しているよ！</value></data>
+  <data name="mochi.talk.perfect" xml:space="preserve"><value>100%パーフェクトデイ！素晴らしい達成だね！</value></data>
+  <data name="mochi.talk.pet1" xml:space="preserve"><value>えへへ、うれしいな！ありがとう〜</value></data>
+  <data name="mochi.talk.pet2" xml:space="preserve"><value>Mochi、元気いっぱいになったよ！</value></data>
+  <data name="mochi.talk.cozy" xml:space="preserve"><value>夜になったね。無理せず休もうね。</value></data>
+  <data name="mochi.discovery.title" xml:space="preserve"><value>今日の小さな発見</value></data>
+  <data name="mochi.discovery.body" xml:space="preserve"><value>Mochiが月明かりで光る小さな石を見つけたよ（100%達成）！</value></data>
 </root>

@@ -195,6 +195,7 @@ public sealed partial class TodayPage : Page
         if (ViewModel.AllDone && !_wasAllDone && !ViewModel.IsViewingPast)
         {
             Confetti.Burst(new Windows.Foundation.Point(ActualWidth * 0.35, 220));
+            _ = HabitGrid.WinUI.Controls.AppSound.PlayAsync(HabitGrid.Core.Domain.SoundToneKind.PerfectDayChime);
         }
 
         _wasAllDone = ViewModel.AllDone;

@@ -40,6 +40,12 @@ public sealed class HabitCard : UserControl
     private readonly Grid _bar = new() { Height = 8, CornerRadius = new CornerRadius(4), Visibility = Visibility.Collapsed };
     private readonly Border _barFill = new() { CornerRadius = new CornerRadius(4) };
     private readonly MiniWeek _week = new() { HorizontalAlignment = HorizontalAlignment.Left };
+    private readonly StackPanel _inlineActions = new() { Orientation = Orientation.Horizontal, Spacing = 6, HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
+    private readonly Button _minusBtn = new() { Content = "−1", Padding = new Thickness(8, 3, 8, 3), MinWidth = 0, MinHeight = 0, CornerRadius = new CornerRadius(10), FontSize = 12 };
+    private readonly Button _plusBtn = new() { Content = "+1", Padding = new Thickness(8, 3, 8, 3), MinWidth = 0, MinHeight = 0, CornerRadius = new CornerRadius(10), FontSize = 12 };
+    private readonly Button _focusBtn = new() { Padding = new Thickness(10, 3, 10, 3), MinWidth = 0, MinHeight = 0, CornerRadius = new CornerRadius(10), FontSize = 12 };
+    private readonly Border _checkPill = new() { Width = 28, Height = 28, CornerRadius = new CornerRadius(14), BorderThickness = new Thickness(1.5), HorizontalAlignment = HorizontalAlignment.Right };
+    private readonly TextBlock _checkGlyph = new() { FontSize = 13, FontWeight = Microsoft.UI.Text.FontWeights.Bold, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
 
     private HabitTodayItem? _item;
     private Windows.Foundation.Point _lastPointer;
@@ -84,7 +90,23 @@ public sealed class HabitCard : UserControl
 
         var bottom = new StackPanel { Spacing = 10 };
         bottom.Children.Add(_bar);
-        bottom.Children.Add(_week);
+        var footer = new Grid();
+        footer.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        footer.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        footer.Children.Add(_week);
+
+        _checkPill.Child = _checkGlyph;
+        _focusBtn.Content = Ui.T("today.inline.focus");
+        _inlineActions.Children.Add(_minusBtn);
+        _inlineActions.Children.Add(_plusBtn);
+        _inlineActions.Children.Add(_focusBtn);
+        _inlineActions.Children.Add(_checkPill);
+        Grid.SetColumn(_inlineActions, 1);
+        footer.Children.Add(_inlineActions);
+        bottom.Children.Add(footer);
+
+        WireInlineActions();
+        Motion.AttachGlassHover(this);
 
         content.Children.Add(top);
         Grid.SetRow(middle, 1);
@@ -279,6 +301,25 @@ public sealed class HabitCard : UserControl
         _week.ColorHue = done ? "#FFFFFF" : item.ColorHue;
         _week.Statuses = item.LastSevenDays;
 
+        // Inline Context Actions theo loại thói quen
+        var isCountLike = item.Kind is HabitKind.Count or HabitKind.Dual;
+        var isDuration = item.Kind == HabitKind.Duration;
+        var isCheckbox = !isCountLike && !isDuration;
+
+        _minusBtn.Visibility = isCountLike && !item.IsReadOnly ? Visibility.Visible : Visibility.Collapsed;
+        _minusBtn.IsEnabled = item.Value > 0;
+        _plusBtn.Visibility = isCountLike && !item.IsReadOnly ? Visibility.Visible : Visibility.Collapsed;
+        _focusBtn.Visibility = isDuration && !item.IsReadOnly ? Visibility.Visible : Visibility.Collapsed;
+        _checkPill.Visibility = isCheckbox ? Visibility.Visible : Visibility.Collapsed;
+        _checkPill.Background = done
+            ? new SolidColorBrush(Windows.UI.Color.FromArgb(80, 255, 255, 255))
+            : new SolidColorBrush(Windows.UI.Color.FromArgb(24, 255, 255, 255));
+        _checkPill.BorderBrush = done
+            ? new SolidColorBrush(Microsoft.UI.Colors.White)
+            : Ui.GradientBrush(stops, 0.7);
+        _checkGlyph.Text = done ? "✓" : "";
+        _checkGlyph.Foreground = new SolidColorBrush(Microsoft.UI.Colors.White);
+
         AutomationProperties.SetName(
             this,
             $"{item.Name}, {(done ? Ui.T("today.state.done") : skipped ? Ui.T("today.state.skipped") : Ui.SubText(item.Kind, item.Value, item.Target, item.Unit, item.Streak, item.StreakUnit, false))}");
@@ -289,11 +330,57 @@ public sealed class HabitCard : UserControl
         if (becameDone && animate && AnimationsEnabled)
         {
             LiquidFill();
+            Motion.SpringPop(_checkPill, 0.72f);
         }
         else
         {
             ResetFill(done);
         }
+    }
+
+    private void WireInlineActions()
+    {
+        void SwallowTap(UIElement el)
+        {
+            el.PointerPressed += (_, e) => e.Handled = true;
+            el.Tapped += (_, e) => e.Handled = true;
+        }
+
+        SwallowTap(_minusBtn);
+        SwallowTap(_plusBtn);
+        SwallowTap(_focusBtn);
+
+        _minusBtn.Click += async (_, _) => await Guard(async () =>
+        {
+            if (_item is { } item && item.Value > 0)
+            {
+                Motion.SpringPop(_minusBtn, 0.85f);
+                await App.Host.Get<TodayViewModel>().DecrementAsync(item);
+            }
+        });
+
+        _plusBtn.Click += async (_, _) => await Guard(async () =>
+        {
+            if (_item is { } item)
+            {
+                Motion.SpringPop(_plusBtn, 0.85f);
+                Motion.SpringPop(_bar, 0.96f);
+                _ = AppSound.PlayAsync(SoundToneKind.Increment);
+                await App.Host.Get<TodayViewModel>().CheckInAsync(item);
+            }
+        });
+
+        _focusBtn.Click += async (_, _) => await Guard(async () =>
+        {
+            if (_item is { } item)
+            {
+                Motion.SpringPop(_focusBtn, 0.88f);
+                var minutes = Math.Clamp(item.Target > 0 ? item.Target : 25, 5, 60);
+                var model = App.Host.Get<FocusPageModel>();
+                await model.StartAsync(new FocusChoice(HabitGrid.Core.Domain.Focus.FocusMode.Pomodoro, minutes, 5, item.Id), DateTime.UtcNow);
+                _ = AppSound.PlayAsync(SoundToneKind.Increment);
+            }
+        });
     }
 
     private void Badge(string text, Brush background, Windows.UI.Color foreground)
@@ -379,6 +466,14 @@ public sealed class HabitCard : UserControl
             if (!item.IsDone && AnimationsEnabled)
             {
                 Bounce();
+                Motion.Ripple(_root, _lastPointer, Microsoft.UI.Colors.White);
+            }
+
+            if (!item.IsDone)
+            {
+                _ = AppSound.PlayAsync(item.Kind is HabitKind.Count or HabitKind.Dual
+                    ? SoundToneKind.Increment
+                    : SoundToneKind.CheckInPop);
             }
 
             await App.Host.Get<TodayViewModel>().CheckInAsync(item);

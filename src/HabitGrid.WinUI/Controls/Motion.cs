@@ -99,4 +99,94 @@ public static class Motion
         element.PointerCanceled += (_, _) => To(1f, 160);
         element.PointerCaptureLost += (_, _) => To(1f, 160);
     }
+
+    /// <summary>Gắn ImplicitAnimations cho Scale để thẻ kính phản hồi mượt khi hover/nhấn.</summary>
+    public static void AttachGlassHover(FrameworkElement element, float hoverScale = 1.016f)
+    {
+        var visual = ElementCompositionPreview.GetElementVisual(element);
+        var compositor = visual.Compositor;
+        element.SizeChanged += (_, _) =>
+            visual.CenterPoint = new Vector3((float)element.ActualWidth / 2f, (float)element.ActualHeight / 2f, 0f);
+
+        var spring = compositor.CreateSpringVector3Animation();
+        spring.Target = "Scale";
+        spring.DampingRatio = 0.65f;
+        spring.Period = TimeSpan.FromMilliseconds(45);
+
+        var implicitAnims = compositor.CreateImplicitAnimationCollection();
+        implicitAnims["Scale"] = spring;
+        visual.ImplicitAnimations = implicitAnims;
+
+        element.PointerEntered += (_, _) =>
+        {
+            if (Enabled)
+            {
+                visual.Scale = new Vector3(hoverScale, hoverScale, 1f);
+            }
+        };
+        element.PointerExited += (_, _) => visual.Scale = Vector3.One;
+        element.PointerCanceled += (_, _) => visual.Scale = Vector3.One;
+        element.PointerCaptureLost += (_, _) => visual.Scale = Vector3.One;
+    }
+
+    /// <summary>Hiệu ứng lò xo nhanh khi check-in, tăng số hoặc chạm Mochi.</summary>
+    public static void SpringPop(FrameworkElement element, float fromScale = 0.92f)
+    {
+        if (!Enabled)
+        {
+            return;
+        }
+
+        var visual = ElementCompositionPreview.GetElementVisual(element);
+        visual.CenterPoint = new Vector3((float)Math.Max(element.ActualWidth, 1) / 2f, (float)Math.Max(element.ActualHeight, 1) / 2f, 0f);
+
+        var spring = visual.Compositor.CreateSpringVector3Animation();
+        spring.InitialValue = new Vector3(fromScale, fromScale, 1f);
+        spring.FinalValue = Vector3.One;
+        spring.DampingRatio = 0.45f;
+        spring.Period = TimeSpan.FromMilliseconds(48);
+        visual.StartAnimation("Scale", spring);
+    }
+
+    /// <summary>Gợn sóng nhẹ từ điểm chạm khi check-in.</summary>
+    public static void Ripple(Panel host, Windows.Foundation.Point origin, Windows.UI.Color color)
+    {
+        if (!Enabled)
+        {
+            return;
+        }
+
+        var ring = new Microsoft.UI.Xaml.Shapes.Ellipse
+        {
+            Width = 28,
+            Height = 28,
+            Stroke = new Microsoft.UI.Xaml.Media.SolidColorBrush(color),
+            StrokeThickness = 2.5,
+            IsHitTestVisible = false,
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin = new Thickness(Math.Max(0, origin.X - 14), Math.Max(0, origin.Y - 14), 0, 0)
+        };
+        host.Children.Add(ring);
+
+        var visual = ElementCompositionPreview.GetElementVisual(ring);
+        var compositor = visual.Compositor;
+        visual.CenterPoint = new Vector3(14f, 14f, 0f);
+
+        var scale = compositor.CreateVector3KeyFrameAnimation();
+        scale.InsertKeyFrame(0f, new Vector3(0.5f, 0.5f, 1f));
+        scale.InsertKeyFrame(1f, new Vector3(4.2f, 4.2f, 1f), Ease(compositor));
+        scale.Duration = TimeSpan.FromMilliseconds(360);
+
+        var fade = compositor.CreateScalarKeyFrameAnimation();
+        fade.InsertKeyFrame(0f, 0.75f);
+        fade.InsertKeyFrame(1f, 0f, Ease(compositor));
+        fade.Duration = TimeSpan.FromMilliseconds(360);
+
+        var batch = compositor.CreateScopedBatch(CompositionBatchTypes.Animation);
+        visual.StartAnimation("Scale", scale);
+        visual.StartAnimation("Opacity", fade);
+        batch.End();
+        batch.Completed += (_, _) => ring.DispatcherQueue.TryEnqueue(() => host.Children.Remove(ring));
+    }
 }

@@ -868,4 +868,17 @@
   <data name="detail.timeline" xml:space="preserve"><value>Streak timeline</value></data>
   <data name="detail.timeline.empty" xml:space="preserve"><value>No completed streaks yet.</value></data>
   <data name="buddy.room.weather" xml:space="preserve"><value>Mochi Room</value></data>
+  <data name="settings.sound" xml:space="preserve"><value>Check-in sounds</value></data>
+  <data name="settings.sound.hint" xml:space="preserve"><value>Play a gentle pop &amp; chime when completing habits.</value></data>
+  <data name="today.inline.focus" xml:space="preserve"><value>▶ Focus</value></data>
+  <data name="mochi.tap.hint" xml:space="preserve"><value>Tap to pet Mochi</value></data>
+  <data name="mochi.talk.start" xml:space="preserve"><value>Fresh start! Let's check off one small habit.</value></data>
+  <data name="mochi.talk.mid" xml:space="preserve"><value>Nice rhythm! Keep going at your own pace.</value></data>
+  <data name="mochi.talk.almost" xml:space="preserve"><value>Almost there—Mochi is cheering for you!</value></data>
+  <data name="mochi.talk.perfect" xml:space="preserve"><value>100% Perfect Day! You did amazing!</value></data>
+  <data name="mochi.talk.pet1" xml:space="preserve"><value>Hehe, that feels cozy! Thank you~</value></data>
+  <data name="mochi.talk.pet2" xml:space="preserve"><value>Mochi is all charged up now!</value></data>
+  <data name="mochi.talk.cozy" xml:space="preserve"><value>It's getting late—wrap up gently and rest well.</value></data>
+  <data name="mochi.discovery.title" xml:space="preserve"><value>Today's mini discovery</value></data>
+  <data name="mochi.discovery.body" xml:space="preserve"><value>Mochi found a glowing moonstone (+100% Perfect Day)!</value></data>
 </root>

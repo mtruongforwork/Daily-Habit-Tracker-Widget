@@ -155,6 +155,30 @@ public sealed partial class SettingsPage : Page
         motionCard.Children.Add(motion);
         Wrap(motionCard);
 
+        // Âm thanh check-in & hoàn thành ngày
+        var soundCard = Card(Ui.T("settings.sound"));
+        var sound = new ToggleSwitch { OnContent = string.Empty, OffContent = string.Empty };
+        AutomationProperties.SetName(sound, Ui.T("settings.sound"));
+        var soundSettings = App.Host.Get<ISettingsStore>();
+        _ = LoadSoundAsync();
+        async Task LoadSoundAsync()
+        {
+            var raw = await soundSettings.GetAsync(SettingKeys.SoundEffects);
+            sound.IsOn = !string.Equals(raw, "0", StringComparison.Ordinal) &&
+                         !string.Equals(raw, "false", StringComparison.OrdinalIgnoreCase);
+        }
+
+        sound.Toggled += async (_, _) =>
+        {
+            if (!_building)
+            {
+                await soundSettings.SetAsync(SettingKeys.SoundEffects, sound.IsOn ? "1" : "0");
+            }
+        };
+        soundCard.Children.Add(new TextBlock { Text = Ui.T("settings.sound.hint"), Style = Res("BodySecondaryTextStyle"), TextWrapping = TextWrapping.Wrap });
+        soundCard.Children.Add(sound);
+        Wrap(soundCard);
+
         // Cột 2: widget, nhắc nhở & giờ yên lặng, phím tắt.
         _column = 1;
         BuildRemindersCard();
