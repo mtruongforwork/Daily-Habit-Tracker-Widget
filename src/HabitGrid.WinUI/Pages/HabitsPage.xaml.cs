@@ -151,6 +151,20 @@ public sealed partial class HabitsPage : Page
         UpdateEmpty();
     }
 
+    internal async Task SetMatrixViewForSmokeAsync(bool enabled)
+    {
+        _matrixView = enabled;
+        UpdateChips();
+        List.Visibility = ViewModel.IsEmpty || enabled ? Visibility.Collapsed : Visibility.Visible;
+        MatrixCard.Visibility = enabled && !ViewModel.IsEmpty ? Visibility.Visible : Visibility.Collapsed;
+        if (enabled && !ViewModel.IsEmpty)
+        {
+            await RebuildMatrixAsync();
+        }
+    }
+
+    internal int MatrixRowCountForSmoke => MatrixHost.Children.Count;
+
     private async Task RebuildMatrixAsync()
     {
         try
@@ -159,9 +173,10 @@ public sealed partial class HabitsPage : Page
             var entitlements = App.Host.Get<IEntitlements>();
             var days = entitlements.IsPlus ? MatrixBoardBuilder.PlusDays : MatrixBoardBuilder.FreeDays;
             var today = DateOnly.FromDateTime(DateTime.Today);
-            var habits = await App.Host.Get<IHabitRepository>().GetAllActiveAsync();
+            var habitRepo = App.Host.Get<IHabitRepository>();
+            var habits = await habitRepo.GetAllActiveAsync();
             var logRepo = App.Host.Get<IDayLogRepository>();
-            var checkIn = App.Host.Get<CheckInService>();
+            var checkIn = new CheckInService(habitRepo, logRepo, App.Host.Get<ISettingsStore>());
 
             var header = new Grid { ColumnSpacing = 4 };
             header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });

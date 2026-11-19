@@ -21,6 +21,7 @@ public sealed partial class BuddyPage : Page
     private readonly StackPanel _root = new() { Spacing = 16, Padding = new Thickness(32, 24, 32, 32) };
     private AccessorySlot _slot = AccessorySlot.Head;
     private bool? _split;
+    private Grid? _splitBody;
     private int _coins;
     private IReadOnlyList<CustomReward> _rewards = [];
     private int _mochiTaps;
@@ -40,6 +41,12 @@ public sealed partial class BuddyPage : Page
             if (_split is { } split && split != (e.NewSize.Width >= SplitFrom))
             {
                 Build();
+                return;
+            }
+
+            if (_split == true && _splitBody is not null && e.NewSize.Height > 0)
+            {
+                _splitBody.Height = Math.Max(560, e.NewSize.Height - 120);
             }
         };
     }
@@ -101,6 +108,7 @@ public sealed partial class BuddyPage : Page
 
         if (!split)
         {
+            _splitBody = null;
             _root.Children.Add(BuildHero(vertical: false));
             _root.Children.Add(right);
             return;
@@ -115,7 +123,8 @@ public sealed partial class BuddyPage : Page
         body.Children.Add(scroller);
 
         // Hai nửa cao bằng phần còn lại của cửa sổ (trừ tiêu đề): sân khấu đứng yên, nửa phải cuộn.
-        body.Height = Math.Max(420, ActualHeight - 120);
+        body.Height = Math.Max(560, ActualHeight - 120);
+        _splitBody = body;
         _root.Children.Add(body);
     }
 

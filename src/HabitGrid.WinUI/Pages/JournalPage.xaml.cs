@@ -25,6 +25,7 @@ public sealed partial class JournalPage : Page
     private int? _mood;
     private bool _loading;
     private bool _dirty;
+    private bool? _wide;
 
     public JournalPage()
     {
@@ -33,6 +34,14 @@ public sealed partial class JournalPage : Page
         NavigationCacheMode = NavigationCacheMode.Disabled;
         Scroll.Content = _root;
         _saveTimer = new DispatcherTimerLite(DispatcherQueue, TimeSpan.FromMilliseconds(800), async () => await FlushAsync());
+        SizeChanged += (_, e) =>
+        {
+            var isWide = e.NewSize.Width >= HabitGrid.Core.Domain.Layout.BentoLayout.WideFrom;
+            if (_wide is { } wide && wide != isWide && _editor is not null)
+            {
+                Build();
+            }
+        };
     }
 
     public JournalModel Model { get; }
@@ -110,10 +119,14 @@ public sealed partial class JournalPage : Page
         _root.Children.Clear();
         _root.Children.Add(BuildHeader());
 
+        // Cửa sổ hẹp (2 cột, ví dụ 1366x768 @ 150% DPI): ô viết co xuống 1 cột để nằm cạnh danh sách thay vì bị đẩy xuống dưới.
+        var wide = ActualWidth == 0 || ActualWidth >= HabitGrid.Core.Domain.Layout.BentoLayout.WideFrom;
+        _wide = wide;
+
         // Hai hàng tối thiểu 300: lưới cao gần hết khung nhìn, không còn nửa dưới trống.
         var body = new HabitGrid.WinUI.Controls.BentoGrid { MinRowHeight = 300 };
         body.Add(BuildList(), columns: 1, rows: 2);
-        body.Add(BuildEditor(), columns: 2, rows: 2);
+        body.Add(BuildEditor(), columns: wide ? 2 : 1, rows: 2);
         body.Add(BuildMoodChart(), columns: 1);
         body.Add(BuildMoments(), columns: 1);
         _root.Children.Add(body);
