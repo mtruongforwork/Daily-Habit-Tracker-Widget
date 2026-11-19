@@ -21,7 +21,7 @@ public sealed partial class SettingsPage
 
         var current = new TextBlock { TextWrapping = TextWrapping.Wrap };
         var result = new TextBlock { TextWrapping = TextWrapping.Wrap, Style = Res("BodySecondaryTextStyle") };
-        var suggestions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        var suggestions = new HabitGrid.WinUI.Controls.WrapPanel { HorizontalSpacing = 8, VerticalSpacing = 8 };
         var choose = new Button { Content = Ui.T("backup.mirror.choose"), Style = Res("GhostButtonStyle") };
         var off = new Button { Content = Ui.T("backup.mirror.off"), Style = Res("GhostButtonStyle"), Visibility = Visibility.Collapsed };
 
@@ -93,7 +93,7 @@ public sealed partial class SettingsPage
             await RefreshAsync();
         };
 
-        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        var buttons = new HabitGrid.WinUI.Controls.WrapPanel { HorizontalSpacing = 8, VerticalSpacing = 8 };
         buttons.Children.Add(choose);
         buttons.Children.Add(off);
 
@@ -120,7 +120,7 @@ public sealed partial class SettingsPage
         var now = new Button { Content = Ui.T("backup.now"), Style = Res("GradientButtonStyle") };
         var pick = new Button { Content = Ui.T("backup.restore.file"), Style = Res("GhostButtonStyle") };
         var open = new Button { Content = Ui.T("backup.open"), Style = Res("GhostButtonStyle") };
-        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        var buttons = new HabitGrid.WinUI.Controls.WrapPanel { HorizontalSpacing = 8, VerticalSpacing = 8 };
         buttons.Children.Add(now);
         buttons.Children.Add(pick);
         buttons.Children.Add(open);

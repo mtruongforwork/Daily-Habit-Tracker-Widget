@@ -14,7 +14,12 @@ public sealed record BackupPayload(
     IReadOnlyList<DayLog> DayLogs,
     IReadOnlyList<Routine> Routines,
     UserProfile Profile,
-    IReadOnlyList<HabitGrid.Core.Domain.Journal.JournalEntry>? Journal = null);
+    IReadOnlyList<HabitGrid.Core.Domain.Journal.JournalEntry>? Journal = null,
+    IReadOnlyList<HabitArea>? HabitAreas = null,
+    IReadOnlyList<QuickTodo>? QuickTodos = null,
+    IReadOnlyList<CustomReward>? CustomRewards = null,
+    IReadOnlyList<RewardRedemption>? RewardRedemptions = null,
+    IReadOnlyDictionary<string, string>? V4Settings = null);
 
 public sealed class UnsupportedBackupException : Exception
 {
@@ -35,6 +40,16 @@ public sealed class SnapshotBackupService
 
     private const string ManifestEntry = "manifest.json";
     private const string DataEntry = "data.json";
+
+    private static readonly string[] V4SettingKeys =
+    [
+        SettingKeys.CoinsBalance,
+        SettingKeys.HabitStacks,
+        SettingKeys.GoalOfDayHabitId,
+        SettingKeys.GoalOfDayDate
+    ];
+
+    private static readonly HashSet<string> V4SettingKeySet = new(V4SettingKeys, StringComparer.Ordinal);
 
     private readonly HabitGridDatabase _database;
     private readonly IHlcClock _clock;
@@ -76,7 +91,24 @@ public sealed class SnapshotBackupService
             logs.AddRange(await _dayLogs.GetAllForHabitAsync(habit.Id, ct));
         }
 
-        var payload = new BackupPayload(habits, logs, await _routines.GetAllAsync(ct), await _profile.GetAsync(ct), _journal is null ? [] : await _journal.GetAllAsync(ct));
+        await using var connection = await _database.OpenConnectionAsync();
+        var habitAreas = await ReadHabitAreasAsync(connection, ct);
+        var quickTodos = await ReadQuickTodosAsync(connection, ct);
+        var customRewards = await ReadCustomRewardsAsync(connection, ct);
+        var redemptions = await ReadRewardRedemptionsAsync(connection, ct);
+        var v4Settings = await ReadV4SettingsAsync(connection, ct);
+
+        var payload = new BackupPayload(
+            habits,
+            logs,
+            await _routines.GetAllAsync(ct),
+            await _profile.GetAsync(ct),
+            _journal is null ? [] : await _journal.GetAllAsync(ct),
+            habitAreas,
+            quickTodos,
+            customRewards,
+            redemptions,
+            v4Settings);
         var manifest = new BackupManifest(
             MigrationV3Schema.SchemaVersion,
             DateTime.UtcNow,
@@ -151,12 +183,24 @@ public sealed class SnapshotBackupService
 
         try
         {
-            foreach (var table in new[] { "journal_entries", "day_logs", "reminders", "routines", "profile", "habits", "sync_outbox" })
+            foreach (var table in new[]
+            {
+                "reward_redemptions", "custom_rewards", "quick_todos",
+                "journal_entries", "day_logs", "reminders", "routines",
+                "profile", "habits", "habit_areas", "sync_outbox"
+            })
             {
                 await using var wipe = connection.CreateCommand();
                 wipe.Transaction = transaction;
                 wipe.CommandText = $"DELETE FROM {table};";
                 await wipe.ExecuteNonQueryAsync(ct);
+            }
+
+            await ClearV4SettingsAsync(connection, transaction, ct);
+
+            foreach (var area in payload.HabitAreas ?? [])
+            {
+                await InsertHabitAreaAsync(connection, transaction, area, ct);
             }
 
             foreach (var habit in payload.Habits)
@@ -209,6 +253,26 @@ public sealed class SnapshotBackupService
                 command.Parameters.AddWithValue("$mood", (object?)entry.Mood ?? DBNull.Value);
                 command.Parameters.AddWithValue("$updated", Sql.ToSqlTimestamp(entry.UpdatedAt));
                 await command.ExecuteNonQueryAsync(ct);
+            }
+
+            foreach (var todo in payload.QuickTodos ?? [])
+            {
+                await InsertQuickTodoAsync(connection, transaction, todo, ct);
+            }
+
+            foreach (var reward in payload.CustomRewards ?? [])
+            {
+                await InsertCustomRewardAsync(connection, transaction, reward, ct);
+            }
+
+            foreach (var redemption in payload.RewardRedemptions ?? [])
+            {
+                await InsertRewardRedemptionAsync(connection, transaction, redemption, ct);
+            }
+
+            if (payload.V4Settings is { Count: > 0 } v4Settings)
+            {
+                await InsertV4SettingsAsync(connection, transaction, v4Settings, ct);
             }
 
             await transaction.CommitAsync(ct);
@@ -345,6 +409,208 @@ public sealed class SnapshotBackupService
 
         await using var stream = entry.Open();
         return await JsonSerializer.DeserializeAsync<T>(stream, DomainJson.Options, ct);
+    }
+
+    private static async Task<IReadOnlyList<HabitArea>> ReadHabitAreasAsync(SqliteConnection connection, CancellationToken ct)
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT id, name, emoji, color_hex, sort_key FROM habit_areas ORDER BY sort_key, name;";
+        await using var reader = await command.ExecuteReaderAsync(ct);
+        var list = new List<HabitArea>();
+        while (await reader.ReadAsync(ct))
+        {
+            list.Add(new HabitArea(
+                Guid.Parse(reader.GetString(0)),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetString(3),
+                reader.GetString(4)));
+        }
+        return list;
+    }
+
+    private static async Task<IReadOnlyList<QuickTodo>> ReadQuickTodosAsync(SqliteConnection connection, CancellationToken ct)
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT id, title, day, is_done, created_at, completed_at FROM quick_todos ORDER BY day ASC, created_at ASC;";
+        await using var reader = await command.ExecuteReaderAsync(ct);
+        var list = new List<QuickTodo>();
+        while (await reader.ReadAsync(ct))
+        {
+            list.Add(new QuickTodo(
+                Guid.Parse(reader.GetString(0)),
+                reader.GetString(1),
+                Sql.ToDateOnly(reader.GetString(2)),
+                reader.GetInt32(3) != 0,
+                Sql.ToTimestamp(reader.GetString(4)),
+                Sql.ToTimestampOrNull(reader.IsDBNull(5) ? null : reader.GetString(5))));
+        }
+        return list;
+    }
+
+    private static async Task<IReadOnlyList<CustomReward>> ReadCustomRewardsAsync(SqliteConnection connection, CancellationToken ct)
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT id, title, emoji, cost_coins, note, created_at FROM custom_rewards ORDER BY cost_coins ASC, created_at ASC;";
+        await using var reader = await command.ExecuteReaderAsync(ct);
+        var list = new List<CustomReward>();
+        while (await reader.ReadAsync(ct))
+        {
+            list.Add(new CustomReward(
+                Guid.Parse(reader.GetString(0)),
+                reader.GetString(1),
+                reader.GetString(2),
+                reader.GetInt32(3),
+                reader.IsDBNull(4) ? null : reader.GetString(4),
+                Sql.ToTimestamp(reader.GetString(5))));
+        }
+        return list;
+    }
+
+    private static async Task<IReadOnlyList<RewardRedemption>> ReadRewardRedemptionsAsync(SqliteConnection connection, CancellationToken ct)
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = "SELECT id, reward_id, reward_title, cost_coins, redeemed_at FROM reward_redemptions ORDER BY redeemed_at DESC;";
+        await using var reader = await command.ExecuteReaderAsync(ct);
+        var list = new List<RewardRedemption>();
+        while (await reader.ReadAsync(ct))
+        {
+            list.Add(new RewardRedemption(
+                Guid.Parse(reader.GetString(0)),
+                Guid.Parse(reader.GetString(1)),
+                reader.GetString(2),
+                reader.GetInt32(3),
+                Sql.ToTimestamp(reader.GetString(4))));
+        }
+        return list;
+    }
+
+    private static async Task<Dictionary<string, string>> ReadV4SettingsAsync(SqliteConnection connection, CancellationToken ct)
+    {
+        await using var command = connection.CreateCommand();
+        command.CommandText = BuildV4SettingsInClause("SELECT key, value FROM settings WHERE key IN");
+        AddV4SettingKeyParameters(command);
+        await using var reader = await command.ExecuteReaderAsync(ct);
+        var dict = new Dictionary<string, string>(StringComparer.Ordinal);
+        while (await reader.ReadAsync(ct))
+        {
+            dict[reader.GetString(0)] = reader.GetString(1);
+        }
+        return dict;
+    }
+
+    private static async Task ClearV4SettingsAsync(SqliteConnection connection, SqliteTransaction transaction, CancellationToken ct)
+    {
+        await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = BuildV4SettingsInClause("DELETE FROM settings WHERE key IN");
+        AddV4SettingKeyParameters(command);
+        await command.ExecuteNonQueryAsync(ct);
+    }
+
+    private static string BuildV4SettingsInClause(string prefix)
+    {
+        var placeholders = string.Join(", ", V4SettingKeys.Select((_, i) => $"$k{i}"));
+        return $"{prefix} ({placeholders});";
+    }
+
+    private static void AddV4SettingKeyParameters(SqliteCommand command)
+    {
+        for (var i = 0; i < V4SettingKeys.Length; i++)
+        {
+            command.Parameters.AddWithValue($"$k{i}", V4SettingKeys[i]);
+        }
+    }
+
+    private static async Task InsertHabitAreaAsync(SqliteConnection connection, SqliteTransaction transaction, HabitArea area, CancellationToken ct)
+    {
+        await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = """
+            INSERT INTO habit_areas (id, name, emoji, color_hex, sort_key)
+            VALUES ($id, $name, $emoji, $color, $sort);
+            """;
+        command.Parameters.AddWithValue("$id", area.Id.ToString("D"));
+        command.Parameters.AddWithValue("$name", area.Name);
+        command.Parameters.AddWithValue("$emoji", area.Emoji);
+        command.Parameters.AddWithValue("$color", area.ColorHex);
+        command.Parameters.AddWithValue("$sort", area.SortKey);
+        await command.ExecuteNonQueryAsync(ct);
+    }
+
+    private static async Task InsertQuickTodoAsync(SqliteConnection connection, SqliteTransaction transaction, QuickTodo todo, CancellationToken ct)
+    {
+        await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = """
+            INSERT INTO quick_todos (id, title, day, is_done, created_at, completed_at)
+            VALUES ($id, $title, $day, $done, $created, $completed);
+            """;
+        command.Parameters.AddWithValue("$id", todo.Id.ToString("D"));
+        command.Parameters.AddWithValue("$title", todo.Title);
+        command.Parameters.AddWithValue("$day", Sql.ToSqlDate(todo.Day));
+        command.Parameters.AddWithValue("$done", todo.IsDone ? 1 : 0);
+        command.Parameters.AddWithValue("$created", Sql.ToSqlTimestamp(todo.CreatedAt));
+        command.Parameters.AddWithValue("$completed", (object?)Sql.ToSqlTimestamp(todo.CompletedAt) ?? DBNull.Value);
+        await command.ExecuteNonQueryAsync(ct);
+    }
+
+    private static async Task InsertCustomRewardAsync(SqliteConnection connection, SqliteTransaction transaction, CustomReward reward, CancellationToken ct)
+    {
+        await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = """
+            INSERT INTO custom_rewards (id, title, emoji, cost_coins, note, created_at)
+            VALUES ($id, $title, $emoji, $cost, $note, $created);
+            """;
+        command.Parameters.AddWithValue("$id", reward.Id.ToString("D"));
+        command.Parameters.AddWithValue("$title", reward.Title);
+        command.Parameters.AddWithValue("$emoji", reward.Emoji);
+        command.Parameters.AddWithValue("$cost", reward.CostCoins);
+        command.Parameters.AddWithValue("$note", (object?)reward.Note ?? DBNull.Value);
+        command.Parameters.AddWithValue("$created", Sql.ToSqlTimestamp(reward.CreatedAt ?? DateTime.UtcNow));
+        await command.ExecuteNonQueryAsync(ct);
+    }
+
+    private static async Task InsertRewardRedemptionAsync(SqliteConnection connection, SqliteTransaction transaction, RewardRedemption redemption, CancellationToken ct)
+    {
+        await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
+        command.CommandText = """
+            INSERT INTO reward_redemptions (id, reward_id, reward_title, cost_coins, redeemed_at)
+            VALUES ($id, $rid, $title, $cost, $at);
+            """;
+        command.Parameters.AddWithValue("$id", redemption.Id.ToString("D"));
+        command.Parameters.AddWithValue("$rid", redemption.RewardId.ToString("D"));
+        command.Parameters.AddWithValue("$title", redemption.RewardTitle);
+        command.Parameters.AddWithValue("$cost", redemption.CostCoins);
+        command.Parameters.AddWithValue("$at", Sql.ToSqlTimestamp(redemption.RedeemedAt));
+        await command.ExecuteNonQueryAsync(ct);
+    }
+
+    private static async Task InsertV4SettingsAsync(
+        SqliteConnection connection,
+        SqliteTransaction transaction,
+        IReadOnlyDictionary<string, string> settings,
+        CancellationToken ct)
+    {
+        foreach (var (key, value) in settings)
+        {
+            if (!V4SettingKeySet.Contains(key) || value is null)
+            {
+                continue;
+            }
+
+            await using var command = connection.CreateCommand();
+            command.Transaction = transaction;
+            command.CommandText = """
+                INSERT INTO settings (key, value) VALUES ($key, $value)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value;
+                """;
+            command.Parameters.AddWithValue("$key", key);
+            command.Parameters.AddWithValue("$value", value);
+            await command.ExecuteNonQueryAsync(ct);
+        }
     }
 
     /// <summary>Giới hạn kích thước một mục sau giải nén (128 MB; dữ liệu thật chỉ vài MB).</summary>

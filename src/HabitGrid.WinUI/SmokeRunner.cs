@@ -329,6 +329,16 @@ public static class SmokeRunner
         Require(cards.All(c => c.Item!.Heatmap is { Weeks.Count: HabitsViewModel.HeatmapWeeks }), "Thẻ thiếu heatmap 12 tuần.");
         await SnapAsync(window, "habits-collection");
 
+        if (window.CurrentPage is HabitsPage habitsPage)
+        {
+            await habitsPage.SetMatrixViewForSmokeAsync(true);
+            await Task.Delay(400);
+            Require(habitsPage.MatrixRowCountForSmoke > 1, "Bảng ma trận không dựng được hàng thói quen.");
+            await SnapAsync(window, "habits-matrix");
+            await habitsPage.SetMatrixViewForSmokeAsync(false);
+            await Task.Delay(200);
+        }
+
         cards[0].Open();
         await Task.Delay(900);
 
