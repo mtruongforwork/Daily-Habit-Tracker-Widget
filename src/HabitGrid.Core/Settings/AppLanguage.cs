@@ -9,5 +9,11 @@ public enum AppLanguage
     Vietnamese = 0,
 
     /// <summary>English.</summary>
-    English = 1
+    English = 1,
+
+    /// <summary>日本語.</summary>
+    Japanese = 2,
+
+    /// <summary>한국어.</summary>
+    Korean = 3
 }

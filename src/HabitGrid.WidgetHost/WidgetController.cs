@@ -108,6 +108,15 @@ public sealed partial class WidgetController : IDisposable
 
     public async Task StartAsync()
     {
+        if (!HostText.LockedForShots)
+        {
+            var savedLang = await _settings.GetAsync(HabitGrid.Core.Domain.SettingKeys.Language);
+            if (!string.IsNullOrWhiteSpace(savedLang))
+            {
+                HostText.SetLanguage(savedLang);
+            }
+        }
+
         await ApplyPlacementAsync(initial: true);
         await ApplyPinChoiceAsync(initial: true);
         await ApplyLayoutModeAsync(initial: true);

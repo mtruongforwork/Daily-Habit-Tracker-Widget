@@ -36,15 +36,17 @@ public sealed partial class SettingsPage : Page
     private readonly Dictionary<string, TextBlock> _lockLabels = [];
     private int _level = 1;
 
+    private Panel? _layoutHost;
+
     public SettingsPage()
     {
         InitializeComponent();
         Scroll.Content = _root;
         SizeChanged += (_, e) =>
         {
-            if (_threeColumns is { } three && three != (e.NewSize.Width >= ThreeColumnsFrom))
+            if (IsLoaded && _threeColumns is { } three && three != (e.NewSize.Width >= ThreeColumnsFrom))
             {
-                Build();
+                LayoutColumns();
             }
         };
     }
@@ -383,17 +385,22 @@ public sealed partial class SettingsPage : Page
         supportCard.Children.Add(logs);
         Wrap(supportCard);
 
-        // Ngôn ngữ
+        // Ngôn ngữ (lưới 4 ngôn ngữ, đổi tức thì)
         var languageCard = Card(Ui.T("settings.language"));
-        var language = new ChipGroup { MinChipWidth = 130, MaxWidth = 320, HorizontalAlignment = HorizontalAlignment.Left };
-        language.Add(Ui.T("settings.lang.vi"));
-        language.Add(Ui.T("settings.lang.en"));
-        language.SelectedIndex = Ui.Loc.Language == "en" ? 1 : 0;
+        var language = new ChipGroup { MinChipWidth = 120, HorizontalAlignment = HorizontalAlignment.Stretch };
+        var langs = new[] { ("vi", "settings.lang.vi"), ("en", "settings.lang.en"), ("ja", "settings.lang.ja"), ("ko", "settings.lang.ko") };
+
+        foreach (var (_, key) in langs)
+        {
+            language.Add(Ui.T(key));
+        }
+
+        language.SelectedIndex = Math.Max(0, Array.FindIndex(langs, l => l.Item1 == Ui.Loc.Language));
         language.SelectionChanged += async (_, _) =>
         {
-            if (!_building && App.MainWindowInstance is { } window)
+            if (!_building && App.MainWindowInstance is { } window && language.SelectedIndex >= 0 && language.SelectedIndex < langs.Length)
             {
-                await window.SetLanguageAsync(language.SelectedIndex == 1 ? "en" : "vi");
+                await window.SetLanguageAsync(langs[language.SelectedIndex].Item1);
             }
         };
         languageCard.Children.Add(language);
@@ -410,6 +417,12 @@ public sealed partial class SettingsPage : Page
         var three = ActualWidth == 0 || ActualWidth >= ThreeColumnsFrom;
         _threeColumns = three;
 
+        if (_layoutHost is not null)
+        {
+            _root.Children.Remove(_layoutHost);
+            _layoutHost = null;
+        }
+
         foreach (var column in _columns)
         {
             (column.Parent as Panel)?.Children.Remove(column);
@@ -424,6 +437,7 @@ public sealed partial class SettingsPage : Page
                 stack.Children.Add(column);
             }
 
+            _layoutHost = stack;
             _root.Children.Add(stack);
             return;
         }
@@ -437,6 +451,7 @@ public sealed partial class SettingsPage : Page
             grid.Children.Add(_columns[i]);
         }
 
+        _layoutHost = grid;
         _root.Children.Add(grid);
     }
 

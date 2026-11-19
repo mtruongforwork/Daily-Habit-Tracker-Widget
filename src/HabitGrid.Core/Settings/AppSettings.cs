@@ -12,6 +12,8 @@ public static class AppLanguageExtensions
     public static CultureInfo ToCultureInfo(this AppLanguage language) => language switch
     {
         AppLanguage.English => new CultureInfo("en-US"),
+        AppLanguage.Japanese => new CultureInfo("ja-JP"),
+        AppLanguage.Korean => new CultureInfo("ko-KR"),
         _ => new CultureInfo("vi-VN")
     };
 

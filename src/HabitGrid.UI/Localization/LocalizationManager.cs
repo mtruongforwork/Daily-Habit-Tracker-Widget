@@ -57,9 +57,13 @@ public sealed class LocalizationManager : INotifyPropertyChanged
     /// <summary>Đặt ngôn ngữ theo mã culture (ví dụ "vi-VN").</summary>
     public void SetLanguage(string cultureName)
     {
-        var language = cultureName.StartsWith("vi", StringComparison.OrdinalIgnoreCase)
-            ? AppLanguage.Vietnamese
-            : AppLanguage.English;
+        var language = cultureName switch
+        {
+            _ when cultureName.StartsWith("vi", StringComparison.OrdinalIgnoreCase) => AppLanguage.Vietnamese,
+            _ when cultureName.StartsWith("ja", StringComparison.OrdinalIgnoreCase) => AppLanguage.Japanese,
+            _ when cultureName.StartsWith("ko", StringComparison.OrdinalIgnoreCase) => AppLanguage.Korean,
+            _ => AppLanguage.English
+        };
 
         SetLanguage(language);
     }

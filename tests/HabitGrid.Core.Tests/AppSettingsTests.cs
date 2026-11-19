@@ -118,6 +118,8 @@ public class AppSettingsTests
     {
         AppLanguage.Vietnamese.ToCultureInfo().Name.Should().Be("vi-VN");
         AppLanguage.English.ToCultureInfo().Name.Should().Be("en-US");
+        AppLanguage.Japanese.ToCultureInfo().Name.Should().Be("ja-JP");
+        AppLanguage.Korean.ToCultureInfo().Name.Should().Be("ko-KR");
         AppLanguage.Vietnamese.ToCultureName().Should().Be("vi-VN");
     }
 }

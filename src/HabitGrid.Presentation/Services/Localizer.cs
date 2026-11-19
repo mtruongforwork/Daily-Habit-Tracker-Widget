@@ -3,7 +3,7 @@ using System.Resources;
 
 namespace HabitGrid.Presentation.Services;
 
-/// <summary>Tra cứu chuỗi đa ngôn ngữ (VI mặc định, EN). Đổi ngôn ngữ áp dụng ngay, không cần khởi động lại.</summary>
+/// <summary>Tra cứu chuỗi đa ngôn ngữ (VI mặc định, EN, JA, KO). Đổi ngôn ngữ áp dụng ngay, không cần khởi động lại.</summary>
 public interface ILocalizer
 {
     string Language { get; }
@@ -44,9 +44,12 @@ public sealed class Localizer : ILocalizer
 
     public void SetLanguage(string language)
     {
-        var culture = language switch
+        var code = (language ?? string.Empty).Trim().ToLowerInvariant();
+        var culture = code switch
         {
-            "en" => CultureInfo.GetCultureInfo("en"),
+            _ when code.StartsWith("en") => CultureInfo.GetCultureInfo("en"),
+            _ when code.StartsWith("ja") => CultureInfo.GetCultureInfo("ja"),
+            _ when code.StartsWith("ko") => CultureInfo.GetCultureInfo("ko"),
             _ => CultureInfo.GetCultureInfo("vi")
         };
 

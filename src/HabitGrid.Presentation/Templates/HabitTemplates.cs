@@ -38,9 +38,9 @@ public sealed record HabitTemplate(
     TemplateFrequency Frequency = TemplateFrequency.Daily,
     int FrequencyValue = 1)
 {
-    public string Name(string language) => language == "en" ? NameEn : NameVi;
+    public string Name(string language) => language == "vi" ? NameVi : NameEn;
 
-    public string? Unit(string language) => language == "en" ? UnitEn : UnitVi;
+    public string? Unit(string language) => language == "vi" ? UnitVi : UnitEn;
 
     public HabitFrequency ToFrequency(DateOnly today) => Frequency switch
     {

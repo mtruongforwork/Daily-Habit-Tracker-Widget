@@ -1,0 +1,850 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="app.name" xml:space="preserve"><value>HabitGrid</value></data>
+  <data name="nav.today" xml:space="preserve"><value>今日</value></data>
+  <data name="nav.habits" xml:space="preserve"><value>習慣</value></data>
+  <data name="nav.insights" xml:space="preserve"><value>インサイト</value></data>
+  <data name="nav.buddy" xml:space="preserve"><value>バディ</value></data>
+  <data name="nav.settings" xml:space="preserve"><value>設定</value></data>
+  <data name="today.title" xml:space="preserve"><value>今日</value></data>
+  <data name="today.greeting.morning" xml:space="preserve"><value>おはようございます</value></data>
+  <data name="today.greeting.afternoon" xml:space="preserve"><value>こんにちは</value></data>
+  <data name="today.greeting.evening" xml:space="preserve"><value>こんばんは</value></data>
+  <data name="today.progress" xml:space="preserve"><value>今日 {0}/{1} 完了</value></data>
+  <data name="today.allDone" xml:space="preserve"><value>すべて完了！ 🎉</value></data>
+  <data name="today.completed" xml:space="preserve"><value>完了</value></data>
+  <data name="today.notToday" xml:space="preserve"><value>今日は休み</value></data>
+  <data name="today.empty.title" xml:space="preserve"><value>まだ習慣がありません</value></data>
+  <data name="today.empty.body" xml:space="preserve"><value>最初の習慣を追加して連続記録を始めましょう。</value></data>
+  <data name="today.undo" xml:space="preserve"><value>元に戻す</value></data>
+  <data name="today.checked" xml:space="preserve"><value>{0} をチェックしました</value></data>
+  <data name="today.progressUnit" xml:space="preserve"><value>{0}/{1} {2}</value></data>
+  <data name="group.morning" xml:space="preserve"><value>朝</value></data>
+  <data name="group.afternoon" xml:space="preserve"><value>昼</value></data>
+  <data name="group.evening" xml:space="preserve"><value>夜</value></data>
+  <data name="group.anytime" xml:space="preserve"><value>いつでも</value></data>
+  <data name="habits.title" xml:space="preserve"><value>習慣</value></data>
+  <data name="habits.add" xml:space="preserve"><value>習慣を追加</value></data>
+  <data name="habits.archive" xml:space="preserve"><value>アーカイブ</value></data>
+  <data name="habits.delete" xml:space="preserve"><value>削除</value></data>
+  <data name="habits.empty" xml:space="preserve"><value>まだ何もありません</value></data>
+  <data name="habits.rate30" xml:space="preserve"><value>30日間 {0}%</value></data>
+  <data name="add.title" xml:space="preserve"><value>新しい習慣</value></data>
+  <data name="add.name" xml:space="preserve"><value>習慣名</value></data>
+  <data name="add.kind" xml:space="preserve"><value>種類</value></data>
+  <data name="add.target" xml:space="preserve"><value>1日の目標</value></data>
+  <data name="add.kind.boolean" xml:space="preserve"><value>はい / いいえ</value></data>
+  <data name="add.kind.count" xml:space="preserve"><value>回数</value></data>
+  <data name="add.kind.duration" xml:space="preserve"><value>時間（分）</value></data>
+  <data name="add.kind.quit" xml:space="preserve"><value>やめる</value></data>
+  <data name="add.save" xml:space="preserve"><value>保存</value></data>
+  <data name="add.cancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="streak.days" xml:space="preserve"><value>{0}日</value></data>
+  <data name="streak.weeks" xml:space="preserve"><value>{0}週</value></data>
+  <data name="streak.months" xml:space="preserve"><value>{0}か月</value></data>
+  <data name="streak.windows" xml:space="preserve"><value>{0}回</value></data>
+  <data name="streak.atRisk" xml:space="preserve"><value>連続記録が途切れそう</value></data>
+  <data name="quit.clean" xml:space="preserve"><value>{0}日継続中</value></data>
+  <data name="quit.slip" xml:space="preserve"><value>やってしまった</value></data>
+  <data name="placeholder.soon" xml:space="preserve"><value>近日公開</value></data>
+  <data name="placeholder.insights" xml:space="preserve"><value>統計と自動インサイトは近日公開です。</value></data>
+  <data name="placeholder.buddy" xml:space="preserve"><value>バディとバッジは近日公開です。</value></data>
+  <data name="placeholder.settings" xml:space="preserve"><value>設定は近日公開です。</value></data>
+  <data name="error.generic" xml:space="preserve"><value>問題が発生しました。データは安全です。</value></data>
+  <data name="error.openDataFolder" xml:space="preserve"><value>データフォルダを開く</value></data>
+  <data name="validation.name.required" xml:space="preserve"><value>習慣名を入力してください。</value></data>
+  <data name="validation.name.too_long" xml:space="preserve"><value>名前は40文字以内で入力してください。</value></data>
+  <data name="validation.target.range" xml:space="preserve"><value>目標は0より大きい値にしてください。</value></data>
+  <data name="validation.generic" xml:space="preserve"><value>入力内容に誤りがあります。</value></data>
+  <data name="habits.edit" xml:space="preserve"><value>編集</value></data>
+  <data name="editor.title.new" xml:space="preserve"><value>新しい習慣</value></data>
+  <data name="editor.title.edit" xml:space="preserve"><value>習慣を編集</value></data>
+  <data name="editor.name" xml:space="preserve"><value>習慣名</value></data>
+  <data name="editor.description" xml:space="preserve"><value>説明（任意）</value></data>
+  <data name="editor.icon" xml:space="preserve"><value>アイコン</value></data>
+  <data name="editor.icon.custom" xml:space="preserve"><value>または絵文字を入力</value></data>
+  <data name="editor.color" xml:space="preserve"><value>カラー</value></data>
+  <data name="editor.kind" xml:space="preserve"><value>種類</value></data>
+  <data name="editor.target" xml:space="preserve"><value>1日の目標</value></data>
+  <data name="editor.unit" xml:space="preserve"><value>単位</value></data>
+  <data name="editor.frequency" xml:space="preserve"><value>頻度</value></data>
+  <data name="editor.freq.daily" xml:space="preserve"><value>毎日</value></data>
+  <data name="editor.freq.weekdays" xml:space="preserve"><value>曜日を指定</value></data>
+  <data name="editor.freq.timesPerWeek" xml:space="preserve"><value>週にX回</value></data>
+  <data name="editor.freq.timesPerMonth" xml:space="preserve"><value>月にX回</value></data>
+  <data name="editor.freq.everyNDays" xml:space="preserve"><value>N日ごと</value></data>
+  <data name="editor.freq.times" xml:space="preserve"><value>回数</value></data>
+  <data name="editor.freq.interval" xml:space="preserve"><value>間隔（日）</value></data>
+  <data name="editor.timeOfDay" xml:space="preserve"><value>時間帯</value></data>
+  <data name="editor.reminders" xml:space="preserve"><value>リマインダー</value></data>
+  <data name="editor.reminder.add" xml:space="preserve"><value>リマインダーを追加</value></data>
+  <data name="editor.reminder.smart" xml:space="preserve"><value>スマートリマインダー</value></data>
+  <data name="editor.reminder.followUp" xml:space="preserve"><value>未完了なら再通知</value></data>
+  <data name="editor.reminder.remove" xml:space="preserve"><value>削除</value></data>
+  <data name="editor.askMood" xml:space="preserve"><value>チェックイン後に気分を尋ねる</value></data>
+  <data name="editor.allowNotes" xml:space="preserve"><value>メモを許可</value></data>
+  <data name="editor.allowFreeze" xml:space="preserve"><value>連続記録フリーズを許可</value></data>
+  <data name="editor.tags" xml:space="preserve"><value>タグ</value></data>
+  <data name="editor.tags.hint" xml:space="preserve"><value>カンマ区切り、最大5つ</value></data>
+  <data name="editor.startDate" xml:space="preserve"><value>開始日</value></data>
+  <data name="editor.advanced" xml:space="preserve"><value>詳細設定</value></data>
+  <data name="editor.preview" xml:space="preserve"><value>プレビュー</value></data>
+  <data name="editor.save" xml:space="preserve"><value>保存</value></data>
+  <data name="editor.cancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="day.mon" xml:space="preserve"><value>月</value></data>
+  <data name="day.tue" xml:space="preserve"><value>火</value></data>
+  <data name="day.wed" xml:space="preserve"><value>水</value></data>
+  <data name="day.thu" xml:space="preserve"><value>木</value></data>
+  <data name="day.fri" xml:space="preserve"><value>金</value></data>
+  <data name="day.sat" xml:space="preserve"><value>土</value></data>
+  <data name="day.sun" xml:space="preserve"><value>日</value></data>
+  <data name="validation.frequency.days.empty" xml:space="preserve"><value>少なくとも1つの曜日を選択してください。</value></data>
+  <data name="validation.frequency.times.range" xml:space="preserve"><value>回数が無効です（週1〜6回、月1〜27回）。</value></data>
+  <data name="validation.frequency.interval.range" xml:space="preserve"><value>間隔は2〜30日の範囲で指定してください。</value></data>
+  <data name="validation.color.invalid" xml:space="preserve"><value>無効なカラーです。</value></data>
+  <data name="validation.description.too_long" xml:space="preserve"><value>説明は200文字以内で入力してください。</value></data>
+  <data name="validation.tags.too_many" xml:space="preserve"><value>タグは最大5つまでです。</value></data>
+  <data name="validation.tags.invalid" xml:space="preserve"><value>無効なタグです（最大20文字）。</value></data>
+  <data name="validation.target.unit_too_long" xml:space="preserve"><value>単位は12文字以内で入力してください。</value></data>
+  <data name="validation.reminders.too_many" xml:space="preserve"><value>リマインダーは1つの習慣につき最大5つまでです。</value></data>
+  <data name="validation.limit.habits" xml:space="preserve"><value>無料プランでは同時に5つまで習慣を実行できます。1つアーカイブするかPlusにアップグレードしてください。</value></data>
+  <data name="topic.study" xml:space="preserve"><value>勉強</value></data>
+  <data name="topic.health" xml:space="preserve"><value>健康</value></data>
+  <data name="topic.fitness" xml:space="preserve"><value>フィットネス</value></data>
+  <data name="topic.mind" xml:space="preserve"><value>マインド</value></data>
+  <data name="topic.creative" xml:space="preserve"><value>クリエイティブ</value></data>
+  <data name="topic.work" xml:space="preserve"><value>仕事</value></data>
+  <data name="topic.home" xml:space="preserve"><value>生活</value></data>
+  <data name="topic.quit" xml:space="preserve"><value>悪習慣をやめる</value></data>
+  <data name="onboarding.welcome.title" xml:space="preserve"><value>1日1マス、光る習慣。</value></data>
+  <data name="onboarding.welcome.body" xml:space="preserve"><value>HabitGridはデスクトップ上の小さなグリッドで習慣を記録します。アカウントは不要です。</value></data>
+  <data name="onboarding.start" xml:space="preserve"><value>はじめる</value></data>
+  <data name="onboarding.haveData" xml:space="preserve"><value>自分で設定する</value></data>
+  <data name="onboarding.goals.title" xml:space="preserve"><value>どんな習慣を身につけたいですか？</value></data>
+  <data name="onboarding.goals.hint" xml:space="preserve"><value>最大3つまで選択</value></data>
+  <data name="onboarding.habits.title" xml:space="preserve"><value>最初の習慣を選びましょう</value></data>
+  <data name="onboarding.habits.hint" xml:space="preserve"><value>最大3つ選択（名前は変更できます）</value></data>
+  <data name="onboarding.custom" xml:space="preserve"><value>自分で作る</value></data>
+  <data name="onboarding.custom.placeholder" xml:space="preserve"><value>習慣名を入力</value></data>
+  <data name="onboarding.custom.add" xml:space="preserve"><value>追加</value></data>
+  <data name="onboarding.buddy.title" xml:space="preserve"><value>バディに名前をつけよう</value></data>
+  <data name="onboarding.buddy.body" xml:space="preserve"><value>バディは連続記録と一緒に成長します。</value></data>
+  <data name="onboarding.buddy.default" xml:space="preserve"><value>バディ</value></data>
+  <data name="onboarding.reminder.title" xml:space="preserve"><value>いつ通知しますか？</value></data>
+  <data name="onboarding.reminder.body" xml:space="preserve"><value>習慣の編集画面からいつでも変更できます。</value></data>
+  <data name="reminder.none" xml:space="preserve"><value>通知なし</value></data>
+  <data name="reminder.morning" xml:space="preserve"><value>朝 08:00</value></data>
+  <data name="reminder.evening" xml:space="preserve"><value>夜 20:00</value></data>
+  <data name="reminder.custom" xml:space="preserve"><value>時刻を選ぶ</value></data>
+  <data name="onboarding.next" xml:space="preserve"><value>次へ</value></data>
+  <data name="onboarding.back" xml:space="preserve"><value>戻る</value></data>
+  <data name="onboarding.finish" xml:space="preserve"><value>さあ始めよう！</value></data>
+  <data name="onboarding.step" xml:space="preserve"><value>ステップ {0} / {1}</value></data>
+  <data name="onboarding.limit.topics" xml:space="preserve"><value>トピックは最大3つまで選べます。</value></data>
+  <data name="onboarding.limit.picks" xml:space="preserve"><value>習慣は最大3つまで選べます。</value></data>
+  <data name="today.buddy.sleepy" xml:space="preserve"><value>{0}は眠そう…</value></data>
+  <data name="today.buddy.okay" xml:space="preserve"><value>{0}はウォームアップ中</value></data>
+  <data name="today.buddy.happy" xml:space="preserve"><value>{0}はご機嫌です！</value></data>
+  <data name="today.buddy.ecstatic" xml:space="preserve"><value>{0}は大喜び！ 🎉</value></data>
+  <data name="today.streakLabel" xml:space="preserve"><value>日連続</value></data>
+  <data name="today.freeze" xml:space="preserve"><value>❄ フリーズ {0}</value></data>
+  <data name="today.level" xml:space="preserve"><value>Lv {0} · {1} XP</value></data>
+  <data name="today.viewing" xml:space="preserve"><value>{0} を表示中</value></data>
+  <data name="today.backToToday" xml:space="preserve"><value>今日に戻る</value></data>
+  <data name="today.menu.skip" xml:space="preserve"><value>この日はスキップ</value></data>
+  <data name="today.menu.unskip" xml:space="preserve"><value>スキップを取り消す</value></data>
+  <data name="today.menu.minus" xml:space="preserve"><value>1減らす</value></data>
+  <data name="today.state.done" xml:space="preserve"><value>完了</value></data>
+  <data name="today.state.skipped" xml:space="preserve"><value>スキップ済み</value></data>
+  <data name="today.tapToCheck" xml:space="preserve"><value>タップしてチェック</value></data>
+  <data name="today.tapToAdd" xml:space="preserve"><value>タップして1追加</value></data>
+  <data name="today.relax" xml:space="preserve"><value>今日の予定はありません 😴</value></data>
+  <data name="skip.limit" xml:space="preserve"><value>各習慣のスキップは週に最大2回までです。</value></data>
+  <data name="week.today" xml:space="preserve"><value>今日</value></data>
+  <data name="habits.filter.active" xml:space="preserve"><value>実行中</value></data>
+  <data name="habits.filter.archived" xml:space="preserve"><value>アーカイブ済み</value></data>
+  <data name="habits.unarchive" xml:space="preserve"><value>復元</value></data>
+  <data name="habits.moveup" xml:space="preserve"><value>上へ移動</value></data>
+  <data name="habits.movedown" xml:space="preserve"><value>下へ移動</value></data>
+  <data name="habits.open" xml:space="preserve"><value>詳細を見る</value></data>
+  <data name="habits.empty.archived" xml:space="preserve"><value>アーカイブ済みの習慣はありません</value></data>
+  <data name="detail.back" xml:space="preserve"><value>戻る</value></data>
+  <data name="detail.streak.current" xml:space="preserve"><value>現在の連続記録</value></data>
+  <data name="detail.streak.best" xml:space="preserve"><value>最長</value></data>
+  <data name="detail.rate30" xml:space="preserve"><value>30日達成率</value></data>
+  <data name="detail.total" xml:space="preserve"><value>合計達成数</value></data>
+  <data name="detail.delta.up" xml:space="preserve"><value>▲ 前期間比 +{0}%</value></data>
+  <data name="detail.delta.down" xml:space="preserve"><value>▼ 前期間比 -{0}%</value></data>
+  <data name="detail.delta.same" xml:space="preserve"><value>前期間と同じ</value></data>
+  <data name="detail.heatmap" xml:space="preserve"><value>過去52週間</value></data>
+  <data name="detail.months" xml:space="preserve"><value>月別</value></data>
+  <data name="detail.weekdays" xml:space="preserve"><value>曜日別</value></data>
+  <data name="detail.journal" xml:space="preserve"><value>メモ</value></data>
+  <data name="detail.journal.empty" xml:space="preserve"><value>まだメモがありません。カレンダーの日付をタップして追加できます。</value></data>
+  <data name="detail.notfound" xml:space="preserve"><value>習慣が見つかりません</value></data>
+  <data name="detail.day.value" xml:space="preserve"><value>数値</value></data>
+  <data name="detail.day.done" xml:space="preserve"><value>完了</value></data>
+  <data name="detail.day.skip" xml:space="preserve"><value>この日はスキップ</value></data>
+  <data name="detail.day.note" xml:space="preserve"><value>メモ</value></data>
+  <data name="detail.day.mood" xml:space="preserve"><value>気分</value></data>
+  <data name="detail.day.save" xml:space="preserve"><value>保存</value></data>
+  <data name="detail.day.cancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="day.invalid" xml:space="preserve"><value>この日は編集できません。</value></data>
+  <data name="detail.legend.less" xml:space="preserve"><value>少</value></data>
+  <data name="detail.legend.more" xml:space="preserve"><value>多</value></data>
+  <data name="theme.candy" xml:space="preserve"><value>Candy Bento</value></data>
+  <data name="theme.neon" xml:space="preserve"><value>Neon Night</value></data>
+  <data name="theme.pastel" xml:space="preserve"><value>Soft Pastel</value></data>
+  <data name="settings.title" xml:space="preserve"><value>設定</value></data>
+  <data name="settings.theme" xml:space="preserve"><value>カラーテーマ</value></data>
+  <data name="settings.mode" xml:space="preserve"><value>外観モード</value></data>
+  <data name="settings.mode.system" xml:space="preserve"><value>システム</value></data>
+  <data name="settings.mode.light" xml:space="preserve"><value>ライト</value></data>
+  <data name="settings.mode.dark" xml:space="preserve"><value>ダーク</value></data>
+  <data name="settings.motion" xml:space="preserve"><value>視差効果を減らす</value></data>
+  <data name="settings.motion.hint" xml:space="preserve"><value>背景アニメーション、紙吹雪、チェックイン時の波紋をオフにします。</value></data>
+  <data name="settings.language" xml:space="preserve"><value>言語</value></data>
+  <data name="settings.lang.vi" xml:space="preserve"><value>Tiếng Việt</value></data>
+  <data name="settings.lang.en" xml:space="preserve"><value>English</value></data>
+  <data name="settings.pastel.note" xml:space="preserve"><value>このテーマはライトモード専用です。</value></data>
+  <data name="settings.widgets" xml:space="preserve"><value>デスクトップウィジェット</value></data>
+  <data name="settings.autostart" xml:space="preserve"><value>Windows起動時にウィジェットを開始</value></data>
+  <data name="settings.autostart.hint" xml:space="preserve"><value>メインアプリを開かなくてもサインイン時にウィジェットを表示します。オフにすると開いた時だけ実行されます。</value></data>
+  <data name="buddy.title" xml:space="preserve"><value>バディ</value></data>
+  <data name="buddy.level" xml:space="preserve"><value>レベル {0}</value></data>
+  <data name="buddy.xp" xml:space="preserve"><value>{0}/{1} XP</value></data>
+  <data name="buddy.maxlevel" xml:space="preserve"><value>最大レベル</value></data>
+  <data name="buddy.freeze" xml:space="preserve"><value>フリーズ: {0}</value></data>
+  <data name="buddy.streak" xml:space="preserve"><value>全体の連続記録 {0}日</value></data>
+  <data name="buddy.badges" xml:space="preserve"><value>バッジ</value></data>
+  <data name="buddy.badges.count" xml:space="preserve"><value>{0}/{1} 解除済み</value></data>
+  <data name="badge.secret.name" xml:space="preserve"><value>???</value></data>
+  <data name="badge.secret.desc" xml:space="preserve"><value>シークレットバッジ。</value></data>
+  <data name="badge.progress" xml:space="preserve"><value>{0}/{1}</value></data>
+  <data name="badge.tier.1" xml:space="preserve"><value>ブロンズ</value></data>
+  <data name="badge.tier.2" xml:space="preserve"><value>シルバー</value></data>
+  <data name="badge.tier.3" xml:space="preserve"><value>ゴールド</value></data>
+  <data name="stage.egg" xml:space="preserve"><value>たまご</value></data>
+  <data name="stage.baby" xml:space="preserve"><value>ベビー</value></data>
+  <data name="stage.teen" xml:space="preserve"><value>ティーン</value></data>
+  <data name="stage.adult" xml:space="preserve"><value>おとな</value></data>
+  <data name="stage.legend" xml:space="preserve"><value>レジェンド</value></data>
+  <data name="celebrate.level.title" xml:space="preserve"><value>レベル {0}！</value></data>
+  <data name="celebrate.level.body" xml:space="preserve"><value>バディが成長しました。フリーズを1つ獲得しました。</value></data>
+  <data name="celebrate.badge.title" xml:space="preserve"><value>新しいバッジ</value></data>
+  <data name="celebrate.close" xml:space="preserve"><value>やったね！</value></data>
+  <data name="freeze.ask.title" xml:space="preserve"><value>フリーズを使って連続記録を守りますか？</value></data>
+  <data name="freeze.ask.body" xml:space="preserve"><value>{0}日お休みがありました。フリーズを{0}個使って全体の連続記録を維持しますか？</value></data>
+  <data name="freeze.use" xml:space="preserve"><value>フリーズを使う</value></data>
+  <data name="freeze.skip" xml:space="preserve"><value>リセットする</value></data>
+  <data name="settings.freeze.auto" xml:space="preserve"><value>フリーズを自動で使用</value></data>
+  <data name="settings.freeze.hint" xml:space="preserve"><value>トークンがある場合は自動で連続記録を守ります。オフにすると事前に確認します。</value></data>
+  <data name="badge.first_checkin.name" xml:space="preserve"><value>はじめの一歩</value></data>
+  <data name="badge.first_checkin.desc" xml:space="preserve"><value>初めてチェックインする。</value></data>
+  <data name="badge.first_perfect_day.name" xml:space="preserve"><value>初のパーフェクト</value></data>
+  <data name="badge.first_perfect_day.desc" xml:space="preserve"><value>1日の予定された習慣をすべて達成する。</value></data>
+  <data name="badge.three_habits.name" xml:space="preserve"><value>トリオ</value></data>
+  <data name="badge.three_habits.desc" xml:space="preserve"><value>同時に3つの習慣を記録する。</value></data>
+  <data name="badge.first_note.name" xml:space="preserve"><value>メモ魔</value></data>
+  <data name="badge.first_note.desc" xml:space="preserve"><value>初めてメモを書く。</value></data>
+  <data name="badge.streak_7.name" xml:space="preserve"><value>1週間達成</value></data>
+  <data name="badge.streak_7.desc" xml:space="preserve"><value>7日連続記録を達成する。</value></data>
+  <data name="badge.streak_30.name" xml:space="preserve"><value>1か月継続</value></data>
+  <data name="badge.streak_30.desc" xml:space="preserve"><value>30日連続記録を達成する。</value></data>
+  <data name="badge.streak_100.name" xml:space="preserve"><value>100日の軌跡</value></data>
+  <data name="badge.streak_100.desc" xml:space="preserve"><value>100日連続記録を達成する。</value></data>
+  <data name="badge.streak_365.name" xml:space="preserve"><value>1年間ずっと</value></data>
+  <data name="badge.streak_365.desc" xml:space="preserve"><value>365日連続記録を達成する。</value></data>
+  <data name="badge.comeback.name" xml:space="preserve"><value>カムバック</value></data>
+  <data name="badge.comeback.desc" xml:space="preserve"><value>7日連続記録が途切れた後、再び達成する。</value></data>
+  <data name="badge.checkins_100.name" xml:space="preserve"><value>100回チェックイン</value></data>
+  <data name="badge.checkins_100.desc" xml:space="preserve"><value>合計100回チェックインする。</value></data>
+  <data name="badge.checkins_1000.name" xml:space="preserve"><value>1000回チェックイン</value></data>
+  <data name="badge.checkins_1000.desc" xml:space="preserve"><value>合計1000回チェックインする。</value></data>
+  <data name="badge.focus_10h.name" xml:space="preserve"><value>集中10時間</value></data>
+  <data name="badge.focus_10h.desc" xml:space="preserve"><value>合計10時間フォーカスする。</value></data>
+  <data name="badge.water_100_glasses.name" xml:space="preserve"><value>水100杯</value></data>
+  <data name="badge.water_100_glasses.desc" xml:space="preserve"><value>水を100杯飲む（waterタグの習慣）。</value></data>
+  <data name="badge.early_bird.name" xml:space="preserve"><value>早起き鳥</value></data>
+  <data name="badge.early_bird.desc" xml:space="preserve"><value>朝7時前に10回チェックインする。</value></data>
+  <data name="badge.night_owl.name" xml:space="preserve"><value>夜ふかしフクロウ</value></data>
+  <data name="badge.night_owl.desc" xml:space="preserve"><value>夜11時以降に10回チェックインする。</value></data>
+  <data name="badge.weekend_warrior.name" xml:space="preserve"><value>週末の戦士</value></data>
+  <data name="badge.weekend_warrior.desc" xml:space="preserve"><value>土曜日と日曜日の両方を完璧に達成する。</value></data>
+  <data name="badge.widget_pinned.name" xml:space="preserve"><value>デスクトップに固定</value></data>
+  <data name="badge.widget_pinned.desc" xml:space="preserve"><value>デスクトップにウィジェットを固定する。</value></data>
+  <data name="badge.quick_checkin_used.name" xml:space="preserve"><value>クイックハンド</value></data>
+  <data name="badge.quick_checkin_used.desc" xml:space="preserve"><value>クイックチェックインのショートカットを使う。</value></data>
+  <data name="badge.theme_changed.name" xml:space="preserve"><value>自分スタイル</value></data>
+  <data name="badge.theme_changed.desc" xml:space="preserve"><value>アプリのテーマを変更する。</value></data>
+  <data name="badge.shared_card.name" xml:space="preserve"><value>シェア自慢</value></data>
+  <data name="badge.shared_card.desc" xml:space="preserve"><value>達成カードをシェアする。</value></data>
+  <data name="badge.midnight_checkin.name" xml:space="preserve"><value>真夜中</value></data>
+  <data name="badge.midnight_checkin.desc" xml:space="preserve"><value>ちょうど00:00にチェックインする。</value></data>
+  <data name="badge.perfect_week.name" xml:space="preserve"><value>パーフェクト週間</value></data>
+  <data name="badge.perfect_week.desc" xml:space="preserve"><value>7日連続でパーフェクトデーを達成する。</value></data>
+  <data name="badge.marathon_day.name" xml:space="preserve"><value>マラソンの日</value></data>
+  <data name="badge.marathon_day.desc" xml:space="preserve"><value>1日に10回チェックインを完了する。</value></data>
+  <data name="palette.title" xml:space="preserve"><value>コマンドパレット</value></data>
+  <data name="palette.placeholder" xml:space="preserve"><value>ページ、アクション、習慣を検索…</value></data>
+  <data name="palette.empty" xml:space="preserve"><value>一致するコマンドがありません</value></data>
+  <data name="cmd.new" xml:space="preserve"><value>新しい習慣</value></data>
+  <data name="cmd.focus" xml:space="preserve"><value>フォーカスを開始</value></data>
+  <data name="cmd.focus.stop" xml:space="preserve"><value>フォーカスを終了</value></data>
+  <data name="cmd.quick" xml:space="preserve"><value>クイックチェックイン</value></data>
+  <data name="cmd.open" xml:space="preserve"><value>開く: {0}</value></data>
+  <data name="cmd.check" xml:space="preserve"><value>チェック: {0}</value></data>
+  <data name="cmd.undo" xml:space="preserve"><value>元に戻す</value></data>
+  <data name="detail.focus" xml:space="preserve"><value>フォーカス</value></data>
+  <data name="focus.sent" xml:space="preserve"><value>ウィジェットにフォーカスコマンドを送信しました</value></data>
+  <data name="focus.host.missing" xml:space="preserve"><value>HabitGrid Widgetsが見つからないため、フォーカスを開始できません。</value></data>
+  <data name="settings.reminders" xml:space="preserve"><value>リマインダー</value></data>
+  <data name="settings.reminders.enabled" xml:space="preserve"><value>リマインダーを有効にする</value></data>
+  <data name="settings.reminders.hint" xml:space="preserve"><value>アプリを閉じていても時間通りに通知が表示されます。各習慣の通知時刻は編集画面で設定します。</value></data>
+  <data name="settings.quiet" xml:space="preserve"><value>おやすみ時間</value></data>
+  <data name="settings.quiet.from" xml:space="preserve"><value>開始</value></data>
+  <data name="settings.quiet.to" xml:space="preserve"><value>終了</value></data>
+  <data name="settings.rescue" xml:space="preserve"><value>21時に連続記録レスキュー通知</value></data>
+  <data name="settings.morning" xml:space="preserve"><value>朝のまとめ通知</value></data>
+  <data name="settings.morning.at" xml:space="preserve"><value>時刻</value></data>
+  <data name="settings.hotkeys" xml:space="preserve"><value>ショートカット</value></data>
+  <data name="settings.hotkey.quick" xml:space="preserve"><value>クイックチェックイン (Win+Alt+H)</value></data>
+  <data name="settings.hotkey.focus" xml:space="preserve"><value>フォーカス開始/一時停止 (Win+Alt+F)</value></data>
+  <data name="settings.hotkeys.hint" xml:space="preserve"><value>グローバルショートカットはHabitGrid Widgetsが登録します。他のアプリと重複する場合はCtrl+Altが使われます。</value></data>
+  <data name="settings.hotkey.registered" xml:space="preserve"><value>使用中: {0}</value></data>
+  <data name="settings.hotkey.none" xml:space="preserve"><value>未登録（ウィジェット未起動またはキーが使用中）</value></data>
+  <data name="settings.shortcuts.inapp" xml:space="preserve"><value>アプリ内: Ctrl+K コマンド · Ctrl+N 新規 · Ctrl+Z 元に戻す · Ctrl+, 設定 · 1–9 今日をチェック</value></data>
+  <data name="plus.name" xml:space="preserve"><value>HabitGrid Plus</value></data>
+  <data name="plus.tagline" xml:space="preserve"><value>もっと多くの習慣、もっと自由なスタイル、さらに素敵なバディ。</value></data>
+  <data name="plus.benefit.habits" xml:space="preserve"><value>無制限の習慣（無料: 5つ）</value></data>
+  <data name="plus.benefit.themes" xml:space="preserve"><value>Soft Pastelをすぐ解除（無料: レベル10）</value></data>
+  <data name="plus.benefit.freeze" xml:space="preserve"><value>フリーズを最大5つ保持（無料: 3つ）</value></data>
+  <data name="plus.benefit.insights" xml:space="preserve"><value>90日・全期間のインサイト、CSV出力（無料: 30日）</value></data>
+  <data name="plus.benefit.sounds" xml:space="preserve"><value>フォーカス用環境音</value></data>
+  <data name="plus.benefit.support" xml:space="preserve"><value>個人開発者を応援する ❤</value></data>
+  <data name="plus.plan.monthly" xml:space="preserve"><value>月額</value></data>
+  <data name="plus.plan.yearly" xml:space="preserve"><value>年額</value></data>
+  <data name="plus.plan.lifetime" xml:space="preserve"><value>買い切り</value></data>
+  <data name="plus.per.month" xml:space="preserve"><value>毎月</value></data>
+  <data name="plus.per.year" xml:space="preserve"><value>毎年</value></data>
+  <data name="plus.once" xml:space="preserve"><value>1回払い</value></data>
+  <data name="plus.trial.days" xml:space="preserve"><value>{0}日間無料体験</value></data>
+  <data name="plus.save" xml:space="preserve"><value>{0}%お得</value></data>
+  <data name="plus.trial" xml:space="preserve"><value>無料体験あり</value></data>
+  <data name="plus.buy" xml:space="preserve"><value>このプランを選ぶ</value></data>
+  <data name="plus.restore" xml:space="preserve"><value>購入を復元</value></data>
+  <data name="plus.close" xml:space="preserve"><value>今はしない</value></data>
+  <data name="plus.terms" xml:space="preserve"><value>月額・年額プランはMicrosoftアカウント（account.microsoft.com → サービスとサブスクリプション）で解約するまで自動更新されます。無料体験終了前に解約すれば課金されません。</value></data>
+  <data name="plus.reference" xml:space="preserve"><value>参考価格です。実際の通貨・価格はMicrosoft Storeの画面に表示されます。</value></data>
+  <data name="plus.nostore" xml:space="preserve"><value>購入はMicrosoft Store版でのみ利用できます。このコピーはStoreと連携していないため購入できません。</value></data>
+  <data name="plus.msg.thanks" xml:space="preserve"><value>ありがとうございます！Plusが解除されました 🎉</value></data>
+  <data name="plus.msg.network" xml:space="preserve"><value>Microsoft Storeに接続できませんでした。後でもう一度お試しください。</value></data>
+  <data name="plus.msg.nostore" xml:space="preserve"><value>このコピーはMicrosoft Storeと連携していないため購入できません。</value></data>
+  <data name="plus.msg.failed" xml:space="preserve"><value>購入を完了できませんでした。</value></data>
+  <data name="plus.msg.restored" xml:space="preserve"><value>Plusを復元しました。</value></data>
+  <data name="plus.msg.nothing" xml:space="preserve"><value>このMicrosoftアカウントにPlusの購入履歴が見つかりませんでした。</value></data>
+  <data name="plus.reason.limit" xml:space="preserve"><value>無料プランでは実行中の習慣は5つまでです。</value></data>
+  <data name="plus.reason.theme" xml:space="preserve"><value>このテーマはPlus限定です（またはレベル{0}で解除）。</value></data>
+  <data name="settings.plus" xml:space="preserve"><value>HabitGrid Plus</value></data>
+  <data name="settings.plus.free" xml:space="preserve"><value>無料プランを利用中です。</value></data>
+  <data name="settings.plus.active" xml:space="preserve"><value>Plus有効 · {0}</value></data>
+  <data name="settings.plus.tier.Monthly" xml:space="preserve"><value>月額</value></data>
+  <data name="settings.plus.tier.Yearly" xml:space="preserve"><value>年額</value></data>
+  <data name="settings.plus.tier.Lifetime" xml:space="preserve"><value>買い切り</value></data>
+  <data name="settings.plus.tier.LegacyPro" xml:space="preserve"><value>買い切り（Pro v1より）</value></data>
+  <data name="settings.plus.recheck" xml:space="preserve"><value>Microsoft Storeとの確認から時間が経っています。ネットに接続して「購入を復元」を押してください。</value></data>
+  <data name="settings.plus.upgrade" xml:space="preserve"><value>アップグレード</value></data>
+  <data name="settings.plus.choose" xml:space="preserve"><value>実行する習慣を選ぶ</value></data>
+  <data name="theme.locked" xml:space="preserve"><value>🔒 Plus</value></data>
+  <data name="theme.locked.level" xml:space="preserve"><value>🔒 Plus · またはレベル{0}</value></data>
+  <data name="plan.readonly" xml:space="preserve"><value>この習慣は読み取り専用です（無料上限超過）。設定で実行する習慣を選ぶかPlusにアップグレードしてください。</value></data>
+  <data name="plan.choose.title" xml:space="preserve"><value>実行を続ける習慣を{0}つ選択</value></data>
+  <data name="plan.choose.body" xml:space="preserve"><value>無料プランでは{0}つまで習慣を実行できます。他の習慣もデータはすべて残り、チェックインのみ一時停止されます。</value></data>
+  <data name="plan.choose.save" xml:space="preserve"><value>選択を保存</value></data>
+  <data name="plan.choose.count" xml:space="preserve"><value>{0}/{1} 選択中</value></data>
+  <data name="today.state.readonly" xml:space="preserve"><value>🔒 読み取り専用</value></data>
+  <data name="insights.title" xml:space="preserve"><value>インサイト</value></data>
+  <data name="insights.range.30" xml:space="preserve"><value>30日</value></data>
+  <data name="insights.range.90" xml:space="preserve"><value>90日</value></data>
+  <data name="insights.range.all" xml:space="preserve"><value>全期間</value></data>
+  <data name="insights.rate" xml:space="preserve"><value>達成率</value></data>
+  <data name="insights.perfect" xml:space="preserve"><value>パーフェクト日数</value></data>
+  <data name="insights.checkins" xml:space="preserve"><value>チェックイン</value></data>
+  <data name="insights.beststreak" xml:space="preserve"><value>最長連続記録</value></data>
+  <data name="insights.trend" xml:space="preserve"><value>週間トレンド</value></data>
+  <data name="insights.weekdays" xml:space="preserve"><value>曜日別</value></data>
+  <data name="insights.hours" xml:space="preserve"><value>チェックイン時間帯</value></data>
+  <data name="insights.habits" xml:space="preserve"><value>習慣ごと</value></data>
+  <data name="insights.mood" xml:space="preserve"><value>気分</value></data>
+  <data name="insights.mood.avg" xml:space="preserve"><value>平均 {0}/5</value></data>
+  <data name="insights.mood.compare" xml:space="preserve"><value>達成日: {0}/5 · その他の日: {1}/5</value></data>
+  <data name="insights.mood.none" xml:space="preserve"><value>まだ気分データがありません。カレンダーで日を編集して気分を追加できます。</value></data>
+  <data name="insights.auto" xml:space="preserve"><value>あなたへのヒント</value></data>
+  <data name="insights.auto.none" xml:space="preserve"><value>まだヒントを出す十分なデータがありません。数週間チェックインを続けると表示されます。</value></data>
+  <data name="insights.export" xml:space="preserve"><value>CSV出力</value></data>
+  <data name="insights.export.done" xml:space="preserve"><value>{0} を保存しました</value></data>
+  <data name="insights.export.failed" xml:space="preserve"><value>ファイルを保存できませんでした。</value></data>
+  <data name="insights.empty" xml:space="preserve"><value>習慣を追加して数日チェックインするとインサイトが表示されます。</value></data>
+  <data name="insights.plus" xml:space="preserve"><value>Plus</value></data>
+  <data name="insights.row.rate" xml:space="preserve"><value>{0}% 達成</value></data>
+  <data name="insights.row.total" xml:space="preserve"><value>合計 {0} {1} · 平均 {2}/日 · 最高 {3}</value></data>
+  <data name="insight.weak_weekday" xml:space="preserve"><value>{weekday}に「{habit}」を忘れがちです。この曜日の通知時間を変更しますか？</value></data>
+  <data name="insight.golden_hour" xml:space="preserve"><value>あなたのゴールデンタイムは {start}–{end} です。</value></data>
+  <data name="insight.momentum_up" xml:space="preserve"><value>「{habit}」が絶好調です: +{delta}%！</value></data>
+  <data name="insight.slipping" xml:space="preserve"><value>「{habit}」が下降気味です（−{delta}%）。1週間、目標を{suggested}にしてみませんか？</value></data>
+  <data name="insight.slipping.plain" xml:space="preserve"><value>「{habit}」が下降気味です（−{delta}%）。通知時間を変えるか、難しい日をスキップしてみませんか？</value></data>
+  <data name="insight.mood_link" xml:space="preserve"><value>「{habit}」をした日は、気分が明らかに良くなっています。</value></data>
+  <data name="insight.stack_suggestion" xml:space="preserve"><value>「{a}」と「{b}」は一緒に行うことが多いです。ルーティンにまとめますか？</value></data>
+  <data name="insight.near_milestone" xml:space="preserve"><value>「{habit}」の{milestone}日達成まであと{n}日！</value></data>
+  <data name="plus.promo.active" xml:space="preserve"><value>🎁 無料Plusを体験中、残り{0}日です。終了後もデータはすべて残ります。</value></data>
+  <data name="settings.plus.tier.Promo" xml:space="preserve"><value>無料ギフト</value></data>
+  <data name="settings.plus.promo" xml:space="preserve"><value>🎁 無料Plus · 残り{0}日。終了後もデータはすべて残ります。</value></data>
+  <data name="settings.data.openFolder" xml:space="preserve"><value>フォルダを開く</value></data>
+  <data name="crash.title" xml:space="preserve"><value>前回HabitGridで問題が発生しました</value></data>
+  <data name="crash.body" xml:space="preserve"><value>{0}件のエラーレポートがPCに保存されています。外部へは送信されません。修正に役立てるため、フォルダを開くかレポートをコピーして開発者へお送りください。</value></data>
+  <data name="crash.open" xml:space="preserve"><value>レポートフォルダを開く</value></data>
+  <data name="crash.copy" xml:space="preserve"><value>レポートをコピー</value></data>
+  <data name="settings.support" xml:space="preserve"><value>サポート</value></data>
+  <data name="settings.support.version" xml:space="preserve"><value>バージョン {0}</value></data>
+  <data name="settings.support.logs" xml:space="preserve"><value>ログとレポートのフォルダを開く</value></data>
+  <data name="settings.support.hint" xml:space="preserve"><value>ログとエラーレポートはPC内に保存されます。サポートが必要な場合はこのフォルダのファイルを開発者にお送りください。</value></data>
+  <data name="frame.default" xml:space="preserve"><value>デフォルト</value></data>
+  <data name="frame.candy" xml:space="preserve"><value>キャンディピンク</value></data>
+  <data name="frame.midnight" xml:space="preserve"><value>ミッドナイト</value></data>
+  <data name="frame.dew" xml:space="preserve"><value>朝露</value></data>
+  <data name="frame.dreamy" xml:space="preserve"><value>ドリーミーパープル</value></data>
+  <data name="frame.orbit" xml:space="preserve"><value>オービット</value></data>
+  <data name="moments.title" xml:space="preserve"><value>モーメント</value></data>
+  <data name="moments.capture" xml:space="preserve"><value>写真を撮る</value></data>
+  <data name="moments.pick" xml:space="preserve"><value>写真を選ぶ</value></data>
+  <data name="moments.share" xml:space="preserve"><value>カードをシェア</value></data>
+  <data name="moments.empty" xml:space="preserve"><value>この習慣を実行した時の写真を残しましょう。振り返るのが楽しくなります。写真はPC内に保存されます。</value></data>
+  <data name="moments.limit" xml:space="preserve"><value>無料プラン: 1つの習慣につき1日1枚まで（本日は使用済み）。Plusは無制限です。</value></data>
+  <data name="moments.photo" xml:space="preserve"><value>{0} のモーメント写真</value></data>
+  <data name="moments.delete" xml:space="preserve"><value>写真を削除</value></data>
+  <data name="moments.failed.LimitReached" xml:space="preserve"><value>本日のこの習慣の写真上限に達しました（無料: 1日1枚）。</value></data>
+  <data name="moments.failed.InvalidImage" xml:space="preserve"><value>有効なJPEG/PNGファイルではないか、サイズが大きすぎます（最大15 MB）。</value></data>
+  <data name="moments.failed.NotAllowed" xml:space="preserve"><value>この日は写真を追加できません。</value></data>
+  <data name="share.title" xml:space="preserve"><value>シェアカード</value></data>
+  <data name="share.save" xml:space="preserve"><value>画像を保存</value></data>
+  <data name="share.copy" xml:space="preserve"><value>コピー</value></data>
+  <data name="share.watermark.hide" xml:space="preserve"><value>HabitGridロゴを隠す (Plus)</value></data>
+  <data name="share.hint" xml:space="preserve"><value>Stories、Locket、Threads向けの1080×1920画像です。ご自身で投稿してください — HabitGridがSNSのパスワードを尋ねることはありません。</value></data>
+  <data name="share.saved" xml:space="preserve"><value>{0} を保存しました</value></data>
+  <data name="share.copied" xml:space="preserve"><value>画像をコピーしました — 投稿したいアプリに貼り付けてください。</value></data>
+  <data name="share.failed" xml:space="preserve"><value>画像を作成できませんでした。</value></data>
+  <data name="plus.benefit.moments" xml:space="preserve"><value>無制限のモーメント写真（無料: 1日1枚/習慣）</value></data>
+  <data name="plus.benefit.share" xml:space="preserve"><value>全シェアカード枠、4枚ストリップ、ロゴ非表示（無料: 2枠・1枚）</value></data>
+  <data name="plus.benefit.momentWidget" xml:space="preserve"><value>デスクトップのモーメントウィジェット</value></data>
+  <data name="settings.momentWidget" xml:space="preserve"><value>モーメントウィジェット (Plus)</value></data>
+  <data name="settings.momentWidget.hint" xml:space="preserve"><value>最新のモーメント写真をデスクトップに表示します。クリックすると「先月の今日」が見られます。</value></data>
+  <data name="backup.title" xml:space="preserve"><value>バックアップ</value></data>
+  <data name="backup.hint" xml:space="preserve"><value>アプリは毎日自動でPCにバックアップします（最新14件を保持）。手動バックアップや再インストール時の復元も可能です。</value></data>
+  <data name="backup.now" xml:space="preserve"><value>今すぐバックアップ</value></data>
+  <data name="backup.restore.file" xml:space="preserve"><value>ファイルから復元…</value></data>
+  <data name="backup.open" xml:space="preserve"><value>フォルダを開く</value></data>
+  <data name="backup.restore" xml:space="preserve"><value>復元</value></data>
+  <data name="backup.auto" xml:space="preserve"><value>自動</value></data>
+  <data name="backup.manual" xml:space="preserve"><value>手動</value></data>
+  <data name="backup.none" xml:space="preserve"><value>まだバックアップがありません。</value></data>
+  <data name="backup.done" xml:space="preserve"><value>{0} を保存しました</value></data>
+  <data name="backup.failed" xml:space="preserve"><value>失敗しました。現在のデータは変更されていません。</value></data>
+  <data name="backup.invalid" xml:space="preserve"><value>このバックアップは使用できません: {0}</value></data>
+  <data name="backup.restored" xml:space="preserve"><value>{0}個の習慣と{1}日分の記録を復元しました。</value></data>
+  <data name="backup.confirm.title" xml:space="preserve"><value>バックアップから復元しますか？</value></data>
+  <data name="backup.confirm.body" xml:space="preserve"><value>現在のデータはこのバックアップで置き換えられます。復元前に現在の状態も自動保存されるため、いつでも戻せます。</value></data>
+  <data name="vacation.title" xml:space="preserve"><value>お休みモード</value></data>
+  <data name="vacation.start" xml:space="preserve"><value>お休みを開始</value></data>
+  <data name="vacation.end" xml:space="preserve"><value>早めに終了</value></data>
+  <data name="vacation.until" xml:space="preserve"><value>お休み終了日</value></data>
+  <data name="vacation.days" xml:space="preserve"><value>{0}日間</value></data>
+  <data name="vacation.limit" xml:space="preserve"><value>1回につき最大{0}日間。Plusではより長いお休みが可能です。</value></data>
+  <data name="vacation.body.all" xml:space="preserve"><value>すべての習慣を一時停止します（体調不良、旅行、試験など）：連続記録は維持され、通知も届かず、未達成にもなりません。</value></data>
+  <data name="vacation.body.one" xml:space="preserve"><value>「{0}」のみ一時停止します：連続記録は維持され、通知も届きません。</value></data>
+  <data name="vacation.banner.all" xml:space="preserve"><value>🏖 {0}までお休み中です。連続記録は安全に保たれています。</value></data>
+  <data name="vacation.banner.some" xml:space="preserve"><value>🏖 一部の習慣が{0}までお休み中です。</value></data>
+  <data name="vacation.pause.habit" xml:space="preserve"><value>一時停止</value></data>
+  <data name="vacation.err.InPast" xml:space="preserve"><value>お休みは過去の日付から開始できません。</value></data>
+  <data name="vacation.err.EndBeforeStart" xml:space="preserve"><value>終了日は今日以降にする必要があります。</value></data>
+  <data name="vacation.err.TooLong" xml:space="preserve"><value>お休みは最大{0}日間までです。</value></data>
+  <data name="vacation.err.AlreadyActive" xml:space="preserve"><value>すでにお休み期間が進行中です。新しく始める前に終了してください。</value></data>
+  <data name="vacation.err.NothingToPause" xml:space="preserve"><value>一時停止できる習慣がありません（やめる習慣にはお休み不要です）。</value></data>
+  <data name="settings.vacation" xml:space="preserve"><value>お休みモード</value></data>
+  <data name="settings.vacation.hint" xml:space="preserve"><value>旅行や体調不良ですか？フリーズを消費せずに連続記録を守れます。</value></data>
+  <data name="settings.vacation.active" xml:space="preserve"><value>{0}までお休み中。</value></data>
+  <data name="settings.vacation.none" xml:space="preserve"><value>現在はお休み中ではありません。</value></data>
+  <data name="mood.title.today" xml:space="preserve"><value>今日の気分はいかがですか？</value></data>
+  <data name="mood.title.past" xml:space="preserve"><value>その日の気分はどうでしたか？</value></data>
+  <data name="mood.note" xml:space="preserve"><value>その日について一言（任意）</value></data>
+  <data name="routine.title" xml:space="preserve"><value>ルーティン</value></data>
+  <data name="routine.hint" xml:space="preserve"><value>「朝」や「寝る前」などのステップに習慣をまとめ、順番に実行したり一括完了できます。</value></data>
+  <data name="routine.empty" xml:space="preserve"><value>まだルーティンがありません。最初のルーティンを作成しましょう。</value></data>
+  <data name="routine.create" xml:space="preserve"><value>ルーティンを作成</value></data>
+  <data name="routine.edit" xml:space="preserve"><value>ルーティンを編集</value></data>
+  <data name="routine.steps" xml:space="preserve"><value>{0} ステップ</value></data>
+  <data name="routine.limit" xml:space="preserve"><value>ルーティン上限: {0}。Plusは無制限です。</value></data>
+  <data name="routine.name" xml:space="preserve"><value>ルーティン名</value></data>
+  <data name="routine.name.placeholder" xml:space="preserve"><value>例: 朝、寝る前</value></data>
+  <data name="routine.pick" xml:space="preserve"><value>習慣を選択（各習慣は1つのルーティンに所属）</value></data>
+  <data name="routine.order" xml:space="preserve"><value>ステップの順番</value></data>
+  <data name="routine.selected" xml:space="preserve"><value>{0}/{1} 選択中</value></data>
+  <data name="routine.nohabits" xml:space="preserve"><value>追加できる習慣がありません。各習慣は1つのルーティンにのみ所属でき、「やめる」習慣は追加できません。</value></data>
+  <data name="routine.progress" xml:space="preserve"><value>{0}/{1} ステップ</value></data>
+  <data name="routine.complete" xml:space="preserve"><value>ルーティン完了 🎉</value></data>
+  <data name="routine.completeAll" xml:space="preserve"><value>ルーティンを完了</value></data>
+  <data name="routine.pending" xml:space="preserve"><value>未完了</value></data>
+  <data name="routine.err.NameRequired" xml:space="preserve"><value>ルーティン名を入力してください。</value></data>
+  <data name="routine.err.NameTooLong" xml:space="preserve"><value>ルーティン名は30文字以内にしてください。</value></data>
+  <data name="routine.err.TooFewHabits" xml:space="preserve"><value>ルーティンには少なくとも2つの習慣が必要です。</value></data>
+  <data name="routine.err.TooManyHabits" xml:space="preserve"><value>ルーティンには最大12個まで習慣を追加できます。</value></data>
+  <data name="routine.err.LimitReached" xml:space="preserve"><value>無料プランではルーティンは2つまでです。Plusにアップグレードすると無制限になります。</value></data>
+  <data name="routine.err.UnknownHabit" xml:space="preserve"><value>習慣が無効か、すでに別のルーティンに含まれています。</value></data>
+  <data name="routine.err.NotFound" xml:space="preserve"><value>そのルーティンが見つかりませんでした。</value></data>
+  <data name="backup.mirror.title" xml:space="preserve"><value>クラウドフォルダにバックアップ (Plus)</value></data>
+  <data name="backup.mirror.hint" xml:space="preserve"><value>バックアップのたびに選択したフォルダにもコピーします。OneDrive、Google Drive、Dropboxのフォルダを指定すれば自動で同期されます。HabitGridがログインすることはありません。</value></data>
+  <data name="backup.mirror.choose" xml:space="preserve"><value>フォルダを選択…</value></data>
+  <data name="backup.mirror.off" xml:space="preserve"><value>オフにする</value></data>
+  <data name="backup.mirror.use" xml:space="preserve"><value>フォルダを使用</value></data>
+  <data name="backup.mirror.none" xml:space="preserve"><value>クラウドフォルダが未選択です。</value></data>
+  <data name="backup.mirror.current" xml:space="preserve"><value>クラウドフォルダ: {0}</value></data>
+  <data name="backup.mirror.ok" xml:space="preserve"><value>最新のバックアップを {0} にコピーしました</value></data>
+  <data name="backup.mirror.failed" xml:space="preserve"><value>クラウドフォルダにコピーできませんでした（ドライブ未準備または容量不足）。ローカルバックアップは安全です。</value></data>
+  <data name="backup.mirror.err.empty" xml:space="preserve"><value>フォルダが選択されていません。</value></data>
+  <data name="backup.mirror.err.invalid" xml:space="preserve"><value>そのパスは無効です。</value></data>
+  <data name="backup.mirror.err.same-as-local" xml:space="preserve"><value>ローカルバックアップフォルダとは別のフォルダを選んでください。</value></data>
+  <data name="backup.mirror.err.not-writable" xml:space="preserve"><value>そのフォルダには書き込めません。</value></data>
+  <data name="share.layout.single" xml:space="preserve"><value>1枚の写真</value></data>
+  <data name="share.layout.strip" xml:space="preserve"><value>4枚ストリップ</value></data>
+  <data name="adv.title" xml:space="preserve"><value>高度なインサイト</value></data>
+  <data name="adv.locked.title" xml:space="preserve"><value>データをさらに深く分析</value></data>
+  <data name="adv.unlock" xml:space="preserve"><value>Plusで解除</value></data>
+  <data name="adv.locked.body" xml:space="preserve"><value>今月と先月の比較、一緒に行う習慣の発見、2つの習慣の比較、全習慣の年間カレンダーが見られます。</value></data>
+  <data name="adv.months" xml:space="preserve"><value>今月 vs 先月</value></data>
+  <data name="adv.months.range" xml:space="preserve"><value>{0}–{1} vs {2}–{3}</value></data>
+  <data name="adv.months.overall" xml:space="preserve"><value>達成率: {0}（先月 {1}） {2}</value></data>
+  <data name="adv.months.checkins" xml:space="preserve"><value>チェックイン: {0}（先月 {1}）</value></data>
+  <data name="adv.corr" xml:space="preserve"><value>一緒に行う習慣</value></data>
+  <data name="adv.corr.hint" xml:space="preserve"><value>過去90日間のみ対象（お休み・スキップ日を除外し、十分なデータがある場合のみ表示）。</value></data>
+  <data name="adv.corr.none" xml:space="preserve"><value>まだ明確なペアがありません。あと数週間のデータが必要です。</value></data>
+  <data name="adv.corr.line" xml:space="preserve"><value>「{0}」をした日は「{1}」も達成: {2}%（その他の日は {3}%）。</value></data>
+  <data name="adv.compare" xml:space="preserve"><value>2つの習慣を比較</value></data>
+  <data name="adv.compare.a" xml:space="preserve"><value>習慣 A</value></data>
+  <data name="adv.compare.b" xml:space="preserve"><value>習慣 B</value></data>
+  <data name="adv.compare.need2" xml:space="preserve"><value>比較するには少なくとも2つの習慣が必要です。</value></data>
+  <data name="adv.compare.same" xml:space="preserve"><value>異なる2つの習慣を選んでください。</value></data>
+  <data name="adv.compare.streak" xml:space="preserve"><value>現在の連続記録</value></data>
+  <data name="adv.compare.both" xml:space="preserve"><value>両方達成した日数: {0}日</value></data>
+  <data name="adv.year" xml:space="preserve"><value>年間カレンダー</value></data>
+  <data name="adv.year.hint" xml:space="preserve"><value>各マスが1日です。色が濃いほど、その日の習慣を多く達成しています。</value></data>
+  <data name="settings.accent" xml:space="preserve"><value>カスタムアクセントカラー</value></data>
+  <data name="settings.accent.hint" xml:space="preserve"><value>アプリ全体のボタン、進捗、強調色を変更します (Plus)。背景と文字色はテーマのまま維持されます。</value></data>
+  <data name="settings.accent.hex" xml:space="preserve"><value>Hexカラー</value></data>
+  <data name="settings.accent.default" xml:space="preserve"><value>テーマカラーを使用中。</value></data>
+  <data name="settings.accent.current" xml:space="preserve"><value>{0} を使用中。</value></data>
+  <data name="settings.accent.expired" xml:space="preserve"><value>（適用するにはPlusが必要です。選択は保持されています。）</value></data>
+  <data name="settings.accent.invalid" xml:space="preserve"><value>無効な色です。#RRGGBB 形式で入力してください。</value></data>
+  <data name="settings.accent.pick" xml:space="preserve"><value>色 {0} を選択</value></data>
+  <data name="settings.accent.apply" xml:space="preserve"><value>適用</value></data>
+  <data name="settings.accent.reset" xml:space="preserve"><value>テーマカラーに戻す</value></data>
+  <data name="plus.benefit.backup" xml:space="preserve"><value>OneDrive/Google Drive/Dropboxフォルダへの自動ミラーバックアップ</value></data>
+  <data name="plus.benefit.advanced" xml:space="preserve"><value>高度なインサイト：月間比較、習慣の相関、年間カレンダー</value></data>
+  <data name="plus.benefit.accent" xml:space="preserve"><value>アプリ全体で使えるカスタムアクセントカラー</value></data>
+  <data name="challenge.title" xml:space="preserve"><value>チャレンジ</value></data>
+  <data name="challenge.hint" xml:space="preserve"><value>期限付きのチャレンジを選びましょう。習慣が作成され連続記録としてカウントされます：1日逃すと最初からやり直し（お休み日は対象外）。</value></data>
+  <data name="challenge.length" xml:space="preserve"><value>期間</value></data>
+  <data name="challenge.days" xml:space="preserve"><value>{0}日間</value></data>
+  <data name="challenge.start" xml:space="preserve"><value>開始</value></data>
+  <data name="challenge.badges" xml:space="preserve"><value>獲得バッジ</value></data>
+  <data name="challenge.day" xml:space="preserve"><value>{0}/{1}日目</value></data>
+  <data name="challenge.left" xml:space="preserve"><value>残り{0}日</value></data>
+  <data name="challenge.completed" xml:space="preserve"><value>{0}日チャレンジ達成！</value></data>
+  <data name="challenge.failed" xml:space="preserve"><value>{0}に未達成でした。今日からやり直しますか？</value></data>
+  <data name="challenge.closed" xml:space="preserve"><value>このチャレンジ習慣は削除またはアーカイブされました。</value></data>
+  <data name="challenge.restart" xml:space="preserve"><value>やり直す</value></data>
+  <data name="challenge.dismiss" xml:space="preserve"><value>非表示</value></data>
+  <data name="challenge.unlock" xml:space="preserve"><value>Plusを見る（同時に5チャレンジ）</value></data>
+  <data name="challenge.err.ActiveLimit" xml:space="preserve"><value>無料では同時に1つ、Plusでは最大5つのチャレンジを実行できます。</value></data>
+  <data name="challenge.err.HabitLimit" xml:space="preserve"><value>無料プランの習慣上限に達したため、新しい習慣を作成できません。</value></data>
+  <data name="challenge.err.InvalidDays" xml:space="preserve"><value>期間または名前が無効です。</value></data>
+  <data name="challenge.err.UnknownTemplate" xml:space="preserve"><value>不明なチャレンジです。</value></data>
+  <data name="challenge.err.NotFound" xml:space="preserve"><value>チャレンジが見つかりません。</value></data>
+  <data name="challenge.noSugarDrinks" xml:space="preserve"><value>甘い飲み物なし30日間</value></data>
+  <data name="challenge.noSocialMorning" xml:space="preserve"><value>朝のSNS断ち</value></data>
+  <data name="challenge.noLateSnacks" xml:space="preserve"><value>夜食なし</value></data>
+  <data name="challenge.read10" xml:space="preserve"><value>毎日10ページ読書</value></data>
+  <data name="challenge.walk" xml:space="preserve"><value>毎日6,000歩歩く</value></data>
+  <data name="challenge.water" xml:space="preserve"><value>水を毎日8杯飲む</value></data>
+  <data name="challenge.meditate" xml:space="preserve"><value>毎日10分瞑想する</value></data>
+  <data name="challenge.earlyBed" xml:space="preserve"><value>早寝する</value></data>
+  <data name="challenge.journal" xml:space="preserve"><value>毎晩ジャーナルを書く</value></data>
+  <data name="challenge.stretch" xml:space="preserve"><value>毎朝ストレッチする</value></data>
+  <data name="weekly.title" xml:space="preserve"><value>先週のまとめ</value></data>
+  <data name="weekly.rate" xml:space="preserve"><value>達成率 {0}</value></data>
+  <data name="weekly.checkins" xml:space="preserve"><value>{0}回チェックイン</value></data>
+  <data name="weekly.perfect" xml:space="preserve"><value>パーフェクト {0}日</value></data>
+  <data name="weekly.bestday" xml:space="preserve"><value>ベストデー: {0}</value></data>
+  <data name="weekly.besthabit" xml:space="preserve"><value>注目: {0}</value></data>
+  <data name="weekly.seen" xml:space="preserve"><value>確認</value></data>
+  <data name="weekly.tip.Praise" xml:space="preserve"><value>とても充実した1週間でした。この調子で続けましょう！</value></data>
+  <data name="weekly.tip.FocusWeakest" xml:space="preserve"><value>「{0}」が少しお休み気味でした（{1}%）。今週のテーマにしませんか？</value></data>
+  <data name="weekly.tip.Improving" xml:space="preserve"><value>前の週より良くなっています。続けましょう。</value></data>
+  <data name="weekly.tip.Steady" xml:space="preserve"><value>安定しています。今週集中する習慣を1つ選びましょう。</value></data>
+  <data name="weekly.intent.pick" xml:space="preserve"><value>今週のテーマを選ぶ</value></data>
+  <data name="weekly.intent.title" xml:space="preserve"><value>今週のテーマ</value></data>
+  <data name="weekly.intent.progress" xml:space="preserve"><value>{0}: {1}/{2}</value></data>
+  <data name="weekly.intent.clear" xml:space="preserve"><value>テーマをクリア</value></data>
+  <data name="routine.run.title" xml:space="preserve"><value>タイマー</value></data>
+  <data name="routine.run.hint" xml:space="preserve"><value>各ステップの分数を選びます。時間が来るか「完了」を押すとステップが完了になります。</value></data>
+  <data name="routine.run.minutesFor" xml:space="preserve"><value>{0} の分数</value></data>
+  <data name="routine.run.start" xml:space="preserve"><value>開始</value></data>
+  <data name="routine.run.nothing" xml:space="preserve"><value>今日は残りのステップがありません。</value></data>
+  <data name="routine.run.done" xml:space="preserve"><value>完了</value></data>
+  <data name="routine.run.skip" xml:space="preserve"><value>スキップ</value></data>
+  <data name="routine.run.pause" xml:space="preserve"><value>一時停止</value></data>
+  <data name="routine.run.resume" xml:space="preserve"><value>再開</value></data>
+  <data name="routine.run.stop" xml:space="preserve"><value>停止</value></data>
+  <data name="routine.run.remaining" xml:space="preserve"><value>このステップの残り時間</value></data>
+  <data name="routine.run.step" xml:space="preserve"><value>ステップ {0}/{1}</value></data>
+  <data name="routine.run.total" xml:space="preserve"><value>残り約 {0} 分</value></data>
+  <data name="routine.run.finished" xml:space="preserve"><value>ルーティン完了！{0}ステップを記録しました。</value></data>
+  <data name="plus.benefit.routineTimer" xml:space="preserve"><value>タイマー付きルーティンと無制限ルーティン（無料: 2つ）</value></data>
+  <data name="accessory.cap" xml:space="preserve"><value>キャップ</value></data>
+  <data name="accessory.party" xml:space="preserve"><value>パーティーメガネ</value></data>
+  <data name="accessory.grad" xml:space="preserve"><value>卒業帽</value></data>
+  <data name="accessory.crown" xml:space="preserve"><value>王冠</value></data>
+  <data name="accessory.tophat" xml:space="preserve"><value>シルクハット</value></data>
+  <data name="accessory.blossom" xml:space="preserve"><value>桜</value></data>
+  <data name="accessory.shades" xml:space="preserve"><value>サングラス</value></data>
+  <data name="accessory.nerd" xml:space="preserve"><value>メガネ</value></data>
+  <data name="accessory.monocle" xml:space="preserve"><value>片眼鏡</value></data>
+  <data name="accessory.scarf" xml:space="preserve"><value>マフラー</value></data>
+  <data name="accessory.medal" xml:space="preserve"><value>メダル</value></data>
+  <data name="accessory.ribbon" xml:space="preserve"><value>リボン</value></data>
+  <data name="accessory.gem" xml:space="preserve"><value>宝石</value></data>
+  <data name="wardrobe.title" xml:space="preserve"><value>アクセサリー</value></data>
+  <data name="wardrobe.hint" xml:space="preserve"><value>タップして着脱できます。各部位（頭・顔・首）に1つずつ装着できます。</value></data>
+  <data name="wardrobe.slot.Head" xml:space="preserve"><value>頭</value></data>
+  <data name="wardrobe.slot.Face" xml:space="preserve"><value>顔</value></data>
+  <data name="wardrobe.slot.Neck" xml:space="preserve"><value>首</value></data>
+  <data name="wardrobe.unlock.level" xml:space="preserve"><value>レベル {0} に到達</value></data>
+  <data name="wardrobe.unlock.badge" xml:space="preserve"><value>バッジ獲得: {0}</value></data>
+  <data name="wardrobe.unlock.plus" xml:space="preserve"><value>Plus限定</value></data>
+  <data name="wardrobe.worn" xml:space="preserve"><value>着用中</value></data>
+  <data name="wardrobe.locked" xml:space="preserve"><value>未解除</value></data>
+  <data name="plus.benefit.accessories" xml:space="preserve"><value>バディ限定アクセサリー（季節ごとに新作追加）</value></data>
+  <data name="wrapped.title" xml:space="preserve"><value>月間Wrapped</value></data>
+  <data name="wrapped.button" xml:space="preserve"><value>Wrapped</value></data>
+  <data name="wrapped.lastMonth" xml:space="preserve"><value>先月</value></data>
+  <data name="wrapped.thisMonth" xml:space="preserve"><value>今月</value></data>
+  <data name="wrapped.prev" xml:space="preserve"><value>前のスライド</value></data>
+  <data name="wrapped.next" xml:space="preserve"><value>次のスライド</value></data>
+  <data name="wrapped.empty" xml:space="preserve"><value>今月はまだチェックインがありません。</value></data>
+  <data name="wrapped.total.lead" xml:space="preserve"><value>今月の達成回数</value></data>
+  <data name="wrapped.total.unit" xml:space="preserve"><value>チェックイン</value></data>
+  <data name="wrapped.total.days" xml:space="preserve"><value>アクティブ日数 {0}日</value></data>
+  <data name="wrapped.total.delta" xml:space="preserve"><value>先月比 {0}</value></data>
+  <data name="wrapped.top.lead" xml:space="preserve"><value>ナンバーワンの習慣</value></data>
+  <data name="wrapped.top.count" xml:space="preserve"><value>今月 {0} 回</value></data>
+  <data name="wrapped.streak.lead" xml:space="preserve"><value>最長連続記録</value></data>
+  <data name="wrapped.streak.days" xml:space="preserve"><value>{0}日連続</value></data>
+  <data name="wrapped.hour.lead" xml:space="preserve"><value>ゴールデンタイム</value></data>
+  <data name="wrapped.hour.note" xml:space="preserve"><value>この時間帯に最もよくチェックインしています</value></data>
+  <data name="wrapped.perfect.lead" xml:space="preserve"><value>パーフェクトデー</value></data>
+  <data name="wrapped.perfect.unit" xml:space="preserve"><value>すべての習慣を達成した日</value></data>
+  <data name="wrapped.moment.lead" xml:space="preserve"><value>今月のモーメント</value></data>
+  <data name="wrapped.buddy.lead" xml:space="preserve"><value>あなたの相棒</value></data>
+  <data name="wrapped.nodata.TopHabit" xml:space="preserve"><value>まだ目立った習慣がありません。</value></data>
+  <data name="wrapped.nodata.Streak" xml:space="preserve"><value>まだ2日連続記録がありません。来月頑張りましょう！</value></data>
+  <data name="wrapped.nodata.GoldenHour" xml:space="preserve"><value>チェックイン時刻のデータが不足しています。</value></data>
+  <data name="wrapped.locked" xml:space="preserve"><value>残りのスライドと画像保存はPlus限定です。</value></data>
+  <data name="wrapped.unlock" xml:space="preserve"><value>Plusで解除</value></data>
+  <data name="plus.benefit.wrapped" xml:space="preserve"><value>月間Wrapped：6枚のストーリースライド、1080x1920画像保存（無料: 1枚目のみ）</value></data>
+  <data name="settings.font" xml:space="preserve"><value>フォント</value></data>
+  <data name="settings.font.hint" xml:space="preserve"><value>アプリ全体のフォントを変更します (Plus)。次回起動時から適用されます。</value></data>
+  <data name="settings.font.default" xml:space="preserve"><value>Be Vietnam Pro（標準）</value></data>
+  <data name="settings.font.system" xml:space="preserve"><value>システム</value></data>
+  <data name="settings.font.serif" xml:space="preserve"><value>明朝 / Serif</value></data>
+  <data name="settings.font.mono" xml:space="preserve"><value>等幅 / Monospace</value></data>
+  <data name="settings.font.restart" xml:space="preserve"><value>保存しました。新しいフォントを適用するにはHabitGridを再起動してください。</value></data>
+  <data name="wrapped.banner.title" xml:space="preserve"><value>{0} のWrappedが準備できました</value></data>
+  <data name="wrapped.banner.view" xml:space="preserve"><value>見る</value></data>
+  <data name="wrapped.banner.later" xml:space="preserve"><value>あとで</value></data>
+  <data name="season.Spring" xml:space="preserve"><value>春</value></data>
+  <data name="season.Summer" xml:space="preserve"><value>夏</value></data>
+  <data name="season.Autumn" xml:space="preserve"><value>秋</value></data>
+  <data name="season.Winter" xml:space="preserve"><value>冬</value></data>
+  <data name="wardrobe.unlock.season" xml:space="preserve"><value>Plus · {0}の期間に収集（{1}月〜）</value></data>
+  <data name="accessory.tulip" xml:space="preserve"><value>チューリップ</value></data>
+  <data name="accessory.butterfly" xml:space="preserve"><value>ちょうちょ</value></data>
+  <data name="accessory.straw" xml:space="preserve"><value>麦わら帽子</value></data>
+  <data name="accessory.lei" xml:space="preserve"><value>花飾り</value></data>
+  <data name="accessory.maple" xml:space="preserve"><value>もみじ</value></data>
+  <data name="accessory.pumpkin" xml:space="preserve"><value>かぼちゃ</value></data>
+  <data name="accessory.santa" xml:space="preserve"><value>サンタ帽</value></data>
+  <data name="accessory.snowflake" xml:space="preserve"><value>雪の結晶</value></data>
+  <data name="plus.soon" xml:space="preserve"><value>Plusの購入は今後のアップデートで利用可能になります。</value></data>
+  <data name="settings.widgets.limits" xml:space="preserve"><value>無料: グリッド1つ＋今日のリスト。Plus: グリッド最大3つ＋以下のウィジェット。</value></data>
+  <data name="settings.widget.Buddy" xml:space="preserve"><value>バディウィジェット (Plus)</value></data>
+  <data name="settings.widget.Goals" xml:space="preserve"><value>目標ウィジェット (Plus)</value></data>
+  <data name="settings.widget.MultiGrid" xml:space="preserve"><value>マルチグリッド (Plus)</value></data>
+  <data name="plus.benefit.widgets" xml:space="preserve"><value>追加ウィジェット：バディ、目標、マルチグリッド、グリッド最大3つ（無料: 1つ）</value></data>
+  <data name="settings.pin" xml:space="preserve"><value>ウィジェットの固定方法</value></data>
+  <data name="settings.pin.hint" xml:space="preserve"><value>ウィジェットはコンパクトで、ホバーやクリックで展開します。「ウィンドウの下」や「壁紙の上」で表示されない場合は「常に手前」のままにしてください。</value></data>
+  <data name="settings.pin.Top" xml:space="preserve"><value>常に手前（推奨）</value></data>
+  <data name="settings.pin.AboveDesktop" xml:space="preserve"><value>ウィンドウの下（壁紙のすぐ上）</value></data>
+  <data name="settings.pin.Desktop" xml:space="preserve"><value>壁紙の上（従来方式）</value></data>
+  <data name="settings.layout" xml:space="preserve"><value>ウィジェットレイアウト</value></data>
+  <data name="settings.layout.hint" xml:space="preserve"><value>1つのコンパクトウィジェット：ホバーやクリックでバディ、今日のタスク、目標、習慣グリッドを開きます。個別ウィジェットも選べます。</value></data>
+  <data name="settings.layout.Hub" xml:space="preserve"><value>1つのコンパクトウィジェット（推奨）</value></data>
+  <data name="settings.layout.Separate" xml:space="preserve"><value>個別ウィジェット</value></data>
+  <data name="settings.glass" xml:space="preserve"><value>ガラス効果</value></data>
+  <data name="settings.glass.hint" xml:space="preserve"><value>背後のWindows壁紙をぼかす半透明ウィンドウ（Acrylic）。0にすると不透明になります。</value></data>
+  <data name="settings.widgetGlass" xml:space="preserve"><value>Dynamic Island風の代わりにガラスウィジェットを使用 (Windows 11)</value></data>
+  <data name="nav.calendar" xml:space="preserve"><value>カレンダー</value></data>
+  <data name="calendar.title" xml:space="preserve"><value>カレンダー</value></data>
+  <data name="calendar.thisMonth" xml:space="preserve"><value>今月</value></data>
+  <data name="calendar.perfect" xml:space="preserve"><value>パーフェクト {0}日</value></data>
+  <data name="calendar.active" xml:space="preserve"><value>アクティブ {0}日</value></data>
+  <data name="calendar.average" xml:space="preserve"><value>平均 {0}%</value></data>
+  <data name="calendar.dayProgress" xml:space="preserve"><value>{0}/{1} 完了</value></data>
+  <data name="calendar.empty" xml:space="preserve"><value>この日に予定された習慣はありませんでした。</value></data>
+  <data name="calendar.hint" xml:space="preserve"><value>日付を選んで確認または編集できます。</value></data>
+  <data name="calendar.prev" xml:space="preserve"><value>先月</value></data>
+  <data name="calendar.next" xml:space="preserve"><value>来月</value></data>
+  <data name="icon.search" xml:space="preserve"><value>アイコンを検索（例: 走る、水）</value></data>
+  <data name="icon.suggest" xml:space="preserve"><value>おすすめ</value></data>
+  <data name="icon.cat.all" xml:space="preserve"><value>すべて</value></data>
+  <data name="icon.cat.health" xml:space="preserve"><value>健康</value></data>
+  <data name="icon.cat.sport" xml:space="preserve"><value>スポーツ</value></data>
+  <data name="icon.cat.mind" xml:space="preserve"><value>心</value></data>
+  <data name="icon.cat.work" xml:space="preserve"><value>仕事</value></data>
+  <data name="icon.cat.home" xml:space="preserve"><value>生活</value></data>
+  <data name="icon.cat.food" xml:space="preserve"><value>食事</value></data>
+  <data name="icon.cat.money" xml:space="preserve"><value>お金</value></data>
+  <data name="icon.cat.nature" xml:space="preserve"><value>自然</value></data>
+  <data name="icon.cat.fun" xml:space="preserve"><value>趣味</value></data>
+  <data name="icon.cat.social" xml:space="preserve"><value>交流</value></data>
+  <data name="icon.cat.travel" xml:space="preserve"><value>旅行</value></data>
+  <data name="icon.cat.symbols" xml:space="preserve"><value>記号</value></data>
+  <data name="privacy.title" xml:space="preserve"><value>プライバシーとデータ</value></data>
+  <data name="privacy.where" xml:space="preserve"><value>すべてのデータはこのPCのフォルダに保存されます: {0}</value></data>
+  <data name="privacy.nosend" xml:space="preserve"><value>HabitGridはデータを外部に送信しません：アカウントもトラッキングもありません。</value></data>
+  <data name="privacy.erase" xml:space="preserve"><value>すべてのデータを削除</value></data>
+  <data name="privacy.erase.title" xml:space="preserve"><value>すべてのデータを削除しますか？</value></data>
+  <data name="privacy.erase.body" xml:space="preserve"><value>このPC上の習慣、履歴、メモ、レベル、バッジ、設定、モーメント写真、バックアップ、ログが完全に削除されます。元に戻せません。クラウドフォルダにコピーしたファイルやピクチャに保存したシェア画像は削除されません。</value></data>
+  <data name="privacy.erase.type" xml:space="preserve"><value>確認のため「{0}」と入力してください。</value></data>
+  <data name="privacy.erase.word" xml:space="preserve"><value>DELETE</value></data>
+  <data name="privacy.erase.confirm" xml:space="preserve"><value>完全に削除</value></data>
+  <data name="privacy.erase.failed" xml:space="preserve"><value>すべてのデータを削除できませんでした。ウィジェットを閉じてから再試行するか、データフォルダを手動で削除してください。</value></data>
+  <data name="privacy.erase.done.title" xml:space="preserve"><value>データを削除しました</value></data>
+  <data name="privacy.erase.done" xml:space="preserve"><value>このPCからデータが削除されました。HabitGridを終了します。次回起動時は初期状態から始まります。</value></data>
+  <data name="dashboard.customize" xml:space="preserve"><value>カスタマイズ</value></data>
+  <data name="dashboard.title" xml:space="preserve"><value>今日のレイアウト</value></data>
+  <data name="dashboard.hint" xml:space="preserve"><value>ブロックの表示・非表示や並び順を変更できます。習慣リストは常に表示されます。</value></data>
+  <data name="dashboard.reset" xml:space="preserve"><value>初期設定に戻す</value></data>
+  <data name="dashboard.up" xml:space="preserve"><value>上へ</value></data>
+  <data name="dashboard.down" xml:space="preserve"><value>下へ</value></data>
+  <data name="dashboard.section.week" xml:space="preserve"><value>週間バー</value></data>
+  <data name="dashboard.section.mood" xml:space="preserve"><value>気分</value></data>
+  <data name="dashboard.section.recap" xml:space="preserve"><value>週間まとめ</value></data>
+  <data name="dashboard.section.routines" xml:space="preserve"><value>ルーティン</value></data>
+  <data name="dashboard.section.challenges" xml:space="preserve"><value>チャレンジ</value></data>
+  <data name="dashboard.section.hero" xml:space="preserve"><value>進捗と連続記録</value></data>
+  <data name="nav.journal" xml:space="preserve"><value>ジャーナル</value></data>
+  <data name="journal.title" xml:space="preserve"><value>ジャーナル</value></data>
+  <data name="journal.today" xml:space="preserve"><value>今日</value></data>
+  <data name="journal.prev" xml:space="preserve"><value>前の日</value></data>
+  <data name="journal.next" xml:space="preserve"><value>次の日</value></data>
+  <data name="journal.search" xml:space="preserve"><value>ジャーナルを検索 (Enter)</value></data>
+  <data name="journal.empty" xml:space="preserve"><value>まだ記録がありません。右側に今日の出来事を数行書いてみましょう。</value></data>
+  <data name="journal.noResults" xml:space="preserve"><value>一致する記録がありません。</value></data>
+  <data name="journal.placeholder" xml:space="preserve"><value>今日はどんな1日でしたか？自分へのメモを残しましょう。記録はこのPCに保存されます。</value></data>
+  <data name="journal.saving" xml:space="preserve"><value>保存中…</value></data>
+  <data name="journal.saved" xml:space="preserve"><value>保存済み</value></data>
+  <data name="journal.failed" xml:space="preserve"><value>保存できませんでした</value></data>
+  <data name="nav.focus" xml:space="preserve"><value>フォーカス</value></data>
+  <data name="focus.title" xml:space="preserve"><value>フォーカス</value></data>
+  <data name="focus.start" xml:space="preserve"><value>開始</value></data>
+  <data name="focus.pause" xml:space="preserve"><value>一時停止</value></data>
+  <data name="focus.resume" xml:space="preserve"><value>再開</value></data>
+  <data name="focus.skipBreak" xml:space="preserve"><value>休憩をスキップ</value></data>
+  <data name="focus.stop" xml:space="preserve"><value>終了</value></data>
+  <data name="focus.mode.pomodoro" xml:space="preserve"><value>ポモドーロ</value></data>
+  <data name="focus.mode.countdown" xml:space="preserve"><value>カウントダウン</value></data>
+  <data name="focus.mode.stopwatch" xml:space="preserve"><value>ストップウォッチ</value></data>
+  <data name="focus.minutes" xml:space="preserve"><value>集中時間（分）</value></data>
+  <data name="focus.break" xml:space="preserve"><value>休憩時間（分）</value></data>
+  <data name="focus.habit" xml:space="preserve"><value>習慣（任意）</value></data>
+  <data name="focus.habit.none" xml:space="preserve"><value>習慣なし</value></data>
+  <data name="focus.hint" xml:space="preserve"><value>セッションはバックグラウンドで動作します：アプリを閉じてもウィジェットでタイマーが動き続けます。時間タイプの習慣には自動で分数が加算されます。</value></data>
+  <data name="focus.phase.ready" xml:space="preserve"><value>準備完了</value></data>
+  <data name="focus.phase.work" xml:space="preserve"><value>集中中</value></data>
+  <data name="focus.phase.paused" xml:space="preserve"><value>一時停止中</value></data>
+  <data name="focus.phase.break" xml:space="preserve"><value>休憩中</value></data>
+  <data name="focus.stats" xml:space="preserve"><value>統計</value></data>
+  <data name="focus.today" xml:space="preserve"><value>今日</value></data>
+  <data name="focus.week" xml:space="preserve"><value>今週</value></data>
+  <data name="focus.total" xml:space="preserve"><value>合計</value></data>
+  <data name="focus.recent" xml:space="preserve"><value>最近のセッション</value></data>
+  <data name="focus.none" xml:space="preserve"><value>まだセッションがありません。左側から始めましょう。</value></data>
+  <data name="focus.min" xml:space="preserve"><value>{0} 分</value></data>
+  <data name="focus.hm" xml:space="preserve"><value>{0}時間{1:00}分</value></data>
+  <data name="settings.placement" xml:space="preserve"><value>ウィジェット位置</value></data>
+  <data name="settings.placement.hint" xml:space="preserve"><value>「中央上」はメイン画面の上端中央に小さなピル（Dynamic Island風）を常に手前に固定します。ホバーすると今日の習慣が開きます。</value></data>
+  <data name="settings.placement.KeepPosition" xml:space="preserve"><value>現在の位置を保持</value></data>
+  <data name="settings.placement.TopCenter" xml:space="preserve"><value>中央上</value></data>
+  <data name="settings.restmini" xml:space="preserve"><value>コンパクト表示</value></data>
+  <data name="settings.restmini.full" xml:space="preserve"><value>標準</value></data>
+  <data name="settings.restmini.mini" xml:space="preserve"><value>超コンパクト</value></data>
+  <data name="focus.ambient.title" xml:space="preserve"><value>環境音</value></data>
+  <data name="focus.ambient.hint" xml:space="preserve"><value>集中を助ける合成音をミックスします。アプリを最小化しても再生が続きます。</value></data>
+  <data name="focus.ambient.play" xml:space="preserve"><value>再生</value></data>
+  <data name="focus.ambient.pause" xml:space="preserve"><value>一時停止</value></data>
+  <data name="focus.ambient.White" xml:space="preserve"><value>ホワイトノイズ</value></data>
+  <data name="focus.ambient.Pink" xml:space="preserve"><value>ピンクノイズ</value></data>
+  <data name="focus.ambient.Brown" xml:space="preserve"><value>ブラウンノイズ</value></data>
+  <data name="focus.ambient.Rain" xml:space="preserve"><value>雨音</value></data>
+  <data name="focus.ambient.Waves" xml:space="preserve"><value>波の音</value></data>
+  <data name="focus.minimize" xml:space="preserve"><value>最小化</value></data>
+  <data name="focus.minimize.hint" xml:space="preserve"><value>アプリを最小化しても、フォーカスセッションはウィジェット（Dynamic Islandピル）で動き続け、環境音も再生され続けます。</value></data>
+  <data name="calendar.summary" xml:space="preserve"><value>今月のまとめ</value></data>
+  <data name="calendar.summary.rate" xml:space="preserve"><value>達成率</value></data>
+  <data name="calendar.summary.perfect" xml:space="preserve"><value>パーフェクトデー</value></data>
+  <data name="calendar.summary.active" xml:space="preserve"><value>アクティブ日数</value></data>
+  <data name="journal.tool.bullet" xml:space="preserve"><value>箇条書き</value></data>
+  <data name="journal.tool.todo" xml:space="preserve"><value>To-do</value></data>
+  <data name="journal.tool.time" xml:space="preserve"><value>時刻</value></data>
+  <data name="journal.tool.grateful" xml:space="preserve"><value>感謝</value></data>
+  <data name="journal.tool.grateful.text" xml:space="preserve"><value>今日感謝していること</value></data>
+  <data name="journal.mood.title" xml:space="preserve"><value>気分（過去30日）</value></data>
+  <data name="journal.mood.empty" xml:space="preserve"><value>記録時に気分を選ぶとここにグラフが表示されます。</value></data>
+  <data name="journal.mood.summary" xml:space="preserve"><value>気分を記録した日 {0}日 · 平均 {1}/5</value></data>
+  <data name="journal.mood.from" xml:space="preserve"><value>30日前</value></data>
+  <data name="journal.moments.title" xml:space="preserve"><value>今日のモーメント</value></data>
+  <data name="journal.moments.empty" xml:space="preserve"><value>この日のモーメント写真はまだありません。</value></data>
+  <data name="today.quickFocus.title" xml:space="preserve"><value>クイックフォーカス</value></data>
+  <data name="today.quickFocus.hint" xml:space="preserve"><value>25分の集中タイマーをウィジェットで開始します。</value></data>
+  <data name="today.quickFocus.start" xml:space="preserve"><value>25分開始</value></data>
+  <data name="today.quickFocus.started" xml:space="preserve"><value>開始しました。ウィジェットでタイマーが動いています。</value></data>
+  <data name="today.quickFocus.failed" xml:space="preserve"><value>開始できませんでした。フォーカスページからもう一度お試しください。</value></data>
+  <data name="habits.manage" xml:space="preserve"><value>管理</value></data>
+  <data name="habits.routines.hint" xml:space="preserve"><value>朝や夜のステップリスト。ここで直接チェックできます。</value></data>
+  <data name="habits.routines.empty" xml:space="preserve"><value>まだルーティンがありません。「管理」から習慣をまとめられます。</value></data>
+  <data name="habits.challenges.hint" xml:space="preserve"><value>7日〜100日のチャレンジを実施中。</value></data>
+  <data name="habits.challenges.empty" xml:space="preserve"><value>まだチャレンジがありません。「管理」から始められます。</value></data>
+  <data name="moments.more" xml:space="preserve"><value>ほか +{0} 枚</value></data>
+  <data name="share.layout" xml:space="preserve"><value>レイアウト</value></data>
+  <data name="share.frames" xml:space="preserve"><value>フレーム</value></data>
+  <data name="plus.group.unlimited" xml:space="preserve"><value>無制限</value></data>
+  <data name="plus.group.insights" xml:space="preserve"><value>インサイト &amp; Wrapped</value></data>
+  <data name="plus.group.mochi" xml:space="preserve"><value>Mochiのワードローブ &amp; 外観</value></data>
+  <data name="plus.group.backup" xml:space="preserve"><value>クラウドバックアップ</value></data>
+  <data name="plus.group.widgets" xml:space="preserve"><value>デスクトップウィジェット</value></data>
+  <data name="plus.group.share" xml:space="preserve"><value>モーメント &amp; シェア</value></data>
+  <data name="settings.lang.ja" xml:space="preserve"><value>日本語</value></data>
+  <data name="settings.lang.ko" xml:space="preserve"><value>한국어</value></data>
+</root>

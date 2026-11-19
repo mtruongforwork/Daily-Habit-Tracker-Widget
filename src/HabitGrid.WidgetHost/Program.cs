@@ -44,7 +44,9 @@ public static class Program
         if (args.Any(a => a.StartsWith("--shots=", StringComparison.OrdinalIgnoreCase)))
         {
             // Dựng ảnh cho Store: chọn ngôn ngữ giao diện widget theo --lang (mặc định en).
-            HostText.IsVietnamese = args.Contains("--lang=vi", StringComparer.OrdinalIgnoreCase);
+            var langArg = args.FirstOrDefault(a => a.StartsWith("--lang=", StringComparison.OrdinalIgnoreCase));
+            HostText.SetLanguage(langArg is null ? "en" : langArg["--lang=".Length..]);
+            HostText.LockedForShots = true;
         }
 
         var customDir = Environment.GetEnvironmentVariable(DataDirVariable);
