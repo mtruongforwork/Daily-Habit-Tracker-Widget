@@ -34,11 +34,7 @@ public static class Program
     [STAThread]
     public static int Main(string[] args)
     {
-        if (args.Contains("--package-check", StringComparer.OrdinalIgnoreCase))
-        {
-            return PackageCheck();
-        }
-
+        var packageCheck = args.Contains("--package-check", StringComparer.OrdinalIgnoreCase);
         var explorerTest = args.Contains("--selftest-explorer", StringComparer.OrdinalIgnoreCase);
         var selfTest = explorerTest || args.Contains("--selftest", StringComparer.OrdinalIgnoreCase);
         if (args.Any(a => a.StartsWith("--shots=", StringComparison.OrdinalIgnoreCase)))
@@ -50,10 +46,20 @@ public static class Program
         }
 
         var customDir = Environment.GetEnvironmentVariable(DataDirVariable);
+        if ((selfTest || packageCheck) && string.IsNullOrWhiteSpace(customDir))
+        {
+            Console.Error.WriteLine($"Chế độ kiểm thử bắt buộc đặt {DataDirVariable}.");
+            return 3;
+        }
+
         var dataDir = string.IsNullOrWhiteSpace(customDir)
             ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HabitGrid")
             : Path.GetFullPath(customDir);
         var dbPath = Path.Combine(dataDir, HabitGridV3.FileName);
+        if (packageCheck)
+        {
+            return PackageCheck(dbPath);
+        }
 
         // Một WidgetHost cho mỗi thư mục dữ liệu.
         var key = "HabitGrid.WidgetHost." + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(dataDir)))[..12];
@@ -73,7 +79,7 @@ public static class Program
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         var database = HabitGridV3.Open(dbPath);
         var settings = new AppSettings(new MemorySettings());
-        var controller = new WidgetController(database) { EditMode = () => settings.EditMode, OpenMainApp = OpenMainApp, DataDir = dataDir, DefaultPin = selfTest ? HabitGrid.Core.Domain.Widgets.PinChoice.Desktop : HabitGrid.Core.Domain.Widgets.PinChoice.Top, DefaultLayout = selfTest ? HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Separate : HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Hub };
+        var controller = new WidgetController(database) { EditMode = () => settings.EditMode, OpenMainApp = OpenMainApp, DataDir = dataDir, DefaultPin = selfTest ? HabitGrid.Core.Domain.Widgets.PinChoice.Desktop : HabitGrid.Core.Domain.Widgets.PinChoices.Default, DefaultLayout = selfTest ? HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Separate : HabitGrid.Core.Domain.Widgets.WidgetLayoutMode.Hub };
         var started = false;
         var pendingToasts = new List<ToastArguments>();
 
@@ -173,7 +179,7 @@ public static class Program
     /// CI kiểm tra gói MSIX đã cài: tiến trình này phải có danh tính gói và thấy CHÍNH CSDL mà app chính vừa tạo
     /// (app chính chạy <c>--package-check</c> trước để gieo hai thói quen mẫu). 0 = đạt, 2 = hỏng, 3 = không thấy CSDL.
     /// </summary>
-    private static int PackageCheck()
+    private static int PackageCheck(string path)
     {
         try
         {
@@ -183,9 +189,6 @@ public static class Program
                 return 2;
             }
 
-            var dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "HabitGrid");
-            var path = Path.Combine(dir, HabitGridV3.FileName);
-
             if (!File.Exists(path))
             {
                 return 3;
@@ -194,7 +197,7 @@ public static class Program
             using var database = HabitGridV3.Open(path);
             var habits = new HabitGrid.Data.V3.HabitRepository(database, new HabitGrid.Core.Domain.HlcClock("pkgcheck"), null).GetAllActiveAsync().GetAwaiter().GetResult();
             var found = habits.Count(h => h.Name.StartsWith("PKG-CHECK", StringComparison.Ordinal));
-            File.WriteAllText(Path.Combine(dir, "widgethost-package-check.txt"), $"package={HabitGrid.Core.Services.PackageIdentity.FullName}\nhabits={found}\n");
+            File.WriteAllText(Path.Combine(Path.GetDirectoryName(path)!, "widgethost-package-check.txt"), $"package={HabitGrid.Core.Services.PackageIdentity.FullName}\nhabits={found}\n");
             return found >= 2 ? 0 : 2;
         }
         catch (Exception ex)

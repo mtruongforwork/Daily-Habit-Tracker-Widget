@@ -52,6 +52,10 @@ public sealed partial class PaywallViewModel : ObservableObject
 
     public bool IsPlus => _plus.Status.IsPlus;
 
+    private bool HasStoreEntitlement => IsPlus && _plus.Status.Tier != PlusTier.Promo;
+
+    public bool CanBuy => PurchasesOpen && !HasStoreEntitlement;
+
     public bool PricesAreReference { get; private set; }
 
     [ObservableProperty]
@@ -91,6 +95,7 @@ public sealed partial class PaywallViewModel : ObservableObject
         OnPropertyChanged(nameof(Plans));
         OnPropertyChanged(nameof(StoreAvailable));
         OnPropertyChanged(nameof(PurchasesOpen));
+        OnPropertyChanged(nameof(CanBuy));
     }
 
     /// <summary>Nút "Mua": đường duy nhất trong UI gọi mua hàng.</summary>
@@ -115,6 +120,7 @@ public sealed partial class PaywallViewModel : ObservableObject
                 _ => "plus.msg.failed"
             };
             OnPropertyChanged(nameof(IsPlus));
+            OnPropertyChanged(nameof(CanBuy));
             return outcome;
         }
         finally
@@ -131,8 +137,9 @@ public sealed partial class PaywallViewModel : ObservableObject
         {
             var ok = await _plus.RestoreAsync();
             MessageKey = !ok ? (StoreAvailable ? "plus.msg.network" : "plus.msg.nostore")
-                : _plus.Status.IsPlus ? "plus.msg.restored" : "plus.msg.nothing";
+                : HasStoreEntitlement ? "plus.msg.restored" : "plus.msg.nothing";
             OnPropertyChanged(nameof(IsPlus));
+            OnPropertyChanged(nameof(CanBuy));
             return ok;
         }
         finally

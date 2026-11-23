@@ -102,7 +102,18 @@ public sealed class JournalRepository : IJournalRepository
     private async Task<IReadOnlyList<JournalEntry>> QueryAsync(string where, Action<SqliteCommand> bind, int limit, CancellationToken ct)
     {
         await using var connection = await _database.OpenConnectionAsync();
+        return await QueryAsync(connection, null, where, bind, limit, ct);
+    }
+
+    internal static Task<IReadOnlyList<JournalEntry>> ReadAllAsync(
+        SqliteConnection connection, SqliteTransaction transaction, CancellationToken ct) =>
+        QueryAsync(connection, transaction, "1 = 1", _ => { }, int.MaxValue, ct);
+
+    private static async Task<IReadOnlyList<JournalEntry>> QueryAsync(SqliteConnection connection,
+        SqliteTransaction? transaction, string where, Action<SqliteCommand> bind, int limit, CancellationToken ct)
+    {
         await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
         command.CommandText = $"SELECT {Columns} FROM journal_entries WHERE {where} ORDER BY day DESC LIMIT $limit;";
         bind(command);
         command.Parameters.AddWithValue("$limit", limit == int.MaxValue ? -1 : limit);

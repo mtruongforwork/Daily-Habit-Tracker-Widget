@@ -18,7 +18,7 @@ public sealed class BackupManagerTests : IDisposable
     }
 
     private BackupManager Create(V3Fixture f, int retention = 3) =>
-        new(new SnapshotBackupService(f.Database, f.Clock, f.Habits, f.DayLogs, f.Routines, f.Profile, f.Bus), _directory, retention);
+        new(new SnapshotBackupService(f.Database, f.Clock, f.Bus, includeJournal: false), _directory, retention);
 
     private static DateTime Day(int offset) => new DateTime(2026, 11, 6, 12, 0, 0, DateTimeKind.Utc).AddDays(offset);
 
@@ -84,7 +84,8 @@ public sealed class BackupManagerTests : IDisposable
         await f.Habits.InsertAsync(extra);
         (await f.Habits.GetAllAsync()).Should().HaveCount(2);
 
-        await manager.RestoreAsync(backup.Path, Day(1));
+        // The safety snapshot must never overwrite a manual backup created in the same second.
+        await manager.RestoreAsync(backup.Path, Day(0));
 
         (await f.Habits.GetAllAsync()).Should().ContainSingle().Which.Name.Should().Be("Giữ lại");
         var files = manager.List();

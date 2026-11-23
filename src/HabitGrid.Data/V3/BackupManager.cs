@@ -108,27 +108,18 @@ public sealed class BackupManager
     /// <summary>Khôi phục từ một file: trước khi thay thế, tự sao lưu hiện trạng để người dùng quay lại được nếu chọn nhầm.</summary>
     public async Task<BackupManifest> RestoreAsync(string path, DateTime? nowUtc = null, CancellationToken ct = default)
     {
-        // Đọc manifest trước: file hỏng hoặc từ phiên bản mới hơn thì không đụng vào dữ liệu hiện có.
-        await SnapshotBackupService.ReadManifestAsync(path, ct);
-        await CreateAsync(manual: true, nowUtc ?? DateTime.UtcNow, ct, suffix: "-before-restore");
-        return await _service.RestoreAsync(path, ct);
+        var stamp = (nowUtc ?? DateTime.UtcNow).ToString(Pattern, CultureInfo.InvariantCulture);
+        var name = $"{ManualPrefix}{stamp}-before-restore-{Guid.NewGuid():N}";
+        var safetyPath = System.IO.Path.Combine(_directory, name + SnapshotBackupService.Extension);
+        return await _service.RestoreAsync(path, safetyPath, ct);
     }
 
-    private async Task<BackupFile> CreateAsync(bool manual, DateTime nowUtc, CancellationToken ct, string suffix = "")
+    private async Task<BackupFile> CreateAsync(bool manual, DateTime nowUtc, CancellationToken ct)
     {
         var name = $"{(manual ? ManualPrefix : AutoPrefix)}{nowUtc.ToString(Pattern, CultureInfo.InvariantCulture)}";
         var path = System.IO.Path.Combine(_directory, name + SnapshotBackupService.Extension);
         await _service.ExportAsync(path, ct);
-        await MirrorAsync(path, suffix.Length == 0, ct);
-
-        if (suffix.Length > 0)
-        {
-            // Giữ tên theo mẫu để vẫn liệt kê được; hậu tố chỉ để người dùng thấy đây là bản "trước khi khôi phục".
-            var renamed = System.IO.Path.Combine(_directory, name + suffix + SnapshotBackupService.Extension);
-            File.Move(path, renamed, overwrite: true);
-            return new BackupFile(renamed, nowUtc, new FileInfo(renamed).Length, !manual);
-        }
-
+        await MirrorAsync(path, ct);
         return new BackupFile(path, nowUtc, new FileInfo(path).Length, !manual);
     }
 
@@ -145,9 +136,9 @@ public sealed class BackupManager
     }
 
     /// <summary>Chỉ nhân bản bản sao lưu thường (tay hoặc tự động), không nhân bản bản an toàn "trước khi khôi phục".</summary>
-    private async Task MirrorAsync(string path, bool shouldMirror, CancellationToken ct)
+    private async Task MirrorAsync(string path, CancellationToken ct)
     {
-        if (!shouldMirror || MirrorTarget is null)
+        if (MirrorTarget is null)
         {
             return;
         }

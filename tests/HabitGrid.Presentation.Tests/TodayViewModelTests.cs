@@ -269,16 +269,19 @@ public class TodayViewModelTests
     public async Task Failure_DuringCheckIn_IsReportedNotThrown()
     {
         using var f = new AppFixture();
-        var habit = await f.AddAsync("A");
+        await f.AddAsync("A");
         var vm = f.NewToday();
         await vm.LoadAsync();
         var item = vm.Groups.Single().Items.Single();
 
-        // Xóa hẳn thói quen khỏi DB → ghi DayLog sẽ vi phạm khóa ngoại.
+        // Simulate a write failure after the transaction has read the habit.
         using (var connection = f.Database.OpenConnection())
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = "PRAGMA foreign_keys = ON; DELETE FROM habits;";
+            command.CommandText = """
+                CREATE TRIGGER reject_checkin BEFORE INSERT ON day_logs
+                BEGIN SELECT RAISE(ABORT, 'check-in write failed'); END;
+                """;
             command.ExecuteNonQuery();
         }
 

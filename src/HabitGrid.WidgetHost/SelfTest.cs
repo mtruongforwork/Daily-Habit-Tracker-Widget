@@ -338,11 +338,11 @@ public static class SelfTest
                 }
             }
 
-            hub.MiniRest = true;
+            await controller.SetMiniRestForTestAsync(true);
             await WaitUntil(() => Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniWidth) < 1);
             Require(Math.Abs(hub.Width - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniWidth) < 1 && Math.Abs(hub.Height - HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniHeight) < 1,
                 $"Siêu gọn phải là {HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniWidth}x{HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandMiniHeight}, thực tế {hub.Width}x{hub.Height} (cấp {hub.Level}, nhô lên: {hub.IsPeeking}).");
-            hub.MiniRest = false;
+            await controller.SetMiniRestForTestAsync(false);
             await WaitUntil(() => hub.Width > HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandDoneWidth - 1);
             Require(hub.Width > HabitGrid.Core.Domain.Widgets.WidgetLayout.IslandDoneWidth - 1, $"Tắt siêu gọn mà viên thuốc vẫn nhỏ ({hub.Width}).");
 

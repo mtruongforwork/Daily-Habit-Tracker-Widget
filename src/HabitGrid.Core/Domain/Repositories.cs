@@ -84,6 +84,9 @@ public interface IDayLogRepository
     Task UpsertAsync(DayLog log, CancellationToken ct = default);
 
     Task DeleteAsync(Guid habitId, DateOnly day, CancellationToken ct = default);
+
+    /// <summary>Read and update the current log atomically. Return the current instance to leave it unchanged, or null to delete.</summary>
+    Task<DayLog?> UpdateAsync(Guid habitId, DateOnly day, Func<Habit, DayLog?, DayLog?> update, CancellationToken ct = default);
 }
 
 public interface IRoutineRepository

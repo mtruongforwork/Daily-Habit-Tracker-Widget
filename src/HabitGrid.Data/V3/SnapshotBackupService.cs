@@ -53,86 +53,93 @@ public sealed class SnapshotBackupService
 
     private readonly HabitGridDatabase _database;
     private readonly IHlcClock _clock;
-    private readonly IHabitRepository _habits;
-    private readonly IDayLogRepository _dayLogs;
-    private readonly IRoutineRepository _routines;
-    private readonly IProfileRepository _profile;
     private readonly IDataChangeBus? _bus;
-    private readonly HabitGrid.Core.Domain.Journal.IJournalRepository? _journal;
+    private readonly bool _includeJournal;
 
-    public SnapshotBackupService(
-        HabitGridDatabase database,
-        IHlcClock clock,
-        IHabitRepository habits,
-        IDayLogRepository dayLogs,
-        IRoutineRepository routines,
-        IProfileRepository profile,
-        IDataChangeBus? bus = null,
-        HabitGrid.Core.Domain.Journal.IJournalRepository? journal = null)
+    public SnapshotBackupService(HabitGridDatabase database, IHlcClock clock,
+        IDataChangeBus? bus = null, bool includeJournal = true)
     {
-        _journal = journal;
         _database = database ?? throw new ArgumentNullException(nameof(database));
         _clock = clock ?? throw new ArgumentNullException(nameof(clock));
-        _habits = habits ?? throw new ArgumentNullException(nameof(habits));
-        _dayLogs = dayLogs ?? throw new ArgumentNullException(nameof(dayLogs));
-        _routines = routines ?? throw new ArgumentNullException(nameof(routines));
-        _profile = profile ?? throw new ArgumentNullException(nameof(profile));
         _bus = bus;
+        _includeJournal = includeJournal;
     }
 
     public async Task<BackupManifest> ExportAsync(string path, CancellationToken ct = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
-        var habits = await _habits.GetAllAsync(ct);
-        var logs = new List<DayLog>();
-        foreach (var habit in habits)
+        BackupPayload payload;
+        await using (var connection = await _database.OpenConnectionAsync())
+        await using (var transaction = connection.BeginTransaction(deferred: true))
         {
-            logs.AddRange(await _dayLogs.GetAllForHabitAsync(habit.Id, ct));
+            payload = await ReadPayloadAsync(connection, transaction, ct);
+            await transaction.CommitAsync(ct);
         }
 
-        await using var connection = await _database.OpenConnectionAsync();
-        var habitAreas = await ReadHabitAreasAsync(connection, ct);
-        var quickTodos = await ReadQuickTodosAsync(connection, ct);
-        var customRewards = await ReadCustomRewardsAsync(connection, ct);
-        var redemptions = await ReadRewardRedemptionsAsync(connection, ct);
-        var v4Settings = await ReadV4SettingsAsync(connection, ct);
+        return WriteArchive(path, payload, ct);
+    }
 
-        var payload = new BackupPayload(
-            habits,
-            logs,
-            await _routines.GetAllAsync(ct),
-            await _profile.GetAsync(ct),
-            _journal is null ? [] : await _journal.GetAllAsync(ct),
-            habitAreas,
-            quickTodos,
-            customRewards,
-            redemptions,
-            v4Settings);
+    private async Task<BackupPayload> ReadPayloadAsync(SqliteConnection connection, SqliteTransaction transaction, CancellationToken ct)
+    {
+        var habits = HabitRepository.Query(connection, transaction, "deleted_at IS NULL");
+        var logs = new List<DayLog>();
+        await using (var command = connection.CreateCommand())
+        {
+            command.Transaction = transaction;
+            command.CommandText = $"""
+                SELECT {DayLogRepository.Columns} FROM day_logs
+                WHERE habit_id IN (SELECT id FROM habits WHERE deleted_at IS NULL)
+                ORDER BY day;
+                """;
+            await using var reader = await command.ExecuteReaderAsync(ct);
+            while (await reader.ReadAsync(ct))
+            {
+                logs.Add(DayLogRepository.Read(reader));
+            }
+        }
+
+        return new BackupPayload(habits, logs,
+            await RoutineRepository.ReadAllAsync(connection, transaction, ct),
+            await ProfileRepository.ReadAsync(connection, transaction, ct),
+            _includeJournal ? await JournalRepository.ReadAllAsync(connection, transaction, ct) : [],
+            await ReadHabitAreasAsync(connection, transaction, ct),
+            await ReadQuickTodosAsync(connection, transaction, ct),
+            await ReadCustomRewardsAsync(connection, transaction, ct),
+            await ReadRewardRedemptionsAsync(connection, transaction, ct),
+            await ReadV4SettingsAsync(connection, transaction, ct));
+    }
+
+    private static BackupManifest WriteArchive(string path, BackupPayload payload, CancellationToken ct)
+    {
         var manifest = new BackupManifest(
             MigrationV3Schema.SchemaVersion,
             DateTime.UtcNow,
             "HabitGrid",
-            habits.Count,
-            logs.Count);
+            payload.Habits.Count,
+            payload.DayLogs.Count);
 
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(path))!);
 
         // Ghi ra file tạm rồi đổi tên: backup lỗi giữa chừng không bao giờ thay thế một backup tốt.
-        var temp = path + ".tmp";
-        if (File.Exists(temp))
+        var temp = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+        try
+        {
+            using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write))
+            using (var zip = new ZipArchive(stream, ZipArchiveMode.Create))
+            {
+                WriteEntry(zip, ManifestEntry, manifest);
+                WriteEntry(zip, DataEntry, payload);
+            }
+
+            ct.ThrowIfCancellationRequested();
+            File.Move(temp, path, overwrite: true);
+        }
+        finally
         {
             File.Delete(temp);
         }
 
-        using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write))
-        using (var zip = new ZipArchive(stream, ZipArchiveMode.Create))
-        {
-            WriteEntry(zip, ManifestEntry, manifest);
-            WriteEntry(zip, DataEntry, payload);
-        }
-
-        File.Move(temp, path, overwrite: true);
         return manifest;
     }
 
@@ -147,7 +154,10 @@ public sealed class SnapshotBackupService
     /// Khôi phục theo kiểu THAY THẾ toàn bộ dữ liệu đồng bộ. Mọi bản ghi được đưa vào outbox để lần sync kế tiếp đẩy lại.
     /// Từ chối bản sao lưu từ phiên bản lược đồ mới hơn.
     /// </summary>
-    public async Task<BackupManifest> RestoreAsync(string path, CancellationToken ct = default)
+    public Task<BackupManifest> RestoreAsync(string path, CancellationToken ct = default) =>
+        RestoreAsync(path, null, ct);
+
+    internal async Task<BackupManifest> RestoreAsync(string path, string? safetyPath, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(path);
 
@@ -183,6 +193,13 @@ public sealed class SnapshotBackupService
 
         try
         {
+            // The write transaction also excludes WidgetHost writers between the safety backup and restore.
+            if (safetyPath is not null)
+            {
+                var previous = await ReadPayloadAsync(connection, transaction, ct);
+                WriteArchive(safetyPath, previous, ct);
+            }
+
             foreach (var table in new[]
             {
                 "reward_redemptions", "custom_rewards", "quick_todos",
@@ -275,6 +292,7 @@ public sealed class SnapshotBackupService
                 await InsertV4SettingsAsync(connection, transaction, v4Settings, ct);
             }
 
+            ProfileRepository.Write(connection, transaction, payload.Profile, _clock, ct);
             await transaction.CommitAsync(ct);
         }
         catch
@@ -283,7 +301,6 @@ public sealed class SnapshotBackupService
             throw;
         }
 
-        await _profile.SaveAsync(payload.Profile, ct);
         _bus?.Publish(new DataChange(DataEntity.Everything, string.Empty));
         return manifest;
     }
@@ -411,9 +428,10 @@ public sealed class SnapshotBackupService
         return await JsonSerializer.DeserializeAsync<T>(stream, DomainJson.Options, ct);
     }
 
-    private static async Task<IReadOnlyList<HabitArea>> ReadHabitAreasAsync(SqliteConnection connection, CancellationToken ct)
+    private static async Task<IReadOnlyList<HabitArea>> ReadHabitAreasAsync(SqliteConnection connection, SqliteTransaction transaction, CancellationToken ct)
     {
         await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
         command.CommandText = "SELECT id, name, emoji, color_hex, sort_key FROM habit_areas ORDER BY sort_key, name;";
         await using var reader = await command.ExecuteReaderAsync(ct);
         var list = new List<HabitArea>();
@@ -429,9 +447,10 @@ public sealed class SnapshotBackupService
         return list;
     }
 
-    private static async Task<IReadOnlyList<QuickTodo>> ReadQuickTodosAsync(SqliteConnection connection, CancellationToken ct)
+    private static async Task<IReadOnlyList<QuickTodo>> ReadQuickTodosAsync(SqliteConnection connection, SqliteTransaction transaction, CancellationToken ct)
     {
         await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
         command.CommandText = "SELECT id, title, day, is_done, created_at, completed_at FROM quick_todos ORDER BY day ASC, created_at ASC;";
         await using var reader = await command.ExecuteReaderAsync(ct);
         var list = new List<QuickTodo>();
@@ -448,9 +467,10 @@ public sealed class SnapshotBackupService
         return list;
     }
 
-    private static async Task<IReadOnlyList<CustomReward>> ReadCustomRewardsAsync(SqliteConnection connection, CancellationToken ct)
+    private static async Task<IReadOnlyList<CustomReward>> ReadCustomRewardsAsync(SqliteConnection connection, SqliteTransaction transaction, CancellationToken ct)
     {
         await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
         command.CommandText = "SELECT id, title, emoji, cost_coins, note, created_at FROM custom_rewards ORDER BY cost_coins ASC, created_at ASC;";
         await using var reader = await command.ExecuteReaderAsync(ct);
         var list = new List<CustomReward>();
@@ -467,9 +487,10 @@ public sealed class SnapshotBackupService
         return list;
     }
 
-    private static async Task<IReadOnlyList<RewardRedemption>> ReadRewardRedemptionsAsync(SqliteConnection connection, CancellationToken ct)
+    private static async Task<IReadOnlyList<RewardRedemption>> ReadRewardRedemptionsAsync(SqliteConnection connection, SqliteTransaction transaction, CancellationToken ct)
     {
         await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
         command.CommandText = "SELECT id, reward_id, reward_title, cost_coins, redeemed_at FROM reward_redemptions ORDER BY redeemed_at DESC;";
         await using var reader = await command.ExecuteReaderAsync(ct);
         var list = new List<RewardRedemption>();
@@ -485,9 +506,10 @@ public sealed class SnapshotBackupService
         return list;
     }
 
-    private static async Task<Dictionary<string, string>> ReadV4SettingsAsync(SqliteConnection connection, CancellationToken ct)
+    private static async Task<Dictionary<string, string>> ReadV4SettingsAsync(SqliteConnection connection, SqliteTransaction transaction, CancellationToken ct)
     {
         await using var command = connection.CreateCommand();
+        command.Transaction = transaction;
         command.CommandText = BuildV4SettingsInClause("SELECT key, value FROM settings WHERE key IN");
         AddV4SettingKeyParameters(command);
         await using var reader = await command.ExecuteReaderAsync(ct);

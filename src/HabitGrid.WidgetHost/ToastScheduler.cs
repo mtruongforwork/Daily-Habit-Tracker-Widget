@@ -163,54 +163,36 @@ public sealed class ToastScheduler
         }
     }
 
-    private async Task MarkDoneAsync(Guid id, DateOnly day)
+    private Task MarkDoneAsync(Guid id, DateOnly day) => CheckInAsync(id, day, complete: true);
+
+    private Task AddOneAsync(Guid id, DateOnly day) => CheckInAsync(id, day, complete: false);
+
+    private async Task CheckInAsync(Guid id, DateOnly day, bool complete)
     {
-        if (await _habits.GetByIdAsync(id) is not { DeletedAt: null } habit || habit.Kind == HabitKind.Quit
-            || (await ReadOnlyHabits.LoadAsync(_settings)).Contains(id))
+        if ((await ReadOnlyHabits.LoadAsync(_settings)).Contains(id))
         {
             return;
         }
 
-        var existing = await _logs.GetAsync(id, day);
-
-        if (existing is { Status: DayStatus.Done })
+        await _logs.UpdateAsync(id, day, (habit, existing) =>
         {
-            return;
-        }
+            if (habit.Kind == HabitKind.Quit || day < habit.StartDate ||
+                existing?.Status == DayStatus.Frozen || (complete && existing?.Status == DayStatus.Done))
+            {
+                return existing;
+            }
 
-        await _logs.UpsertAsync(DayLogRules.Normalize(habit, new DayLog
-        {
-            HabitId = id,
-            Day = day,
-            Value = Math.Max(habit.EffectiveTarget, existing?.Value ?? 0),
-            Note = existing?.Note,
-            Mood = existing?.Mood,
-            CheckedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        }));
-    }
-
-    private async Task AddOneAsync(Guid id, DateOnly day)
-    {
-        if (await _habits.GetByIdAsync(id) is not { DeletedAt: null } habit || habit.Kind == HabitKind.Quit
-            || (await ReadOnlyHabits.LoadAsync(_settings)).Contains(id))
-        {
-            return;
-        }
-
-        var existing = await _logs.GetAsync(id, day);
-        var current = existing is { Status: DayStatus.Skipped or DayStatus.Frozen } ? 0 : existing?.Value ?? 0;
-
-        await _logs.UpsertAsync(DayLogRules.Normalize(habit, new DayLog
-        {
-            HabitId = id,
-            Day = day,
-            Value = current + 1,
-            Note = existing?.Note,
-            Mood = existing?.Mood,
-            CheckedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        }));
+            var current = existing?.Value ?? 0;
+            return DayLogRules.Normalize(habit, new DayLog
+            {
+                HabitId = id,
+                Day = day,
+                Value = complete ? Math.Max(habit.EffectiveTarget, current) : current + 1,
+                Note = existing?.Note,
+                Mood = existing?.Mood,
+                CheckedAt = DateTime.UtcNow
+            });
+        });
     }
 
     private async Task<bool> SkipAsync(Guid id, DateOnly day)

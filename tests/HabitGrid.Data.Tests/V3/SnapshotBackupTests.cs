@@ -12,7 +12,7 @@ public sealed class SnapshotBackupTests : IDisposable
     private readonly string _directory = Path.Combine(Path.GetTempPath(), "habitgrid-bak-" + Guid.NewGuid().ToString("N"));
 
     private SnapshotBackupService CreateService(V3Fixture f) =>
-        new(f.Database, f.Clock, f.Habits, f.DayLogs, f.Routines, f.Profile, f.Bus);
+        new(f.Database, f.Clock, f.Bus);
 
     private static async Task SeedAsync(V3Fixture f)
     {
@@ -89,6 +89,34 @@ public sealed class SnapshotBackupTests : IDisposable
         target.Strings("SELECT DISTINCT entity FROM sync_outbox;").Should().Contain(["habit", "dayLog", "routine"]);
         target.Scalar("SELECT COUNT(*) FROM sync_outbox WHERE entity = 'dayLog';").Should().Be(5);
         target.Changes.Should().Contain(c => c.Entity == DataEntity.Everything);
+    }
+
+    [Fact]
+    public async Task Restore_ProfileWriteFails_RollsBackDataAndOutbox()
+    {
+        using var target = new V3Fixture();
+        var habit = V3Fixture.NewHabit("Original");
+        await target.Habits.InsertAsync(habit);
+        await target.Profile.SaveAsync(new UserProfile { DisplayName = "Original profile" });
+        var outbox = target.OutboxCount;
+        target.Changes.Clear();
+        target.Execute("""
+            CREATE TRIGGER reject_profile BEFORE INSERT ON profile
+            BEGIN SELECT RAISE(ABORT, 'profile write failed'); END;
+            """);
+
+        using var source = new V3Fixture();
+        await SeedAsync(source);
+        var path = Path.Combine(_directory, "restore.hgbackup");
+        await CreateService(source).ExportAsync(path);
+
+        await FluentActions.Awaiting(() => CreateService(target).RestoreAsync(path))
+            .Should().ThrowAsync<Microsoft.Data.Sqlite.SqliteException>().WithMessage("*profile write failed*");
+
+        (await target.Habits.GetAllAsync()).Should().ContainSingle().Which.Id.Should().Be(habit.Id);
+        (await target.Profile.GetAsync()).DisplayName.Should().Be("Original profile");
+        target.OutboxCount.Should().Be(outbox);
+        target.Changes.Should().BeEmpty();
     }
 
     [Fact]

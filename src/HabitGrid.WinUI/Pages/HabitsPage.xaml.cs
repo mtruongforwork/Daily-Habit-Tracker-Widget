@@ -176,7 +176,7 @@ public sealed partial class HabitsPage : Page
             var habitRepo = App.Host.Get<IHabitRepository>();
             var habits = await habitRepo.GetAllActiveAsync();
             var logRepo = App.Host.Get<IDayLogRepository>();
-            var checkIn = new CheckInService(habitRepo, logRepo, App.Host.Get<ISettingsStore>());
+            var checkIn = new CheckInService(logRepo, App.Host.Get<ISettingsStore>());
 
             var header = new Grid { ColumnSpacing = 4 };
             header.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });

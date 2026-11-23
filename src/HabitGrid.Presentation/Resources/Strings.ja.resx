@@ -443,7 +443,7 @@
   <data name="settings.momentWidget" xml:space="preserve"><value>モーメントウィジェット (Plus)</value></data>
   <data name="settings.momentWidget.hint" xml:space="preserve"><value>最新のモーメント写真をデスクトップに表示します。クリックすると「先月の今日」が見られます。</value></data>
   <data name="backup.title" xml:space="preserve"><value>バックアップ</value></data>
-  <data name="backup.hint" xml:space="preserve"><value>アプリは毎日自動でPCにバックアップします（最新14件を保持）。手動バックアップや再インストール時の復元も可能です。</value></data>
+  <data name="backup.hint" xml:space="preserve"><value>アプリは毎日自動でPCにバックアップします（最新14件を保持）。バックアップには習慣、チェックイン、ルーティン、プロフィール、日記、エリア、クイックToDo、ごほうび、コインが含まれます。再インストール後に復元できるよう1つ保管してください。フォーカス履歴、モーメントの写真、アプリ設定は含まれません。</value></data>
   <data name="backup.now" xml:space="preserve"><value>今すぐバックアップ</value></data>
   <data name="backup.restore.file" xml:space="preserve"><value>ファイルから復元…</value></data>
   <data name="backup.open" xml:space="preserve"><value>フォルダを開く</value></data>
@@ -456,7 +456,7 @@
   <data name="backup.invalid" xml:space="preserve"><value>このバックアップは使用できません: {0}</value></data>
   <data name="backup.restored" xml:space="preserve"><value>{0}個の習慣と{1}日分の記録を復元しました。</value></data>
   <data name="backup.confirm.title" xml:space="preserve"><value>バックアップから復元しますか？</value></data>
-  <data name="backup.confirm.body" xml:space="preserve"><value>現在のデータはこのバックアップで置き換えられます。復元前に現在の状態も自動保存されるため、いつでも戻せます。</value></data>
+  <data name="backup.confirm.body" xml:space="preserve"><value>習慣、チェックイン、ルーティン、プロフィール、日記、エリア、クイックToDo、ごほうび、コインがファイルのデータで置き換えられます。置き換える前に、HabitGridはこれらの項目をバックアップします。</value></data>
   <data name="vacation.title" xml:space="preserve"><value>お休みモード</value></data>
   <data name="vacation.start" xml:space="preserve"><value>お休みを開始</value></data>
   <data name="vacation.end" xml:space="preserve"><value>早めに終了</value></data>

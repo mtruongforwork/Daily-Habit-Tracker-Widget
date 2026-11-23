@@ -130,7 +130,7 @@ public sealed class RoutineStrip : UserControl
         AutomationProperties.SetName(button, $"{step.Name}, {Ui.T(step.IsDone ? "today.state.done" : "routine.pending")}");
         button.Click += async (_, _) =>
         {
-            await new CheckInService(App.Host.Get<IHabitRepository>(), App.Host.Get<IDayLogRepository>(), App.Host.Get<ISettingsStore>())
+            await new CheckInService(App.Host.Get<IDayLogRepository>(), App.Host.Get<ISettingsStore>())
                 .ToggleAsync(step.HabitId, day);
             Changed?.Invoke(this, EventArgs.Empty);
         };
