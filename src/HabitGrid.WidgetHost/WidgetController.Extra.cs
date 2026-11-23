@@ -23,7 +23,7 @@ public sealed partial class WidgetController
     private readonly DesktopPinningMode? _envPin = DesktopHostService.PinOverride;
 
     /// <summary>Kiểu ghim mặc định khi người dùng chưa chọn (tự kiểm tra trên CI dùng Desktop vì runner có WorkerW thật).</summary>
-    public PinChoice DefaultPin { get; init; } = PinChoice.Top;
+    public PinChoice DefaultPin { get; init; } = PinChoices.Default;
 
     /// <summary>
     /// Đọc kiểu ghim từ cài đặt (<c>widgets.pinmode</c>) và áp dụng. Đổi kiểu thì dựng lại toàn bộ cửa sổ (cửa sổ đã là con của lớp desktop
@@ -35,7 +35,7 @@ public sealed partial class WidgetController
         var choice = stored is null ? DefaultPin : PinChoices.Parse(stored);
 
         // Giữa mép trên (Dynamic Island) phải luôn nằm trên mọi cửa sổ khác, bất kể kiểu ghim đã chọn.
-        if (_placement == WidgetPlacementMode.TopCenter)
+        if (LayoutMode == WidgetLayoutMode.Hub && _placement == WidgetPlacementMode.TopCenter)
         {
             choice = PinChoice.Top;
         }

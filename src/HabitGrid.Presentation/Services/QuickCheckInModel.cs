@@ -39,7 +39,7 @@ public sealed class QuickCheckInModel
         _habits = habits ?? throw new ArgumentNullException(nameof(habits));
         _logs = logs ?? throw new ArgumentNullException(nameof(logs));
         _settings = settings;
-        _checkIn = new CheckInService(habits, logs, settings);
+        _checkIn = new CheckInService(logs, settings);
         _schedule = schedule ?? new ScheduleCalculator();
     }
 
@@ -85,39 +85,8 @@ public sealed class QuickCheckInModel
         _checkIn.ToggleAsync(item.Id, Today, ct);
 
     /// <summary>Tăng/giảm giá trị (loại đếm/thời lượng theo bước 1; có/không: dương = xong, âm = bỏ xong).</summary>
-    public async Task AdjustAsync(QuickItem item, int delta, CancellationToken ct = default)
-    {
-        var habit = item.Habit;
-        var current = item.IsSkipped ? 0 : item.Value;
-
-        var next = habit.Kind == HabitKind.Boolean
-            ? (delta > 0 ? 1 : 0)
-            : Math.Max(0, current + delta);
-
-        if (next == current && !item.IsSkipped)
-        {
-            return;
-        }
-
-        if (next == 0)
-        {
-            await _logs.DeleteAsync(habit.Id, Today, ct);
-            return;
-        }
-
-        var existing = await _logs.GetAsync(habit.Id, Today, ct);
-
-        await _logs.UpsertAsync(DayLogRules.Normalize(habit, new DayLog
-        {
-            HabitId = habit.Id,
-            Day = Today,
-            Value = next,
-            Note = existing?.Note,
-            Mood = existing?.Mood,
-            CheckedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        }), ct);
-    }
+    public Task AdjustAsync(QuickItem item, int delta, CancellationToken ct = default) =>
+        _checkIn.AdjustAsync(item.Id, Today, delta, ct);
 
     /// <summary>Khớp không dấu: "doc" khớp "Đọc sách"; mọi từ của truy vấn phải xuất hiện.</summary>
     public static bool Matches(string name, string? query)

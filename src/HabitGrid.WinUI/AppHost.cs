@@ -213,15 +213,7 @@ public sealed class AppHost : IDisposable
         services.AddSingleton<BackupManager>(sp =>
         {
             var manager = new BackupManager(
-                new SnapshotBackupService(
-                    database,
-                    clock,
-                    sp.GetRequiredService<IHabitRepository>(),
-                    sp.GetRequiredService<IDayLogRepository>(),
-                    sp.GetRequiredService<IRoutineRepository>(),
-                    sp.GetRequiredService<IProfileRepository>(),
-                    bus,
-                    sp.GetRequiredService<HabitGrid.Core.Domain.Journal.IJournalRepository>()),
+                new SnapshotBackupService(database, clock, bus),
                 Path.Combine(AppPaths.DataDir, "backups"));
 
             // P3 (Plus): nhân bản sang thư mục cloud người dùng chọn. Đọc lại mỗi lần nên bật/tắt/đổi thư mục có hiệu lực ngay;

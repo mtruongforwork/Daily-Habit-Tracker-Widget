@@ -101,15 +101,16 @@ public class VacationTests
     }
 
     [Fact]
-    public async Task CheckingInDuringAVacationDay_StillWorks()
+    public async Task QuickCheckInDuringAVacationDay_PreservesFrozenLog()
     {
         using var f = new AppFixture();
         var h = await f.AddAsync("A", startDaysAgo: 30);
         await Create(f).StartAsync(Today, Today.AddDays(2));
 
-        var log = await new CheckInService(f.Habits, f.Logs).ToggleAsync(h.Id, Today);
+        var log = await new CheckInService(f.Logs).ToggleAsync(h.Id, Today);
 
-        log!.Status.Should().Be(DayStatus.Done);
+        log!.Status.Should().Be(DayStatus.Frozen);
+        (await f.Logs.GetAsync(h.Id, Today))!.Status.Should().Be(DayStatus.Frozen);
     }
 
     [Fact]

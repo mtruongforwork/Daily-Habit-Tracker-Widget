@@ -354,5 +354,12 @@ public sealed partial class WidgetController
     {
         await _settings.SetAsync(WidgetLayoutModes.SettingKey, WidgetLayoutModes.ToStored(mode));
         await ApplyLayoutModeAsync(initial: false);
+        await ApplyPinChoiceAsync(initial: false);
+    }
+
+    internal async Task SetMiniRestForTestAsync(bool enabled)
+    {
+        await _settings.SetAsync(MiniRestKey, enabled ? "1" : "0");
+        await ApplyPlacementAsync(initial: false);
     }
 }

@@ -185,7 +185,7 @@ public sealed partial class MainWindow
                 ContentFrame.Navigate(typeof(HabitDetailPage), id);
                 break;
             case PaletteKind.CheckHabit when Guid.TryParse(command.Argument, out var id):
-                await new CheckInService(App.Host.Get<IHabitRepository>(), App.Host.Get<IDayLogRepository>())
+                await new CheckInService(App.Host.Get<IDayLogRepository>(), App.Host.Get<ISettingsStore>())
                     .ToggleAsync(id, App.Host.Get<HabitGrid.Core.Services.IDayProvider>().GetToday());
                 await App.Host.Get<TodayViewModel>().LoadAsync();
                 break;

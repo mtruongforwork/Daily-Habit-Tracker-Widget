@@ -177,7 +177,7 @@ public class PlusServiceTests
         (await ReadOnlyHabits.LoadAsync(f.Settings)).Should().ContainSingle().Which.Should().Be(locked.Id);
 
         // Widget / palette / toast dùng CheckInService.
-        (await new CheckInService(f.Habits, f.Logs, f.Settings).ToggleAsync(locked.Id, AppFixture.Today)).Should().BeNull();
+        (await new CheckInService(f.Logs, f.Settings).ToggleAsync(locked.Id, AppFixture.Today)).Should().BeNull();
         (await f.Logs.GetAsync(locked.Id, AppFixture.Today)).Should().BeNull();
 
         // Quick check-in / Today List không liệt kê.
@@ -268,6 +268,24 @@ public class PaywallTests
         vm.Plans.Single(p => p.Plan == PlusPlan.Yearly).Should().Match<PaywallPlan>(p => p.HasTrial && p.IsBestValue && p.Price == "249.000 ₫");
         vm.PricesAreReference.Should().BeFalse();
         vm.MessageKey.Should().Be("plus.msg.nothing");
+    }
+
+    [Fact]
+    public async Task Promo_AllowsPurchase_AndDoesNotCountAsARestoredStoreLicense()
+    {
+        using var f = new AppFixture();
+        var store = new FakePlusStore();
+        var service = new PlusService(store, new MemoryLicenseCache(), new LiveEntitlements(), f.Settings, f.Habits);
+        var vm = new PaywallViewModel(service, PaywallSource.Settings);
+
+        await service.InitializeAsync();
+        await vm.LoadAsync();
+        await vm.RestoreAsync();
+
+        vm.IsPlus.Should().BeTrue();
+        vm.CanBuy.Should().BeTrue();
+        vm.MessageKey.Should().Be("plus.msg.nothing");
+        store.PurchaseCalls.Should().Be(0);
     }
 
     [Fact]

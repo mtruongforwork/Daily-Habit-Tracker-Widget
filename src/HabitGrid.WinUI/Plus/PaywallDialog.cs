@@ -165,7 +165,7 @@ public static class PaywallDialog
             Style = (Style)Application.Current.Resources["GradientButtonStyle"],
             HorizontalAlignment = HorizontalAlignment.Stretch,
             Margin = new Thickness(0, 6, 0, 0),
-            IsEnabled = vm.PurchasesOpen && !vm.IsPlus
+            IsEnabled = vm.CanBuy
         };
         AutomationProperties.SetName(buy, $"{Ui.T("plus.buy")}: {Ui.T(nameKey)}, {plan.Price}");
 
@@ -183,7 +183,7 @@ public static class PaywallDialog
             }
             else
             {
-                buy.IsEnabled = vm.PurchasesOpen;
+                buy.IsEnabled = vm.CanBuy;
             }
         };
         stack.Children.Add(buy);

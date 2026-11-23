@@ -442,7 +442,7 @@
   <data name="settings.momentWidget" xml:space="preserve"><value>Widget khoảnh khắc (Plus)</value></data>
   <data name="settings.momentWidget.hint" xml:space="preserve"><value>Hiện ảnh khoảnh khắc mới nhất trên desktop; bấm vào để xem "ngày này tháng trước".</value></data>
   <data name="backup.title" xml:space="preserve"><value>Sao lưu</value></data>
-  <data name="backup.hint" xml:space="preserve"><value>App tự sao lưu mỗi ngày (giữ 14 bản gần nhất) trên máy bạn. Bạn cũng có thể sao lưu tay và khôi phục khi cài lại máy.</value></data>
+  <data name="backup.hint" xml:space="preserve"><value>App tự sao lưu mỗi ngày và giữ 14 bản gần nhất trên máy. Bản sao gồm thói quen, check-in, routine, hồ sơ và nhật ký. Hãy giữ một bản để khôi phục sau khi cài lại. Lịch sử Focus, ảnh Khoảnh khắc và cài đặt ứng dụng nằm ngoài bản sao này.</value></data>
   <data name="backup.now" xml:space="preserve"><value>Sao lưu ngay</value></data>
   <data name="backup.restore.file" xml:space="preserve"><value>Khôi phục từ file…</value></data>
   <data name="backup.open" xml:space="preserve"><value>Mở thư mục</value></data>
@@ -455,7 +455,7 @@
   <data name="backup.invalid" xml:space="preserve"><value>File sao lưu không dùng được: {0}</value></data>
   <data name="backup.restored" xml:space="preserve"><value>Đã khôi phục {0} thói quen và {1} ngày ghi nhận.</value></data>
   <data name="backup.confirm.title" xml:space="preserve"><value>Khôi phục từ bản sao lưu?</value></data>
-  <data name="backup.confirm.body" xml:space="preserve"><value>Dữ liệu hiện tại sẽ được thay bằng bản sao lưu này. App tự lưu lại hiện trạng trước khi khôi phục, nên bạn vẫn quay lại được.</value></data>
+  <data name="backup.confirm.body" xml:space="preserve"><value>Thói quen, check-in, routine, hồ sơ và nhật ký sẽ được thay bằng dữ liệu từ file. HabitGrid sao lưu các mục này trước khi thay thế.</value></data>
   <data name="vacation.title" xml:space="preserve"><value>Tạm nghỉ</value></data>
   <data name="vacation.start" xml:space="preserve"><value>Bắt đầu tạm nghỉ</value></data>
   <data name="vacation.end" xml:space="preserve"><value>Kết thúc sớm</value></data>
