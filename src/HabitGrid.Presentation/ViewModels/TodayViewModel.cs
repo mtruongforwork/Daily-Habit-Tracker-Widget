@@ -471,19 +471,20 @@ public sealed partial class TodayViewModel : ObservableObject, IDisposable
             return;
         }
 
-        var newValue = item.Kind switch
-        {
-            HabitKind.Boolean => item.IsDone ? 0 : 1,
-            HabitKind.Count or HabitKind.Dual => item.Value + 1,
-            HabitKind.Duration => item.IsDone ? 0 : item.Target,
-            HabitKind.Quit => item.Value + 1,
-            _ => item.Value
-        };
-
         var wasDone = item.IsDone;
-        await SetValueAsync(item, newValue);
+        await ChangeValueAsync(item, (habit, previous) =>
+        {
+            var current = previous?.Value ?? 0;
+            return habit.Kind switch
+            {
+                HabitKind.Boolean => current > 0 ? 0 : 1,
+                HabitKind.Duration => current >= habit.EffectiveTarget ? 0 : habit.EffectiveTarget,
+                _ => current + 1
+            };
+        }, protectFrozen: true);
 
-        if (!IsViewingPast && !wasDone && item.IsDone)
+        var isDoneNow = _items.TryGetValue(item.Id, out var fresh) ? fresh.IsDone : item.IsDone;
+        if (!IsViewingPast && !wasDone && isDoneNow)
         {
             await EvaluateHabitStackAsync(item.Id);
         }
@@ -534,16 +535,21 @@ public sealed partial class TodayViewModel : ObservableObject, IDisposable
     [RelayCommand]
     public async Task DecrementAsync(HabitTodayItem? item)
     {
-        if (item is null || item.Value <= 0)
+        if (item is null)
         {
             return;
         }
 
-        await SetValueAsync(item, item.Value - 1);
+        await ChangeValueAsync(item,
+            (_, previous) => previous is { Value: > 0 } ? previous.Value - 1 : null,
+            protectFrozen: true);
     }
 
     /// <summary>Đặt giá trị cụ thể cho ngày đang xem.</summary>
-    public async Task SetValueAsync(HabitTodayItem item, int newValue)
+    public Task SetValueAsync(HabitTodayItem item, int newValue) =>
+        ChangeValueAsync(item, (_, _) => newValue, protectFrozen: false);
+
+    private async Task ChangeValueAsync(HabitTodayItem item, Func<Habit, DayLog?, int?> getValue, bool protectFrozen)
     {
         ArgumentNullException.ThrowIfNull(item);
 
@@ -558,39 +564,45 @@ public sealed partial class TodayViewModel : ObservableObject, IDisposable
 
         try
         {
-            var previous = await _logs.GetAsync(item.Id, day);
-
-            // Ngày đã đánh dấu bỏ qua/đóng băng giữ nguyên trạng thái đó khi chưa có giá trị.
-            var keepManualStatus = previous is { Status: DayStatus.Skipped or DayStatus.Frozen } && newValue <= 0;
-
-            var log = DayLogRules.Normalize(item.Habit, new DayLog
+            UndoEntry? undo = null;
+            await _logs.UpdateAsync(item.Id, day, (habit, previous) =>
             {
-                HabitId = item.Id,
-                Day = day,
-                Value = Math.Max(0, newValue),
-                Note = previous?.Note,
-                Mood = previous?.Mood,
-                Status = keepManualStatus ? previous!.Status : DayStatus.None,
-                CheckedAt = newValue > 0 ? DateTime.UtcNow : null
+                if (protectFrozen && previous?.Status == DayStatus.Frozen)
+                {
+                    return previous;
+                }
+
+                if (getValue(habit, previous) is not int newValue)
+                {
+                    return previous;
+                }
+
+                var keepManualStatus = previous is { Status: DayStatus.Skipped or DayStatus.Frozen } && newValue <= 0;
+                var log = DayLogRules.Normalize(habit, new DayLog
+                {
+                    HabitId = item.Id,
+                    Day = day,
+                    Value = Math.Max(0, newValue),
+                    Note = previous?.Note,
+                    Mood = previous?.Mood,
+                    Status = keepManualStatus ? previous!.Status : DayStatus.None,
+                    CheckedAt = newValue > 0 ? DateTime.UtcNow : null
+                });
+
+                var isBlank = log.Value == 0 && log.Note is null && log.Mood is null &&
+                              log.Status is DayStatus.None or DayStatus.Done;
+                if (!isBlank || previous is not null)
+                {
+                    undo = new UndoEntry(item.Id, item.Name, day, previous);
+                }
+
+                return isBlank ? null : log;
             });
 
-            // Về 0 và không có ghi chú/mood thì xóa dòng thay vì lưu một dòng trống.
-            var isBlank = log.Value == 0 && log.Note is null && log.Mood is null &&
-                          log.Status is DayStatus.None or DayStatus.Done;
-
-            if (isBlank)
+            if (undo is not null)
             {
-                if (previous is not null)
-                {
-                    await _logs.DeleteAsync(item.Id, day);
-                }
+                LastAction = undo;
             }
-            else
-            {
-                await _logs.UpsertAsync(log);
-            }
-
-            LastAction = new UndoEntry(item.Id, item.Name, day, previous);
         }
         catch (Exception ex)
         {

@@ -25,12 +25,13 @@ public partial class App : Application
         {
             var arguments = Environment.GetCommandLineArgs();
             var smoke = arguments.Contains("--smoke", StringComparer.OrdinalIgnoreCase);
+            var packageCheck = arguments.Contains("--package-check", StringComparer.OrdinalIgnoreCase);
 
             // Smoke test ghi dữ liệu: từ chối NGAY, trước cả khi dựng host (host có thể tạo/nhập CSDL).
-            if (smoke && !AppPaths.IsCustomDataDir)
+            if ((smoke || packageCheck) && !AppPaths.IsCustomDataDir)
             {
                 // Không log, không hộp thoại: không được tạo bất cứ thứ gì trong thư mục dữ liệu thật.
-                System.Diagnostics.Debug.WriteLine($"--smoke bắt buộc đặt {AppPaths.DataDirVariable}.");
+                System.Diagnostics.Debug.WriteLine($"Chế độ kiểm thử bắt buộc đặt {AppPaths.DataDirVariable}.");
                 Environment.Exit(3);
                 return;
             }
@@ -47,7 +48,7 @@ public partial class App : Application
             Host = await AppHost.CreateAsync(DispatcherQueue.GetForCurrentThread());
 
             // CI kiểm tra gói MSIX đã cài: tạo CSDL ở vị trí mặc định (vùng dữ liệu của gói) và gieo hai thói quen mẫu cho WidgetHost đọc.
-            if (arguments.Contains("--package-check", StringComparer.OrdinalIgnoreCase))
+            if (packageCheck)
             {
                 Environment.Exit(await PackageCheckAsync());
                 return;
@@ -118,6 +119,19 @@ public partial class App : Application
         {
             LogSafe("AppDomain.UnhandledException", e.ExceptionObject as Exception);
             CrashReporting.Record("AppDomain.UnhandledException", e.ExceptionObject as Exception);
+        };
+
+        AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+        {
+            try
+            {
+                var logger = Host is null ? new FileLogger(AppPaths.LogDir) : Host.Get<IAppLogger>();
+                logger.Info($"Process exit (code {Environment.ExitCode})");
+            }
+            catch
+            {
+                // không chặn việc thoát
+            }
         };
 
         TaskScheduler.UnobservedTaskException += (_, e) =>

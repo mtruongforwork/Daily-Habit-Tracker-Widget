@@ -30,7 +30,7 @@ public sealed partial class WidgetController
     /// <summary>Đo một lần và ẩn/hiện widget nếu trạng thái đổi (cũng dùng cho tự kiểm tra).</summary>
     public void CheckFullscreen()
     {
-        var topmost = _appliedPin == PinChoice.Top || _placement == WidgetPlacementMode.TopCenter;
+        var topmost = _appliedPin == PinChoice.Top;
         var changed = _fullscreenGate.Update(topmost && Fullscreen.IsFullscreenAppActive());
 
         // Đang ẩn thì ẩn luôn cả cửa sổ mới dựng lại trong lúc đó.

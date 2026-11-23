@@ -5,7 +5,14 @@ name: MSIX install smoke
 # (4) widget/Quick check-in/làm mới chạy đúng khi đóng gói (SelfTest). Không dùng cho bản phát hành: Store ký gói thật.
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'build/package-store.ps1'
+      - 'Directory.Build.props'
+      - '.github/workflows/msix.yml'
   push:
+    tags: ['v*']
     branches: ['store/**', 'widgets/**']
 
 jobs:
@@ -16,6 +23,10 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.0.x
+
+      - name: Isolate test data
+        shell: pwsh
+        run: '"HABITGRID_DATA_DIR=$(Join-Path $env:RUNNER_TEMP hg-msix)" >> $env:GITHUB_ENV'
 
       - name: Build MSIX (WinUI app + WidgetHost)
         shell: pwsh
@@ -53,7 +64,7 @@ jobs:
             if (-not (Test-Path (Join-Path $aliases $a))) { throw "Alias missing: $a" }
           }
 
-      - name: App creates its database in the package data area (--package-check)
+      - name: Packaged app seeds the isolated database (--package-check)
         shell: pwsh
         run: |
           $alias = Join-Path $env:LOCALAPPDATA 'Microsoft\WindowsApps\habitgrid.exe'
@@ -78,8 +89,7 @@ jobs:
           $p = Start-Process $alias -ArgumentList '--selftest' -PassThru
           if (-not $p.WaitForExit(90000)) { $p.Kill(); throw 'widgets --selftest timed out' }
           Write-Host "selftest exit code: $($p.ExitCode)"
-          $logs = Get-ChildItem (Join-Path $env:LOCALAPPDATA 'Packages') -Recurse -Filter 'widgethost-selftest.log' -ErrorAction SilentlyContinue
-          foreach ($l in $logs) { Write-Host "--- $($l.FullName)"; Get-Content $l.FullName }
+          Get-Content (Join-Path $env:HABITGRID_DATA_DIR 'widgethost-selftest.log') -ErrorAction SilentlyContinue
           exit $p.ExitCode
 
       - name: Collect diagnostics
@@ -88,8 +98,7 @@ jobs:
         run: |
           $out = Join-Path $env:RUNNER_TEMP 'msix-diag'
           New-Item -ItemType Directory -Force -Path $out | Out-Null
-          Get-ChildItem (Join-Path $env:LOCALAPPDATA 'Packages') -Recurse -Include *.log, *.txt -ErrorAction SilentlyContinue |
-            Where-Object { $_.FullName -match 'MTDStudio\.HabitGrid' } |
+          Get-ChildItem $env:HABITGRID_DATA_DIR -Recurse -Include *.log, *.txt -ErrorAction SilentlyContinue |
             ForEach-Object { Copy-Item $_.FullName (Join-Path $out ($_.Name)) -ErrorAction SilentlyContinue }
           Get-AppxPackage -Name 'MTDStudio.HabitGrid' | Format-List * | Out-File (Join-Path $out 'package.txt')
 

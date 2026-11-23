@@ -96,7 +96,7 @@ public class JournalRepositoryTests
     {
         using var f = new V3Fixture();
         var journal = new JournalRepository(f.Database);
-        var service = new SnapshotBackupService(f.Database, f.Clock, f.Habits, f.DayLogs, f.Routines, f.Profile, f.Bus, journal);
+        var service = new SnapshotBackupService(f.Database, f.Clock, f.Bus);
         await journal.UpsertAsync(Entry("2026-11-01", "Nhật ký cần được giữ", 5));
 
         var path = Path.Combine(Path.GetTempPath(), $"hg-journal-{Guid.NewGuid():N}{SnapshotBackupService.Extension}");
@@ -122,7 +122,7 @@ public class JournalRepositoryTests
     {
         using var f = new V3Fixture();
         var journal = new JournalRepository(f.Database);
-        var withoutJournal = new SnapshotBackupService(f.Database, f.Clock, f.Habits, f.DayLogs, f.Routines, f.Profile, f.Bus);
+        var withoutJournal = new SnapshotBackupService(f.Database, f.Clock, f.Bus, includeJournal: false);
         var path = Path.Combine(Path.GetTempPath(), $"hg-nojournal-{Guid.NewGuid():N}{SnapshotBackupService.Extension}");
 
         try
@@ -130,7 +130,7 @@ public class JournalRepositoryTests
             await withoutJournal.ExportAsync(path);
             await journal.UpsertAsync(Entry("2026-11-01", "mới viết"));
 
-            await new SnapshotBackupService(f.Database, f.Clock, f.Habits, f.DayLogs, f.Routines, f.Profile, f.Bus, journal).RestoreAsync(path);
+            await new SnapshotBackupService(f.Database, f.Clock, f.Bus).RestoreAsync(path);
 
             (await journal.GetAllAsync()).Should().BeEmpty("khôi phục thay thế toàn bộ dữ liệu");
         }

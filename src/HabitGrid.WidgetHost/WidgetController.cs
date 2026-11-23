@@ -59,7 +59,7 @@ public sealed partial class WidgetController : IDisposable
         _habits = new HabitRepository(database, clock, bus);
         _logs = new DayLogRepository(database, clock, bus);
         _settings = new SettingsStore(database);
-        _checkIn = new CheckInService(_habits, _logs, _settings);
+        _checkIn = new CheckInService(_logs, _settings);
         _quick = new QuickCheckInModel(_habits, _logs, settings: _settings, quickTodos: new QuickTodoRepository(database, clock, bus));
         _desktop = new DesktopHostService(_screen);
         _watch = database.OpenConnection();
@@ -118,8 +118,8 @@ public sealed partial class WidgetController : IDisposable
         }
 
         await ApplyPlacementAsync(initial: true);
-        await ApplyPinChoiceAsync(initial: true);
         await ApplyLayoutModeAsync(initial: true);
+        await ApplyPinChoiceAsync(initial: true);
         await ApplyGlassAsync(initial: true);
         _today = CurrentDay();
         await _quick.LoadAsync(_today);
@@ -764,7 +764,6 @@ public sealed partial class WidgetController : IDisposable
             {
                 await ApplyAutoStartAsync();
                 await ApplyHotKeysAsync();
-                await ApplyPinChoiceAsync(initial: false);
                 await ApplyLayoutModeAsync(initial: false);
                 await ApplyGlassAsync(initial: false);
                 await SyncMomentWidgetAsync();

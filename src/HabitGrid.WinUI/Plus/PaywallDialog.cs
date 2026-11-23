@@ -207,7 +207,7 @@ public static class PaywallDialog
             HorizontalAlignment = HorizontalAlignment.Stretch,
             HorizontalContentAlignment = HorizontalAlignment.Center,
             Margin = new Thickness(0, 6, 0, 0),
-            IsEnabled = vm.PurchasesOpen && !vm.IsPlus
+            IsEnabled = vm.CanBuy
         };
         AutomationProperties.SetName(buy, $"{Ui.T("plus.buy")}: {Ui.T(nameKey)}, {plan.Price}");
 
@@ -225,7 +225,7 @@ public static class PaywallDialog
             }
             else
             {
-                buy.IsEnabled = vm.PurchasesOpen;
+                buy.IsEnabled = vm.CanBuy;
             }
         };
         var cardGrid = new Grid { RowSpacing = 12 };

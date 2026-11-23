@@ -1,4 +1,5 @@
 using System.Globalization;
+using Microsoft.Data.Sqlite;
 using HabitGrid.Core.Domain;
 using Sql = HabitGrid.Data.Repositories.SqlMapping;
 
@@ -14,9 +15,15 @@ public sealed class RoutineRepository : RepositoryBase, IRoutineRepository
     public async Task<IReadOnlyList<Routine>> GetAllAsync(CancellationToken ct = default)
     {
         await using var connection = await Database.OpenConnectionAsync();
+        return await ReadAllAsync(connection, null, ct);
+    }
+
+    internal static async Task<IReadOnlyList<Routine>> ReadAllAsync(
+        SqliteConnection connection, SqliteTransaction? transaction, CancellationToken ct)
+    {
 
         var members = new Dictionary<Guid, List<Guid>>();
-        await using (var memberCommand = Command(connection, null, """
+        await using (var memberCommand = Command(connection, transaction, """
             SELECT routine_id, id FROM habits
             WHERE routine_id IS NOT NULL AND deleted_at IS NULL
             ORDER BY routine_id, routine_order, sort_key;
@@ -36,7 +43,7 @@ public sealed class RoutineRepository : RepositoryBase, IRoutineRepository
         }
 
         var routines = new List<Routine>();
-        await using var command = Command(connection, null, """
+        await using var command = Command(connection, transaction, """
             SELECT id, name, icon, time_of_day, sort_key FROM routines
             WHERE deleted_at IS NULL ORDER BY sort_key;
             """);
@@ -142,7 +149,13 @@ public sealed class ProfileRepository : RepositoryBase, IProfileRepository
     public async Task<UserProfile> GetAsync(CancellationToken ct = default)
     {
         await using var connection = await Database.OpenConnectionAsync();
-        await using var command = Command(connection, null, "SELECT key, value FROM profile;");
+        return await ReadAsync(connection, null, ct);
+    }
+
+    internal static async Task<UserProfile> ReadAsync(
+        SqliteConnection connection, SqliteTransaction? transaction, CancellationToken ct)
+    {
+        await using var command = Command(connection, transaction, "SELECT key, value FROM profile;");
         await using var reader = await command.ExecuteReaderAsync(ct);
 
         var values = new Dictionary<string, string>();
@@ -170,6 +183,20 @@ public sealed class ProfileRepository : RepositoryBase, IProfileRepository
     {
         ArgumentNullException.ThrowIfNull(profile);
 
+        var changed = await InTransactionAsync((connection, transaction) =>
+            Write(connection, transaction, profile, Clock, ct));
+
+        if (changed > 0)
+        {
+            Publish(DataEntity.Profile, string.Empty);
+        }
+    }
+
+    internal static int Write(SqliteConnection connection, SqliteTransaction transaction,
+        UserProfile profile, IHlcClock clock, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(profile);
+
         var desired = new Dictionary<string, string>
         {
             [DisplayName] = profile.DisplayName,
@@ -181,46 +208,39 @@ public sealed class ProfileRepository : RepositoryBase, IProfileRepository
             [TimeZone] = profile.TimeZoneId
         };
 
-        var changed = await InTransactionAsync((connection, transaction) =>
+        var existing = new Dictionary<string, string>();
+        using (var read = Command(connection, transaction, "SELECT key, value FROM profile;"))
+        using (var reader = read.ExecuteReader())
         {
-            var existing = new Dictionary<string, string>();
-            using (var read = Command(connection, transaction, "SELECT key, value FROM profile;"))
-            using (var reader = read.ExecuteReader())
+            while (reader.Read())
             {
-                while (reader.Read())
-                {
-                    existing[reader.GetString(0)] = reader.GetString(1);
-                }
+                existing[reader.GetString(0)] = reader.GetString(1);
             }
-
-            var count = 0;
-            foreach (var (key, value) in desired)
-            {
-                if (existing.TryGetValue(key, out var current) && current == value)
-                {
-                    continue;
-                }
-
-                var hlc = Clock.Now();
-                using var write = Command(connection, transaction, """
-                    INSERT INTO profile (key, value, hlc) VALUES ($key, $value, $hlc)
-                    ON CONFLICT(key) DO UPDATE SET value = excluded.value, hlc = excluded.hlc;
-                    """);
-                write.Parameters.AddWithValue("$key", key);
-                write.Parameters.AddWithValue("$value", value);
-                write.Parameters.AddWithValue("$hlc", hlc.ToString());
-                write.ExecuteNonQuery();
-
-                Enqueue(connection, transaction, "profile", key, "upsert", new { key, value, version = hlc }, hlc);
-                count++;
-            }
-
-            return count;
-        });
-
-        if (changed > 0)
-        {
-            Publish(DataEntity.Profile, string.Empty);
         }
+
+        var count = 0;
+        foreach (var (key, value) in desired)
+        {
+            if (existing.TryGetValue(key, out var current) && current == value)
+            {
+                continue;
+            }
+
+            ct.ThrowIfCancellationRequested();
+            var hlc = clock.Now();
+            using var write = Command(connection, transaction, """
+                INSERT INTO profile (key, value, hlc) VALUES ($key, $value, $hlc)
+                ON CONFLICT(key) DO UPDATE SET value = excluded.value, hlc = excluded.hlc;
+                """);
+            write.Parameters.AddWithValue("$key", key);
+            write.Parameters.AddWithValue("$value", value);
+            write.Parameters.AddWithValue("$hlc", hlc.ToString());
+            write.ExecuteNonQuery();
+
+            Enqueue(connection, transaction, "profile", key, "upsert", new { key, value, version = hlc }, hlc);
+            count++;
+        }
+
+        return count;
     }
 }

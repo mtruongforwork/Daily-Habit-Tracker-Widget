@@ -443,7 +443,7 @@
   <data name="settings.momentWidget" xml:space="preserve"><value>Moments widget (Plus)</value></data>
   <data name="settings.momentWidget.hint" xml:space="preserve"><value>Shows your latest moment photo on the desktop; click it to see "this day last month".</value></data>
   <data name="backup.title" xml:space="preserve"><value>Backup</value></data>
-  <data name="backup.hint" xml:space="preserve"><value>The app backs up automatically every day (keeping the latest 14) on your PC. You can also back up by hand and restore when you reinstall.</value></data>
+  <data name="backup.hint" xml:space="preserve"><value>The app backs up automatically every day (keeping the latest 14) on your PC. The backup includes habits, check-ins, routines, your profile, journal, areas, quick to-dos, rewards and coins. Keep a copy to restore after reinstalling. Focus history, Moment photos and app settings stay outside this backup.</value></data>
   <data name="backup.now" xml:space="preserve"><value>Back up now</value></data>
   <data name="backup.restore.file" xml:space="preserve"><value>Restore from file…</value></data>
   <data name="backup.open" xml:space="preserve"><value>Open folder</value></data>
@@ -456,7 +456,7 @@
   <data name="backup.invalid" xml:space="preserve"><value>This backup can't be used: {0}</value></data>
   <data name="backup.restored" xml:space="preserve"><value>Restored {0} habits and {1} days of records.</value></data>
   <data name="backup.confirm.title" xml:space="preserve"><value>Restore from backup?</value></data>
-  <data name="backup.confirm.body" xml:space="preserve"><value>Your current data will be replaced by this backup. The app saves your current state first, so you can always go back.</value></data>
+  <data name="backup.confirm.body" xml:space="preserve"><value>This replaces habits, check-ins, routines, your profile, journal, areas, quick to-dos, rewards and coins with data from the file. HabitGrid saves a backup of those items before replacing them.</value></data>
   <data name="vacation.title" xml:space="preserve"><value>Vacation mode</value></data>
   <data name="vacation.start" xml:space="preserve"><value>Start break</value></data>
   <data name="vacation.end" xml:space="preserve"><value>End early</value></data>

@@ -98,7 +98,7 @@ public static class RoutineRunDialog
 
     private static async Task<bool> RunAsync(XamlRoot root, Routine routine, RoutineRunner runner, DateOnly day)
     {
-        var check = new CheckInService(App.Host.Get<IHabitRepository>(), App.Host.Get<IDayLogRepository>(), App.Host.Get<ISettingsStore>());
+        var check = new CheckInService(App.Host.Get<IDayLogRepository>(), App.Host.Get<ISettingsStore>());
         var logs = App.Host.Get<IDayLogRepository>();
         var marked = 0;
         var stepText = new TextBlock { FontSize = 22, TextWrapping = TextWrapping.Wrap };

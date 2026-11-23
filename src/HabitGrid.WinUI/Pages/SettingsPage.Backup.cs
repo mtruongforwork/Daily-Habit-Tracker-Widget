@@ -178,11 +178,17 @@ public sealed partial class SettingsPage
 
                 var manifest = await manager.RestoreAsync(path);
 
-                // Dữ liệu vừa được thay thế: nạp lại các trang đang giữ trạng thái.
-                await App.Host.Get<TodayViewModel>().LoadAsync();
-                await App.Host.Get<HabitsViewModel>().LoadAsync();
                 Show(Ui.Loc.Format("backup.restored", manifest.Habits, manifest.DayLogs));
-                Render();
+                try
+                {
+                    await App.Host.Get<TodayViewModel>().LoadAsync();
+                    await App.Host.Get<HabitsViewModel>().LoadAsync();
+                    Render();
+                }
+                catch (Exception ex)
+                {
+                    App.Host.Get<IAppLogger>().Error("Nạp lại ứng dụng sau khôi phục lỗi", ex);
+                }
             }
             catch (UnsupportedBackupException ex)
             {

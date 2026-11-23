@@ -10,9 +10,10 @@ public class WidgetLayoutTests
         sa.Left < sb.Left + b.Width && sb.Left < sa.Left + a.Width && sa.Top < sb.Top + b.Height && sb.Top < sa.Top + a.Height;
 
     [Theory]
-    [InlineData(null, PinChoice.Top)]
-    [InlineData("", PinChoice.Top)]
-    [InlineData("junk", PinChoice.Top)]
+    [InlineData(null, PinChoice.AboveDesktop)]
+    [InlineData("", PinChoice.AboveDesktop)]
+    [InlineData("junk", PinChoice.AboveDesktop)]
+    [InlineData(" TOP ", PinChoice.Top)]
     [InlineData("above", PinChoice.AboveDesktop)]
     [InlineData(" DESKTOP ", PinChoice.Desktop)]
     public void Pin_ParsesWithASafeDefault(string? stored, PinChoice expected) => PinChoices.Parse(stored).Should().Be(expected);

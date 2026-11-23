@@ -1,6 +1,7 @@
 ﻿param(
     [string]$Configuration = "Release",
-    [string]$Version = "1.1.0.0"
+    [string]$Version = "4.0.0.0",
+    [string]$OutputDirectory
 )
 
 # Đóng gói app WinUI thành MSIX để tải lên Partner Center. Gói chưa ký: Store ký khi phát hành.
@@ -11,11 +12,18 @@ $root = Split-Path -Parent $PSScriptRoot
 $proj = Join-Path $root "src\HabitGrid.WinUI\HabitGrid.WinUI.csproj"
 $widgetsProj = Join-Path $root "src\HabitGrid.WidgetHost\HabitGrid.WidgetHost.csproj"
 $pkgDir = Join-Path $root "src\HabitGrid.Package"
-$out = Join-Path $root "artifacts\store"
+$out = if ($OutputDirectory) { [IO.Path]::GetFullPath($OutputDirectory) } else { Join-Path $root "artifacts\store" }
 $layout = Join-Path $out "layout"
 $msix = Join-Path $out "HabitGrid_${Version}_x64.msix"
 
-if (Test-Path $out) { Remove-Item -Recurse -Force $out }
+if (Test-Path -LiteralPath $layout) {
+    $resolvedLayout = (Resolve-Path -LiteralPath $layout).ProviderPath
+    if ((Split-Path -Parent $resolvedLayout) -ne (Resolve-Path -LiteralPath $out).ProviderPath -or
+        (Get-Item -LiteralPath $layout).Attributes.HasFlag([IO.FileAttributes]::ReparsePoint)) {
+        throw "Thư mục layout không hợp lệ: $resolvedLayout"
+    }
+    Remove-Item -LiteralPath $resolvedLayout -Recurse -Force
+}
 New-Item -ItemType Directory -Force -Path $layout | Out-Null
 
 Write-Host "[1/4] Publish HabitGrid.WinUI (self-contained, win-x64)" -ForegroundColor Yellow

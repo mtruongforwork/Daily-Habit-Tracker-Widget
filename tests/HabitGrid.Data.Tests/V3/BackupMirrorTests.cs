@@ -19,7 +19,7 @@ public sealed class BackupMirrorTests : IDisposable
     }
 
     private BackupManager Create(V3Fixture f, int retention = 3) =>
-        new(new SnapshotBackupService(f.Database, f.Clock, f.Habits, f.DayLogs, f.Routines, f.Profile, f.Bus), Local, retention);
+        new(new SnapshotBackupService(f.Database, f.Clock, f.Bus, includeJournal: false), Local, retention);
 
     private static DateTime Day(int offset) => new DateTime(2026, 11, 6, 12, 0, 0, DateTimeKind.Utc).AddDays(offset);
 

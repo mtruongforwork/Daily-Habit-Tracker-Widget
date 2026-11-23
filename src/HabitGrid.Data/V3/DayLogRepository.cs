@@ -16,15 +16,21 @@ public sealed class DayLogRepository : RepositoryBase, IDayLogRepository
     public async Task<DayLog?> GetAsync(Guid habitId, DateOnly day, CancellationToken ct = default)
     {
         await using var connection = await Database.OpenConnectionAsync();
-        await using var command = Command(
+        ct.ThrowIfCancellationRequested();
+        return Load(connection, null, habitId, day);
+    }
+
+    private static DayLog? Load(SqliteConnection connection, SqliteTransaction? transaction, Guid habitId, DateOnly day)
+    {
+        using var command = Command(
             connection,
-            null,
+            transaction,
             $"SELECT {Columns} FROM day_logs WHERE habit_id = $habit AND day = $day;");
         command.Parameters.AddWithValue("$habit", habitId.ToString("D"));
         command.Parameters.AddWithValue("$day", Sql.ToSqlDate(day));
 
-        await using var reader = await command.ExecuteReaderAsync(ct);
-        return await reader.ReadAsync(ct) ? Read(reader) : null;
+        using var reader = command.ExecuteReader();
+        return reader.Read() ? Read(reader) : null;
     }
 
     public async Task<IReadOnlyList<DayLog>> GetRangeAsync(
@@ -52,59 +58,88 @@ public sealed class DayLogRepository : RepositoryBase, IDayLogRepository
     {
         ArgumentNullException.ThrowIfNull(log);
 
-        var stamped = log with { UpdatedAt = DateTime.UtcNow, Version = Clock.Now() };
-
-        await InTransactionAsync((connection, transaction) =>
-        {
-            using (var command = Command(connection, transaction, $"""
-                INSERT INTO day_logs ({Columns})
-                VALUES ($habit, $day, $value, $status, $note, $mood, $checked_at, $updated_at, $hlc)
-                ON CONFLICT(habit_id, day) DO UPDATE SET
-                    value = excluded.value, status = excluded.status, note = excluded.note, mood = excluded.mood,
-                    checked_at = excluded.checked_at, updated_at = excluded.updated_at, hlc = excluded.hlc;
-                """))
-            {
-                Bind(command, stamped);
-                command.ExecuteNonQuery();
-            }
-
-            Enqueue(connection, transaction, "dayLog", Key(stamped.HabitId, stamped.Day), "upsert", stamped, stamped.Version);
-            return 0;
-        });
-
+        await InTransactionAsync((connection, transaction) => Write(connection, transaction, log));
         Publish(DataEntity.DayLog, Key(log.HabitId, log.Day));
     }
 
     public async Task DeleteAsync(Guid habitId, DateOnly day, CancellationToken ct = default)
     {
-        var hlc = Clock.Now();
-
-        var removed = await InTransactionAsync((connection, transaction) =>
-        {
-            using var command = Command(connection, transaction, "DELETE FROM day_logs WHERE habit_id = $habit AND day = $day;");
-            command.Parameters.AddWithValue("$habit", habitId.ToString("D"));
-            command.Parameters.AddWithValue("$day", Sql.ToSqlDate(day));
-            var rows = command.ExecuteNonQuery();
-
-            if (rows > 0)
-            {
-                Enqueue(
-                    connection,
-                    transaction,
-                    "dayLog",
-                    Key(habitId, day),
-                    "delete",
-                    new { habitId, day, version = hlc },
-                    hlc);
-            }
-
-            return rows;
-        });
-
-        if (removed > 0)
+        var removed = await InTransactionAsync((connection, transaction) => Delete(connection, transaction, habitId, day));
+        if (removed)
         {
             Publish(DataEntity.DayLog, Key(habitId, day));
         }
+    }
+
+    public async Task<DayLog?> UpdateAsync(Guid habitId, DateOnly day,
+        Func<Habit, DayLog?, DayLog?> update, CancellationToken ct = default)
+    {
+        ct.ThrowIfCancellationRequested();
+        var (log, changed) = await InTransactionAsync<(DayLog?, bool)>((connection, transaction) =>
+        {
+            ct.ThrowIfCancellationRequested();
+            var habit = HabitRepository.LoadById(connection, transaction, habitId);
+            if (habit is null || habit.DeletedAt is not null)
+            {
+                return (null, false);
+            }
+
+            var previous = Load(connection, transaction, habitId, day);
+            var next = update(habit, previous);
+            if (ReferenceEquals(previous, next))
+            {
+                return (previous, false);
+            }
+
+            ct.ThrowIfCancellationRequested();
+            if (next is null)
+            {
+                return (null, Delete(connection, transaction, habitId, day));
+            }
+
+            return (Write(connection, transaction, next with { HabitId = habitId, Day = day }), true);
+        });
+
+        if (changed)
+        {
+            Publish(DataEntity.DayLog, Key(habitId, day));
+        }
+
+        return log;
+    }
+
+    private DayLog Write(SqliteConnection connection, SqliteTransaction transaction, DayLog log)
+    {
+        var stamped = log with { UpdatedAt = DateTime.UtcNow, Version = Clock.Now() };
+        using (var command = Command(connection, transaction, $"""
+            INSERT INTO day_logs ({Columns})
+            VALUES ($habit, $day, $value, $status, $note, $mood, $checked_at, $updated_at, $hlc)
+            ON CONFLICT(habit_id, day) DO UPDATE SET
+                value = excluded.value, status = excluded.status, note = excluded.note, mood = excluded.mood,
+                checked_at = excluded.checked_at, updated_at = excluded.updated_at, hlc = excluded.hlc;
+            """))
+        {
+            Bind(command, stamped);
+            command.ExecuteNonQuery();
+        }
+
+        Enqueue(connection, transaction, "dayLog", Key(stamped.HabitId, stamped.Day), "upsert", stamped, stamped.Version);
+        return stamped;
+    }
+
+    private bool Delete(SqliteConnection connection, SqliteTransaction transaction, Guid habitId, DateOnly day)
+    {
+        using var command = Command(connection, transaction, "DELETE FROM day_logs WHERE habit_id = $habit AND day = $day;");
+        command.Parameters.AddWithValue("$habit", habitId.ToString("D"));
+        command.Parameters.AddWithValue("$day", Sql.ToSqlDate(day));
+        if (command.ExecuteNonQuery() == 0)
+        {
+            return false;
+        }
+
+        var hlc = Clock.Now();
+        Enqueue(connection, transaction, "dayLog", Key(habitId, day), "delete", new { habitId, day, version = hlc }, hlc);
+        return true;
     }
 
     internal static string Key(Guid habitId, DateOnly day) => $"{habitId:D}|{Sql.ToSqlDate(day)}";

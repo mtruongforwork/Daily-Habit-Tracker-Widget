@@ -3,7 +3,7 @@
 /// <summary>Kiểu ghim widget lên màn hình (Cài đặt → Widget).</summary>
 public enum PinChoice
 {
-    /// <summary>Luôn nằm trên các cửa sổ khác. Mặc định: chắc chắn hiện hình trên mọi bản Windows (widget nhỏ nên ít phiền).</summary>
+    /// <summary>Luôn nằm trên các cửa sổ khác.</summary>
     Top,
 
     /// <summary>Cửa sổ cấp cao ngay trên lớp desktop, dưới mọi cửa sổ ứng dụng.</summary>
@@ -71,12 +71,13 @@ public static class WidgetLayoutModes
 public static class PinChoices
 {
     public const string SettingKey = "widgets.pinmode";
+    public const PinChoice Default = PinChoice.AboveDesktop;
 
     public static PinChoice Parse(string? stored) => stored?.Trim().ToLowerInvariant() switch
     {
-        "above" => PinChoice.AboveDesktop,
+        "top" => PinChoice.Top,
         "desktop" => PinChoice.Desktop,
-        _ => PinChoice.Top
+        _ => Default
     };
 
     public static string ToStored(PinChoice choice) => choice switch
