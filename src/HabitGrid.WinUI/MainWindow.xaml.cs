@@ -40,7 +40,14 @@ public sealed partial class MainWindow : Window
             Backdrop.SetAnimated(_theme.AnimationsEnabled);
         };
         Activated += (_, e) => Backdrop.SetAnimated(_theme.AnimationsEnabled && e.WindowActivationState != WindowActivationState.Deactivated);
-        Closed += (_, _) => Closing?.Invoke(this, EventArgs.Empty);
+        // Ghi lại mọi lần đóng cửa sổ: app thoát mã 0 mà không có log thì không truy được nguyên nhân (soak 1.1.2).
+        AppWindow.Closing += (_, _) => App.Host.Get<IAppLogger>().Info(
+            $"MainWindow closing (visible={AppWindow.IsVisible}, foreground={GetForegroundWindow() == WindowNative.GetWindowHandle(this)})");
+        Closed += (_, _) =>
+        {
+            App.Host.Get<IAppLogger>().Info("MainWindow closed");
+            Closing?.Invoke(this, EventArgs.Empty);
+        };
     }
 
     public event EventHandler? Closing;
@@ -244,4 +251,7 @@ public sealed partial class MainWindow : Window
 
     [DllImport("user32.dll")]
     private static extern bool SetForegroundWindow(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
 }

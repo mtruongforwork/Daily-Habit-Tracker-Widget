@@ -121,6 +121,19 @@ public partial class App : Application
             CrashReporting.Record("AppDomain.UnhandledException", e.ExceptionObject as Exception);
         };
 
+        AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+        {
+            try
+            {
+                var logger = Host is null ? new FileLogger(AppPaths.LogDir) : Host.Get<IAppLogger>();
+                logger.Info($"Process exit (code {Environment.ExitCode})");
+            }
+            catch
+            {
+                // không chặn việc thoát
+            }
+        };
+
         TaskScheduler.UnobservedTaskException += (_, e) =>
         {
             LogSafe("UnobservedTaskException", e.Exception);
